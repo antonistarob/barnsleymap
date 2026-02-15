@@ -168,9 +168,11 @@
 </header>
 
 <section>
-    <h2>Streets 
-        <button id="addStreetBtn">Add Street</button>
-    </h2>
+<h2 style="display: flex; align-items: center; gap: 10px;">
+    <span>Streets</span>
+    <input type="text" id="streetSearch" placeholder="Search streets..." style="flex:1; padding:5px; border-radius:5px; border:1px solid #555; background-color:#2b2b2b; color:#eee;">
+    <button id="addStreetBtn">Add Street</button>
+</h2>
     <ul id="streetList"></ul>
 </section>
 
@@ -292,6 +294,30 @@ refreshStreetList(); // refresh sorted list
     popupOverlay.style.display = 'none';
 });
 
+// --- LIVE SEARCH ---  <-- Place it here, after streets and refreshStreetList
+const streetSearch = document.getElementById('streetSearch');
+
+streetSearch.addEventListener('input', () => {
+    const query = streetSearch.value.trim().toLowerCase();
+
+    const filteredStreets = streets
+        .filter(name => name.toLowerCase().includes(query))
+        .sort((a,b) => a.localeCompare(b));
+
+    streetList.innerHTML = '';
+
+    filteredStreets.forEach(street => {
+        const li = document.createElement('li');
+        li.textContent = street;
+        li.style.cursor = 'pointer';
+        li.addEventListener('click', () => {
+            const streetParam = encodeURIComponent(street);
+            window.location.href = 'street.html?name=' + streetParam;
+        });
+        streetList.appendChild(li);
+    });
+});
+    
     // --- Map ---
 const map = L.map('map').setView([53.5526, -1.4787], 14);
 
