@@ -3,21 +3,54 @@
 <head>
 <meta charset="utf-8"/>
 <title>Street</title>
-<!-- Esri CSS & JS for embedded map -->
+<!-- Esri CSS & JS -->
 <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
 <script src="https://js.arcgis.com/4.29/"></script>
 
 <style>
-body { font-family: Arial; padding:20px; background:#f5f5f5; }
+body { font-family: Arial; margin:0; padding:0; display:flex; background:#f5f5f5; }
+
+/* Left sidebar */
+#sidebar {
+  width: 250px;
+  background:white;
+  padding:15px;
+  box-shadow:2px 0 5px rgba(0,0,0,0.1);
+  overflow-y:auto;
+  height:100vh;
+}
+
+/* Main content */
+#mainContent {
+  flex-grow:1;
+  padding:20px;
+}
+
+/* Action buttons */
 button { padding:6px 12px; margin:5px; cursor:pointer; }
+
+/* Photos and sections */
 img { max-width:300px; display:block; margin:10px 0; }
 .section { margin-top:30px; background:white; padding:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
 h2,h3,h4 { margin:10px 0; }
 ul { list-style:none; padding:0; }
+
+/* Sidebar list */
+.object-item { margin:6px 0; cursor:default; }
+.object-item span { font-weight:bold; }
 </style>
 </head>
 
 <body>
+
+<!-- LEFT SIDEBAR -->
+<div id="sidebar">
+  <h3>Objects (sorted)</h3>
+  <ul id="sidebarList"></ul>
+</div>
+
+<!-- MAIN CONTENT -->
+<div id="mainContent">
 
 <h2 id="streetName"></h2>
 
@@ -41,11 +74,7 @@ ul { list-style:none; padding:0; }
   <p id="coordsDisplay"></p>
 </div>
 
-<!-- OBJECTS -->
-<div class="section">
-  <h3>Objects on this Street</h3>
-  <ul id="objectList"></ul>
-</div>
+</div> <!-- End mainContent -->
 
 <script>
 // ---------------- GET CURRENT STREET ----------------
@@ -65,14 +94,17 @@ document.getElementById("streetName").innerText = street;
 
 // ---------------- RENDER OBJECTS ----------------
 function renderObjects(){
-  let list = document.getElementById("objectList");
-  list.innerHTML = "";
+  let sidebar = document.getElementById("sidebarList");
+
+  // Sort by number ascending
+  objects.sort((a,b)=>Number(a.number) - Number(b.number));
+
+  sidebar.innerHTML = "";
   objects.forEach(obj=>{
     let li = document.createElement("li");
-    li.innerText = obj.number + " - " + obj.name +
-      " (" + obj.type + ")" +
-      (obj.exists ? "" : " [No longer exists]");
-    list.appendChild(li);
+    li.classList.add("object-item");
+    li.innerHTML = `<span>[${obj.type}]</span> ${obj.name} (#${obj.number})`;
+    sidebar.appendChild(li);
   });
 }
 
@@ -174,7 +206,7 @@ function renderStreetMap(){
       "esri/layers/GraphicsLayer"
     ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer){
 
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- Replace with your secure key
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- Replace with your key
 
       const map = new Map({
         basemap: "arcgis-light-gray"
