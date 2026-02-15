@@ -1,60 +1,153 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8" />
-  <title>Barnsley Historic Photos</title>
+<meta charset="utf-8"/>
+<title>Barnsley Archive</title>
 
-  <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css" />
-  <script src="https://js.arcgis.com/4.29/"></script>
+<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
+<script src="https://js.arcgis.com/4.29/"></script>
 
-  <style>
-    html, body, #viewDiv {
-      padding: 0;
-      margin: 0;
-      height: 100%;
-      width: 100%;
-      font-family: Arial, sans-serif;
-    }
+<style>
+body { font-family: Arial; margin:0; background:#f5f5f5; }
 
-    header {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      background: white;
-      padding: 10px;
-      z-index: 99;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
-    }
+header {
+  background:white;
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
 
-    h1 {
-      margin: 0;
-      font-size: 20px;
-    }
+button { padding:6px 12px; margin:5px; cursor:pointer; }
 
-    #viewDiv {
-      margin-top: 60px;
-      height: calc(100% - 60px);
-    }
-  </style>
+section { padding:20px; }
+
+#slider {
+  background:white;
+  padding:20px;
+  text-align:center;
+  font-size:20px;
+  height:60px;
+}
+
+#viewDiv {
+  height:400px;
+}
+
+ul { list-style:none; padding:0; }
+
+.street-link {
+  cursor:pointer;
+  color:blue;
+}
+</style>
 </head>
 
 <body>
 
 <header>
-  <h1>Barnsley Historic Photos Map</h1>
+  <h2>Barnsley Archive</h2>
+  <div>
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Log In</button>
+  </div>
 </header>
 
-<div id="viewDiv"></div>
+<section>
+  <h3>Most Viewed Photos</h3>
+  <div id="slider"></div>
+</section>
+
+<section>
+  <h3>Map</h3>
+  <div id="viewDiv"></div>
+</section>
+
+<section>
+  <h3>Directory</h3>
+  <p>United Kingdom > England > South Yorkshire > Barnsley</p>
+  <button onclick="addStreet()">Add Street</button>
+
+  <h4>Streets</h4>
+  <ul id="streetList"></ul>
+</section>
 
 <script>
+/* ---------------- LOGIN SYSTEM (Basic Demo) ---------------- */
+
+function signup(){
+  let user = prompt("Enter username:");
+  if(user){
+    localStorage.setItem("user", user);
+    alert("Signed up as " + user);
+  }
+}
+
+function login(){
+  let user = prompt("Enter username:");
+  if(localStorage.getItem("user") === user){
+    alert("Welcome back " + user);
+  } else {
+    alert("User not found.");
+  }
+}
+
+/* ---------------- MOST VIEWED SLIDER ---------------- */
+
+let photos = [
+  "Town Centre 1950",
+  "Market Street 1932",
+  "Old Barnsley Station",
+  "Church Street 1960"
+];
+
+let index = 0;
+function rotatePhotos(){
+  document.getElementById("slider").innerText = photos[index];
+  index = (index + 1) % photos.length;
+}
+setInterval(rotatePhotos, 3000);
+rotatePhotos();
+
+/* ---------------- STREETS SYSTEM ---------------- */
+
+let streets = JSON.parse(localStorage.getItem("streets")) || [];
+
+function renderStreets(){
+  streets.sort();
+  let list = document.getElementById("streetList");
+  list.innerHTML = "";
+  streets.forEach(street=>{
+    let li = document.createElement("li");
+    li.innerHTML = `<span class="street-link" onclick="openStreet('${street}')">${street}</span>`;
+    list.appendChild(li);
+  });
+}
+
+function addStreet(){
+  let name = prompt("Enter street name:");
+  if(name){
+    streets.push(name);
+    localStorage.setItem("streets", JSON.stringify(streets));
+    renderStreets();
+  }
+}
+
+function openStreet(street){
+  localStorage.setItem("currentStreet", street);
+  window.location.href = "street.html";
+}
+
+renderStreets();
+
+/* ---------------- ESRI MAP ---------------- */
+
 require([
   "esri/config",
   "esri/Map",
-  "esri/views/MapView",
-  "esri/Graphic",
-  "esri/layers/GraphicsLayer"
-], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+  "esri/views/MapView"
+], function(esriConfig, Map, MapView) {
 
   esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2";
 
@@ -65,40 +158,9 @@ require([
   const view = new MapView({
     container: "viewDiv",
     map: map,
-    center: [-1.4820, 53.5526], // Barnsley
-    zoom: 14
+    center: [-1.4820, 53.5526],
+    zoom: 13
   });
-
-  const graphicsLayer = new GraphicsLayer();
-  map.add(graphicsLayer);
-
-  const point = {
-    type: "point",
-    longitude: -1.4820,
-    latitude: 53.5526
-  };
-
-  const popupTemplate = {
-    title: "Barnsley Town Centre - Example",
-    content: "This is your first historic photo marker."
-  };
-
-  const markerSymbol = {
-    type: "simple-marker",
-    color: "red",
-    outline: {
-      color: "white",
-      width: 1
-    }
-  };
-
-  const pointGraphic = new Graphic({
-    geometry: point,
-    symbol: markerSymbol,
-    popupTemplate: popupTemplate
-  });
-
-  graphicsLayer.add(pointGraphic);
 });
 </script>
 
