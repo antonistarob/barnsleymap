@@ -137,6 +137,31 @@ img { max-width:300px; display:block; margin:10px 0; }
     </div>
   </div>
 
+  <!-- CREATE OBJECT FORM -->
+<div id="createObjectFormContainer" style="display:none; margin-top:20px;">
+  <h3>Create Object</h3>
+  <form id="createObjectForm">
+    <label>Street Number (required): <input type="text" name="number" required></label><br><br>
+    <label>Name (required): <input type="text" name="name" required></label><br><br>
+    <label>Year Built (optional): <input type="text" name="yearBuilt"></label><br><br>
+    <label>Year Destroyed (optional): <input type="text" name="yearDestroyed"></label><br><br>
+    <label>Description (optional): <textarea name="description" rows="3" cols="30"></textarea></label><br><br>
+    <label>Status (required):
+      <select name="status" required>
+        <option value="">Select status</option>
+        <option value="Exists">Exists</option>
+        <option value="Doesn't Exist">Doesn't Exist</option>
+        <option value="Exists partially">Exists partially</option>
+        <option value="For Demolition">For Demolition</option>
+        <option value="In construction">In construction</option>
+      </select>
+    </label><br><br>
+    <button type="submit">Add Object</button>
+    <button type="button" onclick="hideObjectForm()">Cancel</button>
+  </form>
+</div>
+
+
 </div> <!-- End contentWrapper -->
 
 <script>
@@ -252,17 +277,38 @@ function openMap(){
 
 // ---------------- CREATE OBJECT ----------------
 function createObject(){
-  let number = prompt("Object Number (e.g. 55)");
-  let name = prompt("Object Name (e.g. Building nr 55)");
-  let exists = confirm("Does it still exist?");
-  let type = prompt("Object Type: Building, Post Office, Church, School");
-
-  if(number && name && type){
-    objects.push({number, name, exists, type});
-    localStorage.setItem(street + "_objects", JSON.stringify(objects));
-    renderObjects();
-  }
+  document.getElementById("createObjectFormContainer").style.display = "block";
 }
+
+function hideObjectForm(){
+  document.getElementById("createObjectFormContainer").style.display = "none";
+}
+
+// Handle form submission
+document.getElementById("createObjectForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const form = e.target;
+  const number = form.number.value.trim();
+  const name = form.name.value.trim();
+  const yearBuilt = form.yearBuilt.value.trim();
+  const yearDestroyed = form.yearDestroyed.value.trim();
+  const description = form.description.value.trim();
+  const status = form.status.value;
+
+  if(!number || !name || !status){
+    alert("Please fill out all required fields!");
+    return;
+  }
+
+  // Add new object
+  objects.push({number, name, yearBuilt, yearDestroyed, description, status, type:"Building"});
+  localStorage.setItem(street + "_objects", JSON.stringify(objects));
+  renderObjects();
+
+  // Reset and hide form
+  form.reset();
+  hideObjectForm();
+});
 
 // ---------------- RENDER STREET LOCATION MAP (LEAFLET) ----------------
 function renderStreetMap(){
