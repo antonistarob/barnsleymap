@@ -89,40 +89,39 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 
   <!-- EDIT OBJECT FORM (hidden initially) -->
   <div id="createObjectFormContainer" style="display:none;">
-    <h3>Edit Object</h3>
-    <form id="createObjectForm">
-      <label>Street Number (required): <input type="text" name="number" required></label><br><br>
-      <label>Name (required): <input type="text" name="name" required></label><br><br>
-      <label>Year Built (optional): <input type="text" name="yearBuilt"></label><br><br>
-      <label>Year Destroyed (optional): <input type="text" name="yearDestroyed"></label><br><br>
-      <label>Description (optional): <textarea name="description" rows="3" cols="30"></textarea></label><br><br>
-      <label>Status (required):
-        <select name="status" required>
-          <option value="">Select status</option>
-          <option value="Exists">Exists</option>
-          <option value="Doesn't Exist">Doesn't Exist</option>
-          <option value="Exists partially">Exists partially</option>
-          <option value="For Demolition">For Demolition</option>
-          <option value="In construction">In construction</option>
-        </select>
-      </label><br><br>
-      <label>Building Category (required):
-        <select name="category" required>
-          <option value="">Select category</option>
-          <option value="Townhouse">Townhouse</option>
-          <option value="Terraced house">Terraced House</option>
-          <option value="House">House</option>
-          <option value="Semi-detached house">Semi-Detached House</option>
-          <option value="Building">Building</option>
-          <option value="Palace/Manor">Palace/Manor</option>
-          <option value="Villa">Villa</option>
-          <option value="Warehouse/Hall">Warehouse/Hall</option>
-        </select>
-      </label><br><br>
-      <button type="submit">Save Changes</button>
-      <button type="button" onclick="hideObjectForm()">Cancel</button>
-    </form>
-  </div>
+  <h3 id="formTitle">Edit Object</h3>
+  <form id="createObjectForm">
+    <label>Street Number (required): <input type="text" name="number" required></label><br><br>
+    <label>Name (required): <input type="text" name="name" required></label><br><br>
+    <label>Year Built (optional): <input type="text" name="yearBuilt"></label><br><br>
+    <label>Year Destroyed (optional): <input type="text" name="yearDestroyed"></label><br><br>
+    <label>Description (optional): <textarea name="description" rows="3" cols="30"></textarea></label><br><br>
+    <label>Status (required):
+      <select name="status" required>
+        <option value="">Select status</option>
+        <option value="Exists">Exists</option>
+        <option value="Doesn't Exist">Doesn't Exist</option>
+        <option value="Exists partially">Exists partially</option>
+        <option value="For Demolition">For Demolition</option>
+        <option value="In construction">In construction</option>
+      </select>
+    </label><br><br>
+    <label>Building Category (required):
+      <select name="category" required>
+        <option value="">Select category</option>
+        <option value="townhouse">Townhouse</option>
+        <option value="terraced house">Terraced House</option>
+        <option value="house">House</option>
+        <option value="semi-detached house">Semi-Detached House</option>
+        <option value="building">Building</option>
+        <option value="palace/manor">Palace/Manor</option>
+        <option value="villa">Villa</option>
+        <option value="warehouse/hall">Warehouse/Hall</option>
+      </select>
+    </label><br><br>
+    <button type="submit">Save Changes</button>
+    <button type="button" onclick="hideObjectForm()">Cancel</button>
+  </form>
 </div>
 
 <script>
