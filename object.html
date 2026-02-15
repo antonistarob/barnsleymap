@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8"/>
 <title>Object Details</title>
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <style>
 body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
 header { 
@@ -34,6 +38,8 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 
 #photoList img { max-width:300px; display:block; margin:10px 0; }
 #createObjectFormContainer { margin-top:20px; }
+
+#objectMapDiv { width:100%; height:300px; border-radius:6px; margin-top:10px; }
 </style>
 </head>
 <body>
@@ -54,7 +60,7 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
   <!-- ACTION BUTTONS -->
   <button onclick="addPhoto()">Add Photo</button>
   <button onclick="editObject()">Edit</button>
-  <button onclick="openMap()">Map</button>
+  <button onclick="toggleMap()">Map</button>
   <button onclick="deleteObject()" style="background:#d9534f;color:white;">Delete</button>
 
   <!-- Object fields -->
@@ -68,6 +74,14 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
   <div class="section">
     <h3>Object Photos</h3>
     <div id="photoList"></div>
+  </div>
+
+  <!-- MAP SECTION -->
+  <div class="section" id="mapSection" style="display:none;">
+    <h3>Object Location</h3>
+    <div id="objectMapDiv"></div>
+    <p id="coordsDisplay"></p>
+    <small>Click on the map to set the object's location. Drag the marker to adjust.</small>
   </div>
 
   <!-- EDIT OBJECT FORM (hidden initially) -->
@@ -146,7 +160,6 @@ function addPhoto(){
 
 // ---------------- EDIT OBJECT ----------------
 function editObject(){
-  // show form and prefill
   document.getElementById("createObjectFormContainer").style.display = "block";
   const form = document.getElementById("createObjectForm");
   form.number.value = obj.number || "";
@@ -176,7 +189,6 @@ document.getElementById("createObjectForm").addEventListener("submit", function(
     return;
   }
 
-  // Update object
   obj.number = number;
   obj.name = name;
   obj.yearBuilt = yearBuilt;
@@ -196,19 +208,48 @@ function deleteObject(){
   if(confirm("Are you sure you want to delete this object?")){
     objects.splice(index,1);
     localStorage.setItem(street + "_objects", JSON.stringify(objects));
-    // remove photos
     localStorage.removeItem(street + "_object_" + index + "_photos");
+    localStorage.removeItem(street + "_object_" + index + "_location");
     alert("Object deleted");
     window.location.href = "street.html";
   }
 }
 
-// ---------------- MAP LOCATION ----------------
-function openMap(){
-  // store current object index to know which object to set location for
-  localStorage.setItem("mapObjectIndex", index);
-  window.location.href = "object-map.html"; // you will create a separate map page
+// ---------------- OBJECT MAP ----------------
+let map, marker;
+function toggleMap(){
+  const mapSection = document.getElementById("mapSection");
+  if(mapSection.style.display === "none"){
+    mapSection.style.display = "block";
+
+    const location = JSON.parse(localStorage.getItem(street + "_object_" + index + "_location"));
+
+    map = L.map('objectMapDiv').setView(location ? [location.lat, location.lng] : [53.5526, -1.4820], 17);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    if(location){
+      marker = L.marker([location.lat, location.lng], {draggable:true}).addTo(map)
+               .bindPopup(obj.name)
+               .openPopup();
+    }
+
+    map.on('click', function(e){
+      const latlng = e.latlng;
+      if(marker) marker.setLatLng(latlng);
+      else marker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
+      // save immediately on placement
+      localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
+      alert("Location saved!");
+    });
+
+  } else {
+    mapSection.style.display = "none";
+  }
 }
 </script>
+
 </body>
 </html>
