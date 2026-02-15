@@ -43,11 +43,13 @@ ul { list-style:none; padding:0; }
   padding:4px;
   border-radius:4px;
 }
+
 .object-number {
-  background:#007bff;
-  color:white;
-  font-weight:bold;
+  background: white;          /* changed from blue */
+  color: black;               /* black text */
+  font-weight: normal;        /* no bold needed if you want */
   padding:4px 8px;
+  border: 1px solid #ccc;     /* simple border */
   border-radius:4px;
   margin-right:10px;
   min-width:40px;
@@ -73,7 +75,7 @@ ul { list-style:none; padding:0; }
 
 <!-- LEFT SIDEBAR -->
 <div id="sidebar">
-  <h3>Objects (sorted)</h3>
+  <h3>Objects</h3>
   <ul id="sidebarList"></ul>
 </div>
 
@@ -133,7 +135,7 @@ function renderObjects(){
     li.classList.add("object-item");
 
     li.innerHTML = `
-      <div class="object-number">#${obj.number}</div>
+      <div class="object-number">${obj.number}</div>
       <div class="object-info">
         [${obj.type}] ${obj.name}
       </div>
