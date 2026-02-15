@@ -52,16 +52,15 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 
   <!-- Action Buttons -->
   <button onclick="createObject()">Create Object</button>
-  <button onclick="toggleMap()">Map</button>
 
   <!-- Objects Column -->
   <div id="objectsList"></div>
 
-  <!-- MAP SECTION -->
-  <div class="section" id="mapSection" style="display:none;">
+  <!-- MAP SECTION (ALWAYS SHOWN) -->
+  <div class="section">
     <h3>Street Map</h3>
     <div id="streetMapDiv"></div>
-    <small>Click on the map to place or adjust the street location.</small>
+    <small>Click on the map to place or adjust the street location and see object markers.</small>
   </div>
 </div>
 
@@ -118,41 +117,37 @@ function openObject(idx){
 }
 
 // ---------------- MAP SECTION ----------------
-let map, marker;
-function toggleMap(){
-  const mapSection = document.getElementById("mapSection");
-  if(mapSection.style.display === "none"){
-    mapSection.style.display = "block";
+const savedStreetLocation = JSON.parse(localStorage.getItem(street + "_location"));
 
-    const savedLocation = JSON.parse(localStorage.getItem(street + "_location"));
+const map = L.map('streetMapDiv').setView(
+  savedStreetLocation ? [savedStreetLocation.lat, savedStreetLocation.lng] : [53.5526, -1.4820], 17
+);
 
-    map = L.map('streetMapDiv').setView(savedLocation ? [savedLocation.lat, savedLocation.lng] : [53.5526, -1.4820], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    if(savedLocation){
-      marker = L.marker([savedLocation.lat, savedLocation.lng], {draggable:true}).addTo(map)
-               .bindPopup(street)
-               .openPopup();
-    }
-
-    map.on('click', function(e){
-      const latlng = e.latlng;
-      if(marker) marker.setLatLng(latlng);
-      else marker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(street).openPopup();
-
-      // Save street location
-      localStorage.setItem(street + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
-      alert("Street location saved!");
-    });
-
-  } else {
-    mapSection.style.display = "none";
-  }
+let streetMarker;
+if(savedStreetLocation){
+  streetMarker = L.marker([savedStreetLocation.lat, savedStreetLocation.lng], {draggable:true}).addTo(map)
+               .bindPopup(street).openPopup();
 }
-</script>
 
+// Add object markers
+objects.forEach((obj, idx) => {
+  const loc = JSON.parse(localStorage.getItem(street + "_object_" + idx + "_location"));
+  if(loc){
+    L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(`[${obj.type}] ${obj.name}`);
+  }
+});
+
+// Click to place/adjust street
+map.on('click', function(e){
+  const latlng = e.latlng;
+  if(streetMarker) streetMarker.setLatLng(latlng);
+  else streetMarker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(street).openPopup();
+  localStorage.setItem(street + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
+});
+</script>
 </body>
 </html>
