@@ -4,6 +4,7 @@
 <meta charset="utf-8"/>
 <title>Set Street Location</title>
 
+<!-- Esri CSS and JS -->
 <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
 <script src="https://js.arcgis.com/4.29/"></script>
 
@@ -20,6 +21,7 @@ button {
   left:10px;
   z-index:99;
   padding:8px 12px;
+  cursor:pointer;
 }
 </style>
 </head>
@@ -38,10 +40,16 @@ require([
   "esri/layers/GraphicsLayer"
 ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
 
-  esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2";
+  esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- REPLACE with your secure key
 
+  // Get current street from localStorage
   const street = localStorage.getItem("currentStreet");
+  if(!street){
+    alert("No street selected!");
+    window.location.href = "index.html";
+  }
 
+  // Create the map
   const map = new Map({
     basemap: "arcgis-light-gray"
   });
@@ -49,7 +57,7 @@ require([
   const view = new MapView({
     container: "viewDiv",
     map: map,
-    center: [-1.4820, 53.5526],
+    center: [-1.4820, 53.5526], // Barnsley center
     zoom: 14
   });
 
@@ -58,6 +66,28 @@ require([
 
   let selectedPoint = null;
 
+  // Add existing location marker if street already has one
+  let savedLocation = JSON.parse(localStorage.getItem(street + "_location"));
+  if(savedLocation){
+    selectedPoint = savedLocation;
+    const pointGraphic = new Graphic({
+      geometry: {
+        type: "point",
+        longitude: savedLocation.lng,
+        latitude: savedLocation.lat
+      },
+      symbol: {
+        type: "simple-marker",
+        color: "red",
+        size: "12px"
+      }
+    });
+    graphicsLayer.add(pointGraphic);
+    view.center = [savedLocation.lng, savedLocation.lat];
+    view.zoom = 16;
+  }
+
+  // Click on map to select new location
   view.on("click", function(event){
     graphicsLayer.removeAll();
 
@@ -78,13 +108,14 @@ require([
     graphicsLayer.add(pointGraphic);
   });
 
+  // Save location
   window.saveLocation = function(){
     if(selectedPoint){
       localStorage.setItem(street + "_location", JSON.stringify(selectedPoint));
       alert("Location saved!");
       window.location.href = "street.html";
     } else {
-      alert("Click on the map first.");
+      alert("Click on the map first to set location.");
     }
   }
 
