@@ -3,69 +3,45 @@
 <head>
 <meta charset="utf-8"/>
 <title>Set Street Location</title>
-<!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <style>
-body { font-family: Arial; margin:0; padding:0; }
-#mapDiv { width:100%; height:600px; }
-button { padding:6px 12px; margin:10px; cursor:pointer; }
+body { font-family: Arial; margin:0; padding:20px; }
+#mapDiv { width:100%; height:500px; margin-top:10px; border-radius:6px; }
+button { padding:6px 12px; margin-top:10px; cursor:pointer; }
 </style>
 </head>
-
 <body>
 
 <h2 id="streetName"></h2>
-<p>Click on the map to place the street location.</p>
+<p>Click on the map to set street location.</p>
 <div id="mapDiv"></div>
 <button onclick="saveLocation()">Save Location</button>
 
 <script>
-// ---------------- GET CURRENT STREET ----------------
 let street = localStorage.getItem("currentStreet");
-if(!street){
-  alert("No street selected!");
-  window.location.href = "index.html";
-}
+if(!street){ alert("No street selected"); window.close(); }
 document.getElementById("streetName").innerText = street;
 
-// ---------------- INIT LEAFLET MAP ----------------
-let map = L.map('mapDiv').setView([53.5526, -1.4820], 13); // Barnsley center
+let map = L.map('mapDiv').setView([53.5526,-1.4820],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-// ---------------- PLACE EXISTING MARKER IF ANY ----------------
-let savedLocation = JSON.parse(localStorage.getItem(street + "_location"));
+let saved = JSON.parse(localStorage.getItem(street + "_location"));
 let marker = null;
-if(savedLocation){
-  marker = L.marker([savedLocation.lat, savedLocation.lng]).addTo(map);
-  map.setView([savedLocation.lat, savedLocation.lng], 16);
-}
+if(saved){ marker = L.marker([saved.lat, saved.lng]).addTo(map); map.setView([saved.lat, saved.lng],16); }
 
-// ---------------- ADD MARKER ON CLICK ----------------
 map.on('click', function(e){
   if(marker) map.removeLayer(marker);
-  marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
+  marker = L.marker([e.latlng.lat,e.latlng.lng]).addTo(map);
 });
 
-// ---------------- SAVE LOCATION ----------------
 function saveLocation(){
-  if(!marker){
-    alert("Please click on the map to select a location first.");
-    return;
-  }
-
+  if(!marker){ alert("Click map to place marker"); return; }
   const latlng = marker.getLatLng();
-  const locationData = { lat: latlng.lat, lng: latlng.lng };
-  localStorage.setItem(street + "_location", JSON.stringify(locationData));
-
+  localStorage.setItem(street + "_location", JSON.stringify({lat:latlng.lat,lng:latlng.lng}));
   alert("Location saved!");
-  window.location.href = "street.html";
+  window.close();
 }
 </script>
-
 </body>
 </html>
