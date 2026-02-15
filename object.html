@@ -39,6 +39,7 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 
 #objectMapDiv { width:100%; height:400px; border-radius:6px; margin-top:10px; }
 .section { margin-top:20px; }
+#directory { font-size:0.9em; color:#555; margin-bottom:10px; }
 </style>
 </head>
 <body>
@@ -55,6 +56,7 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 <!-- OBJECT DETAILS -->
 <div class="container" id="objectContainer">
   <h2 id="objectName"></h2>
+  <div id="directory"></div>
 
   <!-- ACTION BUTTONS -->
   <button onclick="addPhoto()">Add Photo</button>
@@ -132,6 +134,10 @@ function renderObjectData(){
   document.getElementById("objectYearDestroyed").innerText = obj.yearDestroyed || "-";
   document.getElementById("objectDescription").innerText = obj.description || "-";
   document.getElementById("objectStatus").innerText = obj.status || "-";
+
+  // Directory line
+  document.getElementById("directory").innerHTML =
+    `United Kingdom &gt; England &gt; South Yorkshire &gt; Barnsley &gt; ${street} <b>${obj.number || '-'}</b>`;
 }
 renderObjectData();
 
@@ -214,7 +220,7 @@ function deleteObject(){
   }
 }
 
-// ---------------- MAP SECTION (street-map style) ----------------
+// ---------------- MAP SECTION ----------------
 let map, marker;
 function toggleMap(){
   const mapSection = document.getElementById("mapSection");
