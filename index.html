@@ -89,3 +89,303 @@ streets.forEach(street=>{
 </script>
 </body>
 </html>
+/workspace/barnsleymap$ /bin/bash -lc sed -n '1,260p' street.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Street Page</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<style>
+body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
+header { background:#f0f0f0; padding:15px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { margin:0; cursor:pointer; }
+header h1:hover { text-decoration:underline; }
+header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
+
+#directory { margin:20px; font-size:0.9em; color:#555; }
+#streetMap { width:100%; height:500px; margin:20px; border-radius:6px; }
+#objectList { list-style:none; padding:0; margin:20px; }
+.number-box { width:40px; display:inline-block; }
+.object-name { cursor:pointer; color:#007bff; }
+.object-name:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 onclick="window.location.href='index.html'">Historical Interactive Map of Barnsley</h1>
+  <div class="auth-buttons">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Log In</button>
+  </div>
+</header>
+
+<div id="directory"></div>
+
+<div>
+  <button onclick="editStreet()">Edit Street</button>
+  <button onclick="editMap()">Edit Map</button>
+  <button onclick="deleteStreet()" style="background:#d9534f;color:white;">Delete Street</button>
+</div>
+
+<h3>Objects</h3>
+<ul id="objectList"></ul>
+<button onclick="createObject()">Create Object</button>
+
+<div id="streetMap"></div>
+
+<script>
+// ---------------- AUTH ----------------
+function signup(){ alert("Sign Up clicked"); }
+function login(){ alert("Log In clicked"); }
+
+// ---------------- STREET ----------------
+let street = localStorage.getItem("currentStreet");
+if(!street){ alert("No street selected"); window.location.href="index.html"; }
+document.getElementById("directory").innerHTML =
+  `United Kingdom > England > South Yorkshire > <span style="cursor:pointer;color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> > <b>${street}</b>`;
+
+// ---------------- OBJECTS ----------------
+let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+function renderObjects(){
+  const listEl = document.getElementById("objectList");
+  listEl.innerHTML="";
+  let objs = objectIDs.map(id=>JSON.parse(localStorage.getItem("object_"+id)));
+  objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true}));
+  objs.forEach(obj=>{
+    let li = document.createElement("li");
+    li.innerHTML = `<span class="number-box">${obj.number}</span>
+                    <span class="object-name" onclick="openObject('${obj.id}')">${obj.name}</span>`;
+    listEl.appendChild(li);
+  });
+}
+renderObjects();
+
+function openObject(id){
+  localStorage.setItem("currentObjectID", id);
+  window.location.href = "object.html";
+}
+
+function createObject(){
+  window.open("object-create.html","Create Object","width=600,height=700");
+}
+
+// ---------------- DELETE STREET ----------------
+function deleteStreet(){
+  if(confirm("Delete this street and all its objects?")){
+    objectIDs.forEach(id=>{
+      localStorage.removeItem("object_"+id);
+      localStorage.removeItem("object_"+id+"_location");
+      localStorage.removeItem("object_"+id+"_photos");
+    });
+    localStorage.removeItem(street + "_objectIDs");
+    let streets = JSON.parse(localStorage.getItem("streets")) || [];
+    streets = streets.filter(s=>s!==street);
+    localStorage.setItem("streets", JSON.stringify(streets));
+    localStorage.removeItem(street+"_location");
+    alert("Street deleted");
+    window.location.href="index.html";
+  }
+}
+
+// ---------------- EDIT STREET ----------------
+function editStreet(){
+  const newName = prompt("Edit street name:", street);
+  if(newName && newName!==street){
+    let streets = JSON.parse(localStorage.getItem("streets")) || [];
+    streets = streets.filter(s=>s!==street);
+    streets.push(newName);
+    localStorage.setItem("streets", JSON.stringify(streets));
+
+    // rename all objects
+    let ids = JSON.parse(localStorage.getItem(street+"_objectIDs")) || [];
+    localStorage.setItem(newName+"_objectIDs", JSON.stringify(ids));
+    localStorage.removeItem(street+"_objectIDs");
+
+    // rename street location
+    let loc = localStorage.getItem(street+"_location");
+    if(loc){
+      localStorage.setItem(newName+"_location", loc);
+      localStorage.removeItem(street+"_location");
+    }
+
+    localStorage.setItem("currentStreet", newName);
+    window.location.reload();
+  }
+}
+
+// ---------------- EDIT MAP ----------------
+function editMap(){
+  const popup = window.open("street-map.html","Edit Map","width=800,height=600");
+  popup.addEventListener("beforeunload", ()=>{ setTimeout(()=>location.reload(),100); });
+}
+
+// ---------------- STREET MAP (objects only) ----------------
+const map = L.map('streetMap').setView([53.5526,-1.4820],17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+
+objectIDs.forEach(id=>{
+  const obj = JSON.parse(localStorage.getItem("object_"+id));
+  const loc = JSON.parse(localStorage.getItem("object_"+id+"_location"));
+  if(loc){
+    const icon = L.icon({iconUrl: "icons/default.png",iconSize:[32,32],iconAnchor:[16,32],popupAnchor:[0,-32]});
+    const marker = L.marker([loc.lat,loc.lng],{icon:icon,draggable:true}).addTo(map);
+    marker.on('click', ()=>openObject(id));
+    marker.on('dragend', ()=>localStorage.setItem("object_"+id+"_location", JSON.stringify(marker.getLatLng())));
+  }
+});
+</script>
+</body>
+</html>
+/workspace/barnsleymap$ /bin/bash -lc sed -n '1,280p' street-map.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Street Page</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<style>
+body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
+header { background:#f0f0f0; padding:15px; display:flex; justify-content:space-between; align-items:center; }
+header h1 { margin:0; cursor:pointer; }
+header h1:hover { text-decoration:underline; }
+header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
+
+#directory { margin:20px; font-size:0.9em; color:#555; }
+#streetMap { width:100%; height:500px; margin:20px; border-radius:6px; }
+#objectList { list-style:none; padding:0; margin:20px; }
+.number-box { width:40px; display:inline-block; }
+.object-name { cursor:pointer; color:#007bff; }
+.object-name:hover { text-decoration:underline; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1 onclick="window.location.href='index.html'">Historical Interactive Map of Barnsley</h1>
+  <div class="auth-buttons">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Log In</button>
+  </div>
+</header>
+
+<div id="directory"></div>
+
+<div>
+  <button onclick="editStreet()">Edit Street</button>
+  <button onclick="editMap()">Edit Map</button>
+  <button onclick="deleteStreet()" style="background:#d9534f;color:white;">Delete Street</button>
+</div>
+
+<h3>Objects</h3>
+<ul id="objectList"></ul>
+<button onclick="createObject()">Create Object</button>
+
+<div id="streetMap"></div>
+
+<script>
+// ---------------- AUTH ----------------
+function signup(){ alert("Sign Up clicked"); }
+function login(){ alert("Log In clicked"); }
+
+// ---------------- STREET ----------------
+let street = localStorage.getItem("currentStreet");
+if(!street){ alert("No street selected"); window.location.href="index.html"; }
+document.getElementById("directory").innerHTML =
+  `United Kingdom > England > South Yorkshire > <span style="cursor:pointer;color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> > <b>${street}</b>`;
+
+// ---------------- OBJECTS ----------------
+let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+function renderObjects(){
+  const listEl = document.getElementById("objectList");
+  listEl.innerHTML="";
+  let objs = objectIDs.map(id=>JSON.parse(localStorage.getItem("object_"+id)));
+  objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true}));
+  objs.forEach(obj=>{
+    let li = document.createElement("li");
+    li.innerHTML = `<span class="number-box">${obj.number}</span>
+                    <span class="object-name" onclick="openObject('${obj.id}')">${obj.name}</span>`;
+    listEl.appendChild(li);
+  });
+}
+renderObjects();
+
+function openObject(id){
+  localStorage.setItem("currentObjectID", id);
+  window.location.href = "object.html";
+}
+
+function createObject(){
+  window.open("object-create.html","Create Object","width=600,height=700");
+}
+
+// ---------------- DELETE STREET ----------------
+function deleteStreet(){
+  if(confirm("Delete this street and all its objects?")){
+    objectIDs.forEach(id=>{
+      localStorage.removeItem("object_"+id);
+      localStorage.removeItem("object_"+id+"_location");
+      localStorage.removeItem("object_"+id+"_photos");
+    });
+    localStorage.removeItem(street + "_objectIDs");
+    let streets = JSON.parse(localStorage.getItem("streets")) || [];
+    streets = streets.filter(s=>s!==street);
+    localStorage.setItem("streets", JSON.stringify(streets));
+    localStorage.removeItem(street+"_location");
+    alert("Street deleted");
+    window.location.href="index.html";
+  }
+}
+
+// ---------------- EDIT STREET ----------------
+function editStreet(){
+  const newName = prompt("Edit street name:", street);
+  if(newName && newName!==street){
+    let streets = JSON.parse(localStorage.getItem("streets")) || [];
+    streets = streets.filter(s=>s!==street);
+    streets.push(newName);
+    localStorage.setItem("streets", JSON.stringify(streets));
+
+    // rename all objects
+    let ids = JSON.parse(localStorage.getItem(street+"_objectIDs")) || [];
+    localStorage.setItem(newName+"_objectIDs", JSON.stringify(ids));
+    localStorage.removeItem(street+"_objectIDs");
+
+    // rename street location
+    let loc = localStorage.getItem(street+"_location");
+    if(loc){
+      localStorage.setItem(newName+"_location", loc);
+      localStorage.removeItem(street+"_location");
+    }
+
+    localStorage.setItem("currentStreet", newName);
+    window.location.reload();
+  }
+}
+
+// ---------------- EDIT MAP ----------------
+function editMap(){
+  const popup = window.open("street-map.html","Edit Map","width=800,height=600");
+  popup.addEventListener("beforeunload", ()=>{ setTimeout(()=>location.reload(),100); });
+}
+
+// ---------------- STREET MAP (objects only) ----------------
+const map = L.map('streetMap').setView([53.5526,-1.4820],17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+
+objectIDs.forEach(id=>{
+  const obj = JSON.parse(localStorage.getItem("object_"+id));
+  const loc = JSON.parse(localStorage.getItem("object_"+id+"_location"));
+  if(loc){
+    const icon = L.icon({iconUrl: "icons/default.png",iconSize:[32,32],iconAnchor:[16,32],popupAnchor:[0,-32]});
+    const marker = L.marker([loc.lat,loc.lng],{icon:icon,draggable:true}).addTo(map);
+    marker.on('click', ()=>openObject(id));
+    marker.on('dragend', ()=>localStorage.setItem("object_"+id+"_location", JSON.stringify(marker.getLatLng())));
+  }
+});
+</script>
+</body>
+</html>
