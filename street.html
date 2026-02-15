@@ -214,14 +214,6 @@ function createObject(){
 function hideObjectForm(){
   document.getElementById("createObjectFormContainer").style.display = "none";
 }
-
-function openCreateObject(){
-  window.open(
-    "object-create.html",
-    "CreateObject",
-    "width=450,height=520,resizable=no"
-  );
-}
   
 // SAVE OBJECT
 document.getElementById("createObjectForm").addEventListener("submit", function(e){
@@ -268,6 +260,14 @@ function deleteStreet(){
   localStorage.removeItem(street + "_objectIDs");
   localStorage.removeItem("currentStreet");
   window.location.href = "index.html";
+}
+
+  function openCreateObject(){
+  window.open(
+    "object-create.html",
+    "CreateObject",
+    "width=450,height=520,resizable=no"
+  );
 }
 
 // MAP
