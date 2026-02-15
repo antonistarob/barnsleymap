@@ -4,10 +4,12 @@
 <meta charset="utf-8"/>
 <title>Street</title>
 <style>
-body { font-family:Arial; padding:20px; }
+body { font-family: Arial; padding:20px; background:#f5f5f5; }
 button { padding:6px 12px; margin:5px; cursor:pointer; }
 img { max-width:300px; display:block; margin:10px 0; }
-.section { margin-top:30px; }
+.section { margin-top:30px; background:white; padding:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+h2,h3,h4 { margin:10px 0; }
+ul { list-style:none; padding:0; }
 </style>
 </head>
 
@@ -22,28 +24,35 @@ img { max-width:300px; display:block; margin:10px 0; }
 <button onclick="createObject()">Create Object</button>
 <button onclick="deleteStreet()" style="background:#d9534f;color:white;">Delete</button>
 
-<!-- PANORAMA PHOTOS -->
+<!-- STREET PHOTOS -->
 <div class="section">
-  <h3>Street Photos (Whole Street)</h3>
+  <h3>Street Photos (Panoramas)</h3>
   <div id="photoList"></div>
 </div>
 
 <!-- OBJECTS -->
 <div class="section">
-  <h3>Objects</h3>
+  <h3>Objects on this Street</h3>
   <ul id="objectList"></ul>
 </div>
 
 <script>
+// ---------------- GET CURRENT STREET ----------------
 let street = localStorage.getItem("currentStreet");
+if(!street){
+  alert("No street selected!");
+  window.location.href = "index.html";
+}
+
+// ---------------- LOAD DATA ----------------
 let streets = JSON.parse(localStorage.getItem("streets")) || [];
 let objects = JSON.parse(localStorage.getItem(street + "_objects")) || [];
 let photos = JSON.parse(localStorage.getItem(street + "_photos")) || [];
 
+// ---------------- DISPLAY STREET NAME ----------------
 document.getElementById("streetName").innerText = street;
 
-/* ---------------- RENDER OBJECTS ---------------- */
-
+// ---------------- RENDER OBJECTS ----------------
 function renderObjects(){
   let list = document.getElementById("objectList");
   list.innerHTML = "";
@@ -56,8 +65,7 @@ function renderObjects(){
   });
 }
 
-/* ---------------- RENDER PHOTOS ---------------- */
-
+// ---------------- RENDER PHOTOS ----------------
 function renderPhotos(){
   let container = document.getElementById("photoList");
   container.innerHTML = "";
@@ -68,8 +76,7 @@ function renderPhotos(){
   });
 }
 
-/* ---------------- EDIT STREET ---------------- */
-
+// ---------------- EDIT STREET ----------------
 function editStreet(){
   let newName = prompt("Enter new street name:", street);
   if(newName && newName !== street){
@@ -82,9 +89,12 @@ function editStreet(){
     // Move stored data
     localStorage.setItem(newName + "_objects", JSON.stringify(objects));
     localStorage.setItem(newName + "_photos", JSON.stringify(photos));
+    let location = localStorage.getItem(street + "_location");
+    if(location) localStorage.setItem(newName + "_location", location);
 
     localStorage.removeItem(street + "_objects");
     localStorage.removeItem(street + "_photos");
+    localStorage.removeItem(street + "_location");
 
     localStorage.setItem("currentStreet", newName);
 
@@ -93,8 +103,7 @@ function editStreet(){
   }
 }
 
-/* ---------------- DELETE STREET ---------------- */
-
+// ---------------- DELETE STREET ----------------
 function deleteStreet(){
   if(confirm("Are you sure you want to delete this street?")){
     streets = streets.filter(s => s !== street);
@@ -102,14 +111,14 @@ function deleteStreet(){
 
     localStorage.removeItem(street + "_objects");
     localStorage.removeItem(street + "_photos");
+    localStorage.removeItem(street + "_location");
 
     alert("Street deleted.");
     window.location.href = "index.html";
   }
 }
 
-/* ---------------- ADD PHOTO ---------------- */
-
+// ---------------- ADD PHOTO ----------------
 function addPhoto(){
   let url = prompt("Paste image URL of whole street panorama:");
   if(url){
@@ -119,8 +128,12 @@ function addPhoto(){
   }
 }
 
-/* ---------------- CREATE OBJECT ---------------- */
+// ---------------- MAP LOCATION ----------------
+function openMap(){
+  window.location.href = "street-map.html";
+}
 
+// ---------------- CREATE OBJECT ----------------
 function createObject(){
   let number = prompt("Object Number (e.g. 55)");
   let name = prompt("Object Name (e.g. Building nr 55)");
@@ -134,13 +147,11 @@ function createObject(){
   }
 }
 
+// ---------------- INITIAL RENDER ----------------
 renderObjects();
 renderPhotos();
+
 </script>
 
 </body>
 </html>
-
-function openMap(){
-  window.location.href = "street-map.html";
-}
