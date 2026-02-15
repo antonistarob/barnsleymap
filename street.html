@@ -192,17 +192,26 @@ function renderObjects(){
   objects.sort((a,b)=>Number(a.number) - Number(b.number));
 
   sidebar.innerHTML = "";
-  objects.forEach(obj=>{
+  objects.forEach((obj, index)=>{
     let li = document.createElement("li");
     li.classList.add("object-item");
 
-    li.innerHTML = `
+    // Create clickable object link
+    let link = document.createElement("a");
+    link.href = "#";
+    link.style.textDecoration = "none";
+    link.style.color = "black";
+    link.onclick = function(){
+      localStorage.setItem("currentObjectIndex", index); // store which object was clicked
+      window.location.href = "object.html";            // go to object page
+    };
+
+    link.innerHTML = `
       <div class="object-number">${obj.number}</div>
-      <div class="object-info">
-        [${obj.type}] ${obj.name}
-      </div>
+      <div class="object-info">[${obj.type}] ${obj.name}</div>
     `;
 
+    li.appendChild(link);
     sidebar.appendChild(li);
   });
 }
