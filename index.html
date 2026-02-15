@@ -146,10 +146,12 @@ renderStreets();
 require([
   "esri/config",
   "esri/Map",
-  "esri/views/MapView"
-], function(esriConfig, Map, MapView) {
+  "esri/views/MapView",
+  "esri/Graphic",
+  "esri/layers/GraphicsLayer"
+], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
 
-  esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2";
+  esriConfig.apiKey = "YOUR_NEW_API_KEY_HERE";
 
   const map = new Map({
     basemap: "arcgis-light-gray"
@@ -161,6 +163,44 @@ require([
     center: [-1.4820, 53.5526],
     zoom: 13
   });
+
+  const graphicsLayer = new GraphicsLayer();
+  map.add(graphicsLayer);
+
+  let streets = JSON.parse(localStorage.getItem("streets")) || [];
+
+  streets.forEach(street => {
+    let location = JSON.parse(localStorage.getItem(street + "_location"));
+
+    if(location){
+      const pointGraphic = new Graphic({
+        geometry: {
+          type: "point",
+          longitude: location.lng,
+          latitude: location.lat
+        },
+        symbol: {
+          type: "simple-marker",
+          color: "blue",
+          size: "10px"
+        },
+        popupTemplate: {
+          title: street,
+          content: `<button onclick="openStreetFromMap('${street}')">Open Street</button>`
+        }
+      });
+
+      graphicsLayer.add(pointGraphic);
+    }
+  });
+
+  window.openStreetFromMap = function(street){
+    localStorage.setItem("currentStreet", street);
+    window.location.href = "street.html";
+  }
+
+});
+
 });
 </script>
 
