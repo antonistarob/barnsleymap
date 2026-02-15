@@ -3,7 +3,6 @@
 <head>
 <meta charset="utf-8">
 <title>Create Object</title>
-
 <style>
 body {
   font-family: Arial, sans-serif;
@@ -81,6 +80,9 @@ button { padding:6px 14px; margin:0 5px; cursor:pointer; }
     <option value="">Select</option>
     <option>Exists</option>
     <option>Doesn't Exist</option>
+    <option>Exists partially</option>
+    <option>For Demolition</option>
+    <option>In construction</option>
   </select>
 
   <label>Category:</label>
@@ -104,6 +106,7 @@ button { padding:6px 14px; margin:0 5px; cursor:pointer; }
 
 <script>
 const street = localStorage.getItem("currentStreet");
+if(!street){ alert("No street selected"); window.close(); }
 
 function saveObject(){
   const number = document.getElementById("number").value.trim();
@@ -119,22 +122,24 @@ function saveObject(){
     return;
   }
 
+  // 1️⃣ Save object
   const id = Date.now() + Math.floor(Math.random()*1000);
   const obj = { id, street, number, name, yearBuilt, yearDestroyed, description, status, category };
   localStorage.setItem("object_" + id, JSON.stringify(obj));
 
-  // Add ID to street's object list
+  // 2️⃣ Add object ID to street's list
   const idsKey = street + "_objectIDs";
   let ids = JSON.parse(localStorage.getItem(idsKey)) || [];
   ids.push(id);
   localStorage.setItem(idsKey, JSON.stringify(ids));
 
-  // Refresh parent
+  // 3️⃣ Refresh parent page (object list + map)
   if(window.opener && !window.opener.closed){
     window.opener.renderObjects?.();
     window.opener.renderStreetMarkers?.();
   }
 
+  // 4️⃣ Close popup
   window.close();
 }
 
