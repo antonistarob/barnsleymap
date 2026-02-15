@@ -217,35 +217,50 @@
         popupOverlay.style.display = 'none';
     });
 
-    // --- Street List with localStorage ---
-    const saveStreet = document.getElementById('saveStreet');
-    const streetList = document.getElementById('streetList');
+   // --- Street List with localStorage ---
+const saveStreet = document.getElementById('saveStreet');
+const streetList = document.getElementById('streetList');
 
-    let streets = JSON.parse(localStorage.getItem('streets')) || [];
-    streets.forEach(street => {
-        const li = document.createElement('li');
-        li.textContent = street;
-        streetList.appendChild(li);
+let streets = JSON.parse(localStorage.getItem('streets')) || [];
+
+// Helper function to create a clickable street item
+function addStreetToList(name) {
+    const li = document.createElement('li');
+    li.textContent = name;
+    li.style.cursor = 'pointer';
+
+    // Create a safe filename from the street name
+    const fileName = name.toLowerCase().replace(/\s+/g, '_') + '.html';
+
+    li.addEventListener('click', () => {
+        window.location.href = fileName; // redirect to street HTML
     });
 
-    saveStreet.addEventListener('click', () => {
-        const name = document.getElementById('streetName').value.trim();
-        if(name !== '') {
-            const li = document.createElement('li');
-            li.textContent = name;
-            streetList.appendChild(li);
+    streetList.appendChild(li);
+}
 
-            streets.push(name);
-            localStorage.setItem('streets', JSON.stringify(streets));
-        }
+// Load streets on page load
+streets.forEach(street => {
+    addStreetToList(street);
+});
 
-        // Clear inputs and close popup
-        document.getElementById('streetName').value = '';
-        document.getElementById('district').value = '';
-        document.getElementById('existing').checked = false;
-        document.getElementById('description').value = '';
-        popupOverlay.style.display = 'none';
-    });
+// Save new street
+saveStreet.addEventListener('click', () => {
+    const name = document.getElementById('streetName').value.trim();
+    if(name !== '') {
+        addStreetToList(name);
+
+        streets.push(name);
+        localStorage.setItem('streets', JSON.stringify(streets));
+    }
+
+    // Clear inputs and close popup
+    document.getElementById('streetName').value = '';
+    document.getElementById('district').value = '';
+    document.getElementById('existing').checked = false;
+    document.getElementById('description').value = '';
+    popupOverlay.style.display = 'none';
+});
 
     // --- Map ---
 const map = L.map('map').setView([53.5526, -1.4787], 14);
