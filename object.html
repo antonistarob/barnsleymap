@@ -18,7 +18,6 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
 .value { margin-left:10px; }
 
 #photoList img { max-width:300px; display:block; margin:10px 0; }
-#objectMapDiv { width:100%; height:400px; margin-top:10px; border-radius:6px; }
 
 #createObjectFormContainer { display:none; margin-top:20px; }
 </style>
@@ -39,7 +38,7 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
 
   <button onclick="addPhoto()">Add Photo</button>
   <button onclick="editObject()">Edit</button>
-  <button onclick="enableEditMap()">Edit Map</button>
+  <button onclick="editMap()">Edit Map</button>
   <button onclick="deleteObject()" style="background:#d9534f;color:white;">Delete</button>
 
   <div><span class="label">Street Number:</span><span class="value" id="objectNumber"></span></div>
@@ -52,12 +51,6 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
   <div class="section">
     <h3>Photos</h3>
     <div id="photoList"></div>
-  </div>
-
-  <div class="section">
-    <h3>Map</h3>
-    <div id="objectMapDiv"></div>
-    <small>Click or drag marker to adjust location.</small>
   </div>
 
   <div id="createObjectFormContainer">
@@ -174,12 +167,10 @@ document.getElementById("createObjectForm").addEventListener("submit", function(
 // ---------------- DELETE OBJECT ----------------
 function deleteObject(){
   if(confirm("Delete this object?")){
-    // remove from street objectIDs
     let ids = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
     ids = ids.filter(id=>id!==objectID);
     localStorage.setItem(street + "_objectIDs", JSON.stringify(ids));
 
-    // remove object and data
     localStorage.removeItem("object_" + objectID);
     localStorage.removeItem("object_" + objectID + "_photos");
     localStorage.removeItem("object_" + objectID + "_location");
@@ -188,29 +179,15 @@ function deleteObject(){
   }
 }
 
-// ---------------- MAP ----------------
-const savedLocation = JSON.parse(localStorage.getItem("object_" + objectID + "_location"));
-const map = L.map('objectMapDiv').setView(savedLocation ? [savedLocation.lat, savedLocation.lng] : [53.5526,-1.4820],17);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
-
-let marker;
-function createMarker(latlng){
-  marker=L.marker([latlng.lat,latlng.lng],{draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
-  saveLocation(latlng);
-  marker.on('dragend', ()=>saveLocation(marker.getLatLng()));
-}
-
-if(savedLocation) createMarker(savedLocation);
-
-map.on('click', function(e){ if(!marker) createMarker(e.latlng); });
-
-function enableEditMap(){
-  if(marker) marker.dragging.enable();
-  else alert("Click map first to place marker.");
-}
-
-function saveLocation(latlng){
-  localStorage.setItem("object_" + objectID + "_location", JSON.stringify({lat:latlng.lat,lng:latlng.lng}));
+// ---------------- EDIT MAP ----------------
+function editMap(){
+  const mapWindow = window.open("street-map.html", "Edit Map", "width=800,height=600");
+  mapWindow.addEventListener("beforeunload", function(){
+    // Refresh map location on parent page after closing
+    setTimeout(()=>{
+      location.reload();
+    }, 100);
+  });
 }
 </script>
 </body>
