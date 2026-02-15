@@ -23,12 +23,19 @@
 <body>
 
 <h1 id="streetTitle"></h1>
+
+<!-- Edit/Delete Buttons -->
+<div id="streetButtons" style="margin-bottom: 15px;">
+    <button id="editStreet" style="margin-right: 10px; padding: 5px 10px;">Edit</button>
+    <button id="deleteStreet" style="padding: 5px 10px;">Delete</button>
+</div>
+
 <p><strong>District:</strong> <span id="streetDistrict"></span></p>
 <p><strong>Existing:</strong> <span id="streetExisting"></span></p>
 <p><strong>Description:</strong></p>
 <p id="streetDescription"></p>
 <a href="index.html">Back to Map</a>
-
+    
 <script>
     // Helper function to get URL parameter
     function getQueryParam(param) {
