@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Street</title>
+<style>
+body { font-family:Arial; padding:20px; }
+button { padding:6px 12px; margin:5px; }
+</style>
+</head>
+
+<body>
+
+<h2 id="streetName"></h2>
+
+<button onclick="createObject()">Create Object</button>
+
+<h3>Objects</h3>
+<ul id="objectList"></ul>
+
+<script>
+let street = localStorage.getItem("currentStreet");
+document.getElementById("streetName").innerText = street;
+
+let objects = JSON.parse(localStorage.getItem(street)) || [];
+
+function renderObjects(){
+  let list = document.getElementById("objectList");
+  list.innerHTML = "";
+  objects.forEach(obj=>{
+    let li = document.createElement("li");
+    li.innerText = obj.number + " - " + obj.name + 
+      " (" + obj.type + ")" + 
+      (obj.exists ? "" : " [No longer exists]");
+    list.appendChild(li);
+  });
+}
+
+function createObject(){
+  let number = prompt("Object Number (e.g. 55)");
+  let name = prompt("Object Name (e.g. Building nr 55)");
+  let exists = confirm("Does it still exist?");
+  let type = prompt("Object Type: Building, Post Office, Church, School");
+
+  if(number && name && type){
+    objects.push({number, name, exists, type});
+    localStorage.setItem(street, JSON.stringify(objects));
+    renderObjects();
+  }
+}
+
+renderObjects();
+</script>
+
+</body>
+</html>
