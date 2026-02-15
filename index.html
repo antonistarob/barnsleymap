@@ -28,7 +28,7 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
 <body>
 
 <header>
-  <h1>Barnsley Streets</h1>
+  <h1>Barnsley Interactive Historical Map</h1>
   <div class="auth-buttons">
     <button onclick="signup()">Sign Up</button>
     <button onclick="login()">Log In</button>
@@ -57,20 +57,6 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
 // ---------------- AUTH MOCK ----------------
 function signup(){ alert("Sign Up clicked"); }
 function login(){ alert("Log In clicked"); }
-
-// ---------------- MOST VIEWED PHOTOS MOCK ----------------
-const mostViewedPhotos = [
-  "https://picsum.photos/seed/1/300/150",
-  "https://picsum.photos/seed/2/300/150",
-  "https://picsum.photos/seed/3/300/150",
-  "https://picsum.photos/seed/4/300/150"
-];
-const carousel = document.getElementById("mostViewedPhotos");
-mostViewedPhotos.forEach(url=>{
-  let img = document.createElement("img");
-  img.src = url;
-  carousel.appendChild(img);
-});
 
 // ---------------- LOAD STREETS ----------------
 let streets = JSON.parse(localStorage.getItem("streets")) || [];
