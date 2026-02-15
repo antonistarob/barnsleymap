@@ -61,7 +61,6 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
   <!-- ACTION BUTTONS -->
   <button onclick="addPhoto()">Add Photo</button>
   <button onclick="editObject()">Edit</button>
-  <button onclick="toggleMap()">Map</button>
   <button onclick="deleteObject()" style="background:#d9534f;color:white;">Delete</button>
 
   <!-- Object fields -->
@@ -77,12 +76,11 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
     <div id="photoList"></div>
   </div>
 
-  <!-- MAP SECTION (hidden initially) -->
-  <div class="section" id="mapSection" style="display:none;">
+  <!-- MAP SECTION (ALWAYS SHOWN) -->
+  <div class="section">
     <h3>Object Location</h3>
     <div id="objectMapDiv"></div>
-    <p id="coordsDisplay"></p>
-    <small>Click on the map to place the object location. Drag the marker to adjust.</small>
+    <small>Click on the map to place or adjust the object location.</small>
   </div>
 
   <!-- EDIT OBJECT FORM (hidden initially) -->
@@ -223,41 +221,31 @@ function deleteObject(){
   }
 }
 
-// ---------------- MAP SECTION ----------------
-let map, marker;
-function toggleMap(){
-  const mapSection = document.getElementById("mapSection");
-  if(mapSection.style.display === "none"){
-    mapSection.style.display = "block";
+// ---------------- MAP SECTION (ALWAYS SHOWN) ----------------
+const savedLocation = JSON.parse(localStorage.getItem(street + "_object_" + index + "_location"));
 
-    const savedLocation = JSON.parse(localStorage.getItem(street + "_object_" + index + "_location"));
+const map = L.map('objectMapDiv').setView(
+  savedLocation ? [savedLocation.lat, savedLocation.lng] : [53.5526, -1.4820], 17
+);
 
-    map = L.map('objectMapDiv').setView(savedLocation ? [savedLocation.lat, savedLocation.lng] : [53.5526, -1.4820], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    if(savedLocation){
-      marker = L.marker([savedLocation.lat, savedLocation.lng], {draggable:true}).addTo(map)
-               .bindPopup(obj.name)
-               .openPopup();
-    }
-
-    map.on('click', function(e){
-      const latlng = e.latlng;
-      if(marker) marker.setLatLng(latlng);
-      else marker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
-
-      // Save location immediately
-      localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
-      alert("Location saved!");
-    });
-
-  } else {
-    mapSection.style.display = "none";
-  }
+let marker;
+if(savedLocation){
+  marker = L.marker([savedLocation.lat, savedLocation.lng], {draggable:true}).addTo(map)
+           .bindPopup(obj.name)
+           .openPopup();
 }
+
+// Click to place/adjust object
+map.on('click', function(e){
+  const latlng = e.latlng;
+  if(marker) marker.setLatLng(latlng);
+  else marker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
+  localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
+});
 </script>
 </body>
 </html>
