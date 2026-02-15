@@ -154,7 +154,7 @@ require([
   "esri/layers/GraphicsLayer"
 ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
 
-  esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- REPLACE with your secure key
+  esriConfig.apiKey = "YOUR_NEW_API_KEY_HERE"; // <-- your secure key
 
   const map = new Map({
     basemap: "arcgis-light-gray"
@@ -163,14 +163,17 @@ require([
   const view = new MapView({
     container: "viewDiv",
     map: map,
-    center: [-1.4820, 53.5526],
+    center: [-1.4820, 53.5526], // Barnsley center
     zoom: 13
   });
 
   const graphicsLayer = new GraphicsLayer();
   map.add(graphicsLayer);
 
+  let streets = JSON.parse(localStorage.getItem("streets")) || [];
+
   streets.forEach(street => {
+    // Only show streets that have a location
     let location = JSON.parse(localStorage.getItem(street + "_location"));
     if(location){
       const pointGraphic = new Graphic({
@@ -189,7 +192,14 @@ require([
           content: `<button onclick="openStreetFromMap('${street}')">Open Street</button>`
         }
       });
+
       graphicsLayer.add(pointGraphic);
+
+      // Optional: zoom map to first saved street
+      if(street === streets[0]){
+        view.center = [location.lng, location.lat];
+        view.zoom = 16;
+      }
     }
   });
 
@@ -199,6 +209,7 @@ require([
   }
 
 });
+
 </script>
 
 </body>
