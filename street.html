@@ -123,9 +123,13 @@ function openCreateObject(){
 function renderObjects(){
   const listEl = document.getElementById("objectList");
   listEl.innerHTML = "";
-  let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+  const objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+
   let objs = objectIDs.map(id => JSON.parse(localStorage.getItem("object_" + id)));
+
+  // sort by street number alphanumerically
   objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true, sensitivity:'base'}));
+
   objs.forEach(obj=>{
     let li = document.createElement("li");
     li.innerHTML = `<div class="number-box">${obj.number}</div>
@@ -134,9 +138,10 @@ function renderObjects(){
   });
 }
 
+// Open object function
 function openObject(id){
-  localStorage.setItem("currentObjectID", id);
-  window.location.href = "object.html";
+  localStorage.setItem("currentObjectID", id);  // Save ID for object.html
+  window.location.href = "object.html";         // Navigate to object page
 }
 
 // ---------------- MAP ----------------
