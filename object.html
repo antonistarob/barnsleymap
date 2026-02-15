@@ -28,7 +28,9 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
   box-shadow:0 2px 5px rgba(0,0,0,0.1);
 }
 
-h2 { margin-top:0; }
+h2 { margin-top:0; display:flex; align-items:center; }
+h2 img { margin-right:10px; }
+
 button { padding:6px 12px; margin:5px; cursor:pointer; }
 
 .label { font-weight:bold; margin-top:10px; display:block; }
@@ -55,7 +57,7 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 
 <!-- OBJECT DETAILS -->
 <div class="container" id="objectContainer">
-  <h2 id="objectName"></h2>
+  <h2><img id="categoryIcon" src="" width="40" height="40"> <span id="objectName"></span></h2>
   <div id="directory"></div>
 
   <!-- ACTION BUTTONS -->
@@ -70,6 +72,7 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
   <div><span class="label">Year Destroyed:</span><span class="value" id="objectYearDestroyed"></span></div>
   <div><span class="label">Description:</span><span class="value" id="objectDescription"></span></div>
   <div><span class="label">Status:</span><span class="value" id="objectStatus"></span></div>
+  <div><span class="label">Building Category:</span><span class="value" id="objectCategory"></span></div>
 
   <!-- Photos -->
   <div class="section">
@@ -103,6 +106,19 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
           <option value="In construction">In construction</option>
         </select>
       </label><br><br>
+      <label>Building Category (required):
+        <select name="category" required>
+          <option value="">Select category</option>
+          <option value="townhouse">Townhouse</option>
+          <option value="terraced house">Terraced House</option>
+          <option value="house">House</option>
+          <option value="semi-detached house">Semi-Detached House</option>
+          <option value="building">Building</option>
+          <option value="palace/manor">Palace/Manor</option>
+          <option value="villa">Villa</option>
+          <option value="warehouse/hall">Warehouse/Hall</option>
+        </select>
+      </label><br><br>
       <button type="submit">Save Changes</button>
       <button type="button" onclick="hideObjectForm()">Cancel</button>
     </form>
@@ -113,6 +129,18 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 // ---------------- AUTH MOCK ----------------
 function signup(){ alert("Sign Up clicked"); }
 function login(){ alert("Log In clicked"); }
+
+// ---------------- ICONS FOR BUILDING CATEGORIES ----------------
+const categoryIcons = {
+  "townhouse": "icons/townhouse.png",
+  "terraced house": "icons/terraced.png",
+  "house": "icons/house.png",
+  "semi-detached house": "icons/semi.png",
+  "building": "icons/building.png",
+  "palace/manor": "icons/palace.png",
+  "villa": "icons/villa.png",
+  "warehouse/hall": "icons/warehouse.png"
+};
 
 // ---------------- GET OBJECT DATA ----------------
 let street = localStorage.getItem("currentStreet");
@@ -133,6 +161,8 @@ function renderObjectData(){
   document.getElementById("objectYearDestroyed").innerText = obj.yearDestroyed || "-";
   document.getElementById("objectDescription").innerText = obj.description || "-";
   document.getElementById("objectStatus").innerText = obj.status || "-";
+  document.getElementById("objectCategory").innerText = obj.category || "-";
+  document.getElementById("categoryIcon").src = categoryIcons[obj.category] || 'icons/default.png';
 
   document.getElementById("directory").innerHTML =
     `United Kingdom &gt; England &gt; South Yorkshire &gt; 
@@ -174,6 +204,7 @@ function editObject(){
   form.yearDestroyed.value = obj.yearDestroyed || "";
   form.description.value = obj.description || "";
   form.status.value = obj.status || "";
+  form.category.value = obj.category || "";
 }
 
 function hideObjectForm(){
@@ -189,8 +220,9 @@ document.getElementById("createObjectForm").addEventListener("submit", function(
   const yearDestroyed = form.yearDestroyed.value.trim();
   const description = form.description.value.trim();
   const status = form.status.value;
+  const category = form.category.value;
 
-  if(!number || !name || !status){
+  if(!number || !name || !status || !category){
     alert("Please fill out all required fields!");
     return;
   }
@@ -201,6 +233,7 @@ document.getElementById("createObjectForm").addEventListener("submit", function(
   obj.yearDestroyed = yearDestroyed;
   obj.description = description;
   obj.status = status;
+  obj.category = category;
 
   objects[index] = obj;
   localStorage.setItem(street + "_objects", JSON.stringify(objects));
@@ -233,21 +266,28 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 }).addTo(map);
 
 let marker;
-if(savedLocation){
-  marker = L.marker([savedLocation.lat, savedLocation.lng], {draggable:false}).addTo(map)
+function createMarker(latlng){
+  const icon = L.icon({
+    iconUrl: categoryIcons[obj.category] || 'icons/default.png',
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+    popupAnchor: [0, -32]
+  });
+  marker = L.marker([latlng.lat, latlng.lng], {icon: icon, draggable:true}).addTo(map)
            .bindPopup(obj.name)
            .openPopup();
-} else {
-  marker = L.marker([53.5526, -1.4820], {draggable:false}).addTo(map)
-           .bindPopup(obj.name);
+  saveLocation(latlng);
+}
+
+// Initial marker
+if(savedLocation){
+  createMarker(savedLocation);
 }
 
 // Place new marker by clicking map if none exists
 map.on('click', function(e){
   if(!marker){
-    const latlng = e.latlng;
-    marker = L.marker([latlng.lat, latlng.lng], {draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
-    saveLocation(latlng);
+    createMarker(e.latlng);
   }
 });
 
