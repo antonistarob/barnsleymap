@@ -3,76 +3,32 @@
 <head>
 <meta charset="utf-8"/>
 <title>Street Page</title>
-
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <style>
 body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
-
-header { 
-  background:#f0f0f0; 
-  color:black; 
-  padding:15px; 
-  display:flex; 
-  justify-content:space-between; 
-  align-items:center; 
-}
+header { background:#f0f0f0; color:black; padding:15px; display:flex; justify-content:space-between; align-items:center; }
 header h1 { margin:0; cursor:pointer; }
 header h1:hover { text-decoration: underline; }
 header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
 
 .container { display:flex; margin:20px; gap:20px; }
-
 .left-column { width:250px; }
 .left-column h2 { margin-top:0; display:flex; justify-content:space-between; align-items:center; }
 .left-column ul { list-style:none; padding:0; }
 .left-column li { margin:5px 0; display:flex; align-items:center; }
-
-.number-box {
-  width:40px;
-  height:30px;
-  background:white;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  margin-right:5px;
-  border:1px solid #ccc;
-  border-radius:4px;
-}
-
+.number-box { width:40px; height:30px; background:white; display:flex; justify-content:center; align-items:center; margin-right:5px; border:1px solid #ccc; border-radius:4px; }
 .object-name { cursor:pointer; color:#007bff; }
 .object-name:hover { text-decoration:underline; }
 
 .right-column { flex:1; }
 
-#streetHeader {
-  background:white;
-  padding:15px;
-  border-radius:6px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
-  margin-bottom:15px;
-}
-
-#streetTitle { font-size:1.5em; font-weight:bold; }
-
-#directory { font-size:0.9em; color:#555; margin:5px 0 10px 0; }
-
-button { padding:6px 12px; margin-right:5px; cursor:pointer; }
-
 #streetMap { width:100%; height:500px; border-radius:6px; }
 
-#createObjectFormContainer {
-  display:none;
-  background:white;
-  padding:15px;
-  border-radius:6px;
-  margin-top:20px;
-  box-shadow:0 2px 5px rgba(0,0,0,0.1);
-}
+#directory { font-size:0.9em; color:#555; margin-bottom:10px; }
+button { padding:6px 12px; margin:5px; cursor:pointer; }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -84,8 +40,7 @@ button { padding:6px 12px; margin-right:5px; cursor:pointer; }
 </header>
 
 <div class="container">
-
-  <!-- LEFT COLUMN -->
+  <!-- LEFT COLUMN: Objects List -->
   <div class="left-column">
     <h2>
       Objects
@@ -94,175 +49,49 @@ button { padding:6px 12px; margin-right:5px; cursor:pointer; }
     <ul id="objectList"></ul>
   </div>
 
-  <!-- RIGHT COLUMN -->
+  <!-- RIGHT COLUMN: Map -->
   <div class="right-column">
-
-    <!-- STREET HEADER -->
-    <div id="streetHeader">
-      <div id="streetTitle"></div>
-      <div id="directory"></div>
-      <div>
-        <button onclick="editStreet()">Edit</button>
-        <button onclick="editStreetMap()">Edit Map</button>
-        <button onclick="deleteStreet()" style="background:#d9534f;color:white;">Delete</button>
-      </div>
-    </div>
-
+    <div id="directory"></div>
     <div id="streetMap"></div>
-
-    <!-- CREATE OBJECT FORM -->
-    <div id="createObjectFormContainer">
-      <h3 id="formTitle">Create Object</h3>
-      <form id="createObjectForm">
-        <label>Street Number (required): <input type="text" name="number" required></label><br><br>
-        <label>Name (required): <input type="text" name="name" required></label><br><br>
-        <label>Year Built: <input type="text" name="yearBuilt"></label><br><br>
-        <label>Year Destroyed: <input type="text" name="yearDestroyed"></label><br><br>
-        <label>Description:<br>
-          <textarea name="description" rows="3" cols="30"></textarea>
-        </label><br><br>
-        <label>Status:
-          <select name="status" required>
-            <option value="">Select</option>
-            <option>Exists</option>
-            <option>Doesn't Exist</option>
-            <option>Exists partially</option>
-            <option>For Demolition</option>
-            <option>In construction</option>
-          </select>
-        </label><br><br>
-        <label>Category:
-          <select name="category" required>
-            <option value="">Select</option>
-            <option value="townhouse">Townhouse</option>
-            <option value="terraced house">Terraced House</option>
-            <option value="house">House</option>
-            <option value="semi-detached house">Semi-Detached House</option>
-            <option value="building">Building</option>
-            <option value="palace/manor">Palace/Manor</option>
-            <option value="villa">Villa</option>
-            <option value="warehouse/hall">Warehouse/Hall</option>
-          </select>
-        </label><br><br>
-        <button type="submit">Save</button>
-        <button type="button" onclick="hideObjectForm()">Cancel</button>
-      </form>
-    </div>
-
   </div>
 </div>
 
 <script>
-// AUTH MOCK
+// ---------------- AUTH MOCK ----------------
 function signup(){ alert("Sign Up clicked"); }
 function login(){ alert("Log In clicked"); }
 
-// CATEGORY ICONS
+// ---------------- CATEGORY ICONS ----------------
 const categoryIcons = {
-  "townhouse": "icons/townhouse.png",
-  "terraced house": "icons/terraced.png",
-  "house": "icons/house.png",
-  "semi-detached house": "icons/semi.png",
-  "building": "icons/building.png",
-  "palace/manor": "icons/palace.png",
-  "villa": "icons/villa.png",
-  "warehouse/hall": "icons/warehouse.png"
+  "townhouse": "https://polska-org.pl/gfx/category/500045.png",
+  "terraced house": "https://polska-org.pl/gfx/category/500046.png",
+  "house": "https://polska-org.pl/gfx/category/500129.png",
+  "semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
+  "building": "https://polska-org.pl/gfx/category/6216777.png",
+  "palace/manor": "https://polska-org.pl/gfx/obj/05h.png",
+  "villa": "https://polska-org.pl/gfx/obj/05c.png",
+  "warehouse/hall": "https://polska-org.pl/gfx/category/500049.png"
 };
 
-// STREET DATA
+// ---------------- STREET DATA ----------------
 let street = localStorage.getItem("currentStreet");
-let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
-
-// STREET HEADER
-document.getElementById("streetTitle").innerText = street;
-document.getElementById("directory").innerHTML =
-  `United Kingdom &gt; England &gt; South Yorkshire &gt;
-   <span style="cursor:pointer;color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> &gt;
-   <b>${street}</b>`;
-
-// RENDER OBJECTS
-function renderObjects(){
-  const list = document.getElementById("objectList");
-  list.innerHTML = "";
-
-  let objs = objectIDs.map(id => JSON.parse(localStorage.getItem("object_" + id)));
-  objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true}));
-
-  objs.forEach(obj=>{
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <div class="number-box">${obj.number}</div>
-      <span class="object-name" onclick="openObject('${obj.id}')">${obj.name}</span>
-    `;
-    list.appendChild(li);
-  });
-}
-renderObjects();
-
-// OPEN OBJECT
-function openObject(id){
-  localStorage.setItem("currentObjectID", id);
-  window.location.href = "object.html";
-}
-
-// CREATE OBJECT
-function createObject(){
-  document.getElementById("formTitle").innerText = "Create Object";
-  document.getElementById("createObjectFormContainer").style.display = "block";
-  document.getElementById("createObjectForm").reset();
-}
-function hideObjectForm(){
-  document.getElementById("createObjectFormContainer").style.display = "none";
-}
-  
-// SAVE OBJECT
-document.getElementById("createObjectForm").addEventListener("submit", function(e){
-  e.preventDefault();
-  const f = e.target;
-  const id = Date.now() + Math.floor(Math.random()*1000);
-  const obj = {
-    id,
-    street,
-    number:f.number.value,
-    name:f.name.value,
-    yearBuilt:f.yearBuilt.value,
-    yearDestroyed:f.yearDestroyed.value,
-    description:f.description.value,
-    status:f.status.value,
-    category:f.category.value
-  };
-  localStorage.setItem("object_" + id, JSON.stringify(obj));
-  objectIDs.push(id);
-  localStorage.setItem(street + "_objectIDs", JSON.stringify(objectIDs));
-  renderObjects();
-  hideObjectForm();
-});
-
-// STREET ACTIONS
-function editStreet(){
-  window.open("street-edit.html","EditStreet","width=400,height=200");
-}
-function editStreetMap(){
-  window.location.href = "street-map.html";
-}
-function deleteStreet(){
-  if(!confirm("Delete this street and all objects?")) return;
-
-  let streets = JSON.parse(localStorage.getItem("streets")) || [];
-  streets = streets.filter(s=>s!==street);
-  localStorage.setItem("streets", JSON.stringify(streets));
-
-  localStorage.removeItem(street + "_location");
-  objectIDs.forEach(id=>{
-    localStorage.removeItem("object_" + id);
-    localStorage.removeItem("object_" + id + "_location");
-  });
-  localStorage.removeItem(street + "_objectIDs");
-  localStorage.removeItem("currentStreet");
+if(!street){
+  alert("No street selected!");
   window.location.href = "index.html";
 }
 
-  function openCreateObject(){
+// ---------------- DIRECTORY ----------------
+document.getElementById("directory").innerHTML =
+  `United Kingdom &gt; England &gt; South Yorkshire &gt; 
+   <span style="cursor:pointer; color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> &gt; 
+   <b>${street}</b>`;
+
+// ---------------- OPEN CREATE OBJECT POPUP ----------------
+function openCreateObject(){
+  if(!street){
+    alert("No street selected!");
+    return;
+  }
   window.open(
     "object-create.html",
     "CreateObject",
@@ -270,28 +99,68 @@ function deleteStreet(){
   );
 }
 
-// MAP
-const map = L.map("streetMap").setView([53.5526,-1.4820],17);
-L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
-  attribution:"&copy; OpenStreetMap contributors"
+// ---------------- RENDER OBJECT LIST ----------------
+function renderObjects(){
+  const listEl = document.getElementById("objectList");
+  listEl.innerHTML = "";
+
+  let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+  let objs = objectIDs.map(id => JSON.parse(localStorage.getItem("object_" + id)));
+  objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true, sensitivity:'base'}));
+
+  objs.forEach(obj=>{
+    let li = document.createElement("li");
+    li.innerHTML = `<div class="number-box">${obj.number}</div>
+                    <span class="object-name" onclick="openObject('${obj.id}')">${obj.name}</span>`;
+    listEl.appendChild(li);
+  });
+}
+
+// ---------------- OPEN OBJECT ----------------
+function openObject(id){
+  localStorage.setItem("currentObjectID", id);
+  window.location.href = "object.html";
+}
+
+// ---------------- MAP ----------------
+const map = L.map('streetMap').setView([53.5526, -1.4820], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-objectIDs.forEach(id=>{
-  const obj = JSON.parse(localStorage.getItem("object_" + id));
-  const loc = JSON.parse(localStorage.getItem("object_" + id + "_location"));
-  if(loc){
-    const icon = L.icon({
-      iconUrl: categoryIcons[obj.category] || "icons/default.png",
-      iconSize:[32,32],
-      iconAnchor:[16,32]
-    });
-    const marker = L.marker([loc.lat,loc.lng],{icon,draggable:true}).addTo(map)
-      .bindPopup(obj.name);
-    marker.on("click",()=>openObject(id));
-    marker.on("dragend",()=>localStorage.setItem("object_" + id + "_location",JSON.stringify(marker.getLatLng())));
+// Render markers
+function renderStreetMarkers(){
+  // Remove existing markers first
+  if(window.markersGroup){
+    window.markersGroup.clearLayers();
+  } else {
+    window.markersGroup = L.layerGroup().addTo(map);
   }
-});
-</script>
 
+  const objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+  objectIDs.forEach(id=>{
+    const obj = JSON.parse(localStorage.getItem("object_" + id));
+    const loc = JSON.parse(localStorage.getItem("object_" + id + "_location"));
+    if(loc){
+      const icon = L.icon({
+        iconUrl: categoryIcons[obj.category] || 'icons/default.png',
+        iconSize: [32,32],
+        iconAnchor: [16,32],
+        popupAnchor: [0,-32]
+      });
+      const marker = L.marker([loc.lat, loc.lng], {icon: icon, draggable:true}).addTo(window.markersGroup)
+        .bindPopup(obj.name);
+      marker.on('click', ()=>openObject(id));
+      marker.on('dragend', function(){
+        localStorage.setItem("object_" + id + "_location", JSON.stringify(marker.getLatLng()));
+      });
+    }
+  });
+}
+
+// ---------------- INITIAL RENDER ----------------
+renderObjects();
+renderStreetMarkers();
+</script>
 </body>
 </html>
