@@ -204,6 +204,7 @@ saveEditStreet.addEventListener('click', () => {
 
         // If street name changed, update key
         if(newName !== streetName) {
+            // Copy old data to new key
             streetsData[newName] = { district: newDistrict, existing: newExisting, description: newDescription };
             delete streetsData[streetName];
 
@@ -212,14 +213,21 @@ saveEditStreet.addEventListener('click', () => {
             streetsList = streetsList.map(s => s === streetName ? newName : s);
             localStorage.setItem('streets', JSON.stringify(streetsList));
         } else {
+            // Just update fields
             streetsData[newName] = { district: newDistrict, existing: newExisting, description: newDescription };
         }
 
         localStorage.setItem('streetsData', JSON.stringify(streetsData));
 
-        // Close popup and reload to reflect name change
+        // Close popup
         editPopupOverlay.style.display = 'none';
-        window.location.reload();
+
+        // Redirect to the new street URL if the name changed, otherwise reload same page
+        if(newName !== streetName) {
+            window.location.href = 'street.html?name=' + encodeURIComponent(newName);
+        } else {
+            window.location.reload();
+        }
     }
 });
 </script>
