@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="utf-8"/>
-<title>Street Details</title>
+<title>Street Page</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <style>
@@ -19,24 +19,29 @@ header h1 { margin:0; cursor:pointer; }
 header h1:hover { text-decoration: underline; }
 header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
 
-.container { margin:20px auto; max-width:800px; background:white; padding:20px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+.container { display:flex; margin:20px; gap:20px; }
+.left-column { width:250px; }
+.left-column h2 { margin-top:0; display:flex; justify-content:space-between; align-items:center; }
+.left-column ul { list-style:none; padding:0; }
+.left-column li { margin:5px 0; display:flex; align-items:center; }
+.number-box { width:40px; height:30px; background:white; display:flex; justify-content:center; align-items:center; margin-right:5px; border:1px solid #ccc; border-radius:4px; }
+.object-name { cursor:pointer; color:#007bff; }
+.object-name:hover { text-decoration:underline; }
 
-h2 { margin-top:0; }
+.right-column { flex:1; }
+
+#streetMap { width:100%; height:500px; border-radius:6px; }
+
+#directory { font-size:0.9em; color:#555; margin-bottom:10px; }
 button { padding:6px 12px; margin:5px; cursor:pointer; }
 
-#objectsList { margin-top:20px; }
-.objectRow { display:flex; align-items:center; margin-bottom:5px; }
-.numberBox { width:40px; height:24px; background:white; border:1px solid #ccc; text-align:center; margin-right:8px; display:flex; align-items:center; justify-content:center; border-radius:3px; }
+#createObjectFormContainer { display:none; background:white; padding:15px; border-radius:6px; margin-top:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+#createObjectFormContainer h3 { margin-top:0; }
 
-#streetMapDiv { width:100%; height:400px; border-radius:6px; margin-top:20px; }
-#directory { font-size:0.9em; color:#555; margin-bottom:10px; }
-
-.section { margin-top:20px; }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header>
   <h1 onclick="window.location.href='index.html'">Historical Interactive Map of Barnsley</h1>
   <div class="auth-buttons">
@@ -46,21 +51,57 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 </header>
 
 <div class="container">
-  <!-- Street Title -->
-  <h2 id="streetName"></h2>
-  <div id="directory"></div>
+  <!-- LEFT COLUMN: Objects List -->
+  <div class="left-column">
+    <h2>
+      Objects
+      <button onclick="createObject()">Create Object</button>
+    </h2>
+    <ul id="objectList"></ul>
+  </div>
 
-  <!-- Action Buttons -->
-  <button onclick="createObject()">Create Object</button>
+  <!-- RIGHT COLUMN: Map -->
+  <div class="right-column">
+    <div id="directory"></div>
+    <div id="streetMap"></div>
 
-  <!-- Objects Column -->
-  <div id="objectsList"></div>
+    <!-- CREATE / EDIT OBJECT FORM -->
+    <div id="createObjectFormContainer">
+      <h3 id="formTitle">Create Object</h3>
+      <form id="createObjectForm">
+        <label>Street Number (required): <input type="text" name="number" required></label><br><br>
+        <label>Name (required): <input type="text" name="name" required></label><br><br>
+        <label>Year Built (optional): <input type="text" name="yearBuilt"></label><br><br>
+        <label>Year Destroyed (optional): <input type="text" name="yearDestroyed"></label><br><br>
+        <label>Description (optional): <textarea name="description" rows="3" cols="30"></textarea></label><br><br>
+        <label>Status (required):
+          <select name="status" required>
+            <option value="">Select status</option>
+            <option value="Exists">Exists</option>
+            <option value="Doesn't Exist">Doesn't Exist</option>
+            <option value="Exists partially">Exists partially</option>
+            <option value="For Demolition">For Demolition</option>
+            <option value="In construction">In construction</option>
+          </select>
+        </label><br><br>
+        <label>Building Category (required):
+          <select name="category" required>
+            <option value="">Select category</option>
+            <option value="townhouse">Townhouse</option>
+            <option value="terraced house">Terraced House</option>
+            <option value="house">House</option>
+            <option value="semi-detached house">Semi-Detached House</option>
+            <option value="building">Building</option>
+            <option value="palace/manor">Palace/Manor</option>
+            <option value="villa">Villa</option>
+            <option value="warehouse/hall">Warehouse/Hall</option>
+          </select>
+        </label><br><br>
+        <button type="submit">Save Changes</button>
+        <button type="button" onclick="hideObjectForm()">Cancel</button>
+      </form>
+    </div>
 
-  <!-- MAP SECTION (ALWAYS SHOWN) -->
-  <div class="section">
-    <h3>Street Map</h3>
-    <div id="streetMapDiv"></div>
-    <small>Click on the map to place or adjust the street location and see object markers.</small>
   </div>
 </div>
 
@@ -69,84 +110,123 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 function signup(){ alert("Sign Up clicked"); }
 function login(){ alert("Log In clicked"); }
 
-// ---------------- LOAD STREET ----------------
-const street = localStorage.getItem("currentStreet");
-document.getElementById("streetName").innerText = street;
+// ---------------- CATEGORY ICONS ----------------
+const categoryIcons = {
+  "Townhouse": "icons/townhouse.png",
+  "Terraced house": "icons/terraced.png",
+  "House": "icons/house.png",
+  "Semi-detached house": "icons/semi.png",
+  "Building": "icons/building.png",
+  "Palace/Manor": "icons/palace.png",
+  "Villa": "icons/villa.png",
+  "Warehouse/Hall": "icons/warehouse.png"
+};
 
-// Directory line with clickable Barnsley
+// ---------------- STREET DATA ----------------
+let street = localStorage.getItem("currentStreet");
+let objects = JSON.parse(localStorage.getItem(street + "_objects")) || [];
+
+// ---------------- DIRECTORY ----------------
 document.getElementById("directory").innerHTML =
   `United Kingdom &gt; England &gt; South Yorkshire &gt; 
    <span style="cursor:pointer; color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> &gt; 
-   ${street}`;
+   <b>${street}</b>`;
 
-// ---------------- LOAD OBJECTS ----------------
-let objects = JSON.parse(localStorage.getItem(street + "_objects")) || [];
-
+// ---------------- RENDER OBJECT LIST ----------------
 function renderObjects(){
-  const container = document.getElementById("objectsList");
-  container.innerHTML = "";
-  // Sort by street number
-  objects.sort((a,b) => parseInt(a.number) - parseInt(b.number));
-  objects.forEach((obj, idx) => {
-    const row = document.createElement("div");
-    row.className = "objectRow";
-    row.innerHTML = `
-      <div class="numberBox">${obj.number}</div>
-      <span style="cursor:pointer; color:#007bff;" onclick="openObject(${idx})">[${obj.type}] ${obj.name}</span>
-    `;
-    container.appendChild(row);
+  const listEl = document.getElementById("objectList");
+  listEl.innerHTML = "";
+  // Sort objects by number (alphanumeric)
+  objects.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true, sensitivity:'base'}));
+  objects.forEach((obj,index)=>{
+    let li = document.createElement("li");
+    li.innerHTML = `<div class="number-box">${obj.number}</div>
+                    <span class="object-name" onclick="openObject(${index})">${obj.name}</span>`;
+    listEl.appendChild(li);
   });
 }
 renderObjects();
 
-// ---------------- CREATE OBJECT ----------------
-function createObject(){
-  const number = prompt("Street Number:");
-  const name = prompt("Object Name:");
-  if(!number || !name) return;
-  const type = prompt("Object Type (Building, Church, School, etc.):");
-  objects.push({number, name, type, status:"Exists"});
-  localStorage.setItem(street + "_objects", JSON.stringify(objects));
-  renderObjects();
-}
-
 // ---------------- OPEN OBJECT ----------------
-function openObject(idx){
-  localStorage.setItem("currentObjectIndex", idx);
+function openObject(index){
+  localStorage.setItem("currentObjectIndex", index);
   window.location.href = "object.html";
 }
 
-// ---------------- MAP SECTION ----------------
-const savedStreetLocation = JSON.parse(localStorage.getItem(street + "_location"));
-
-const map = L.map('streetMapDiv').setView(
-  savedStreetLocation ? [savedStreetLocation.lat, savedStreetLocation.lng] : [53.5526, -1.4820], 17
-);
-
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-let streetMarker;
-if(savedStreetLocation){
-  streetMarker = L.marker([savedStreetLocation.lat, savedStreetLocation.lng], {draggable:true}).addTo(map)
-               .bindPopup(street).openPopup();
+// ---------------- CREATE OBJECT ----------------
+function createObject(){
+  document.getElementById("formTitle").innerText = "Create Object";
+  document.getElementById("createObjectFormContainer").style.display = "block";
+  document.getElementById("createObjectForm").reset();
+  editingIndex = null;
 }
 
-// Add object markers
-objects.forEach((obj, idx) => {
-  const loc = JSON.parse(localStorage.getItem(street + "_object_" + idx + "_location"));
-  if(loc){
-    L.marker([loc.lat, loc.lng]).addTo(map).bindPopup(`[${obj.type}] ${obj.name}`);
+function hideObjectForm(){
+  document.getElementById("createObjectFormContainer").style.display = "none";
+}
+
+// ---------------- FORM SUBMIT ----------------
+let editingIndex = null;
+document.getElementById("createObjectForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const form = e.target;
+  const number = form.number.value.trim();
+  const name = form.name.value.trim();
+  const yearBuilt = form.yearBuilt.value.trim();
+  const yearDestroyed = form.yearDestroyed.value.trim();
+  const description = form.description.value.trim();
+  const status = form.status.value;
+  const category = form.category.value;
+
+  if(!number || !name || !status || !category){
+    alert("Please fill out all required fields!");
+    return;
+  }
+
+  const obj = { number, name, yearBuilt, yearDestroyed, description, status, category };
+
+  if(editingIndex !== null){
+    objects[editingIndex] = obj;
+  } else {
+    objects.push(obj);
+  }
+
+  localStorage.setItem(street + "_objects", JSON.stringify(objects));
+  renderObjects();
+  hideObjectForm();
+});
+
+// ---------------- MAP ----------------
+const map = L.map('streetMap').setView([53.5526, -1.4820], 17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+  attribution:'&copy; OpenStreetMap contributors'
+}).addTo(map);
+
+let markers = [];
+objects.forEach((obj,index)=>{
+  const savedLoc = JSON.parse(localStorage.getItem(street + "_object_" + index + "_location"));
+  if(savedLoc){
+    const icon = L.icon({
+      iconUrl: categoryIcons[obj.category] || 'icons/default.png',
+      iconSize: [32,32],
+      iconAnchor: [16,32],
+      popupAnchor: [0,-32]
+    });
+    const marker = L.marker([savedLoc.lat, savedLoc.lng], {icon: icon, draggable:true}).addTo(map)
+                     .bindPopup(obj.name);
+    marker.on('click', ()=>openObject(index));
+    markers.push(marker);
+    marker.on('dragend', function(){
+      localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify(marker.getLatLng()));
+    });
   }
 });
 
-// Click to place/adjust street
+// ---------------- CLICK MAP TO PLACE MARKER FOR NEW OBJECT ----------------
 map.on('click', function(e){
-  const latlng = e.latlng;
-  if(streetMarker) streetMarker.setLatLng(latlng);
-  else streetMarker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(street).openPopup();
-  localStorage.setItem(street + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
+  if(editingIndex===null){
+    alert("Place object marker after creating the object first!");
+  }
 });
 </script>
 </body>
