@@ -3,10 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <title>Interactive Barnsley</title>
-<!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <style>
 body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
 header { background:#f0f0f0; color:black; padding:15px; display:flex; justify-content:space-between; align-items:center; }
@@ -14,14 +12,11 @@ header h1 { margin:0; }
 header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
 
 .section { margin:20px; background:white; padding:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-
 #streetsList li { margin:5px 0; }
-
 #homeMap { width:100%; height:500px; margin-top:20px; border-radius:6px; }
 button { cursor:pointer; }
 </style>
 </head>
-
 <body>
 
 <header>
@@ -32,16 +27,11 @@ button { cursor:pointer; }
   </div>
 </header>
 
-<!-- Streets List -->
 <div class="section">
-  <h2>
-    Streets
-    <button onclick="addStreet()" style="margin-left:10px;">Add Street</button>
-  </h2>
+  <h2>Streets <button onclick="addStreet()" style="margin-left:10px;">Add Street</button></h2>
   <ul id="streetsList"></ul>
 </div>
 
-<!-- Map -->
 <div class="section">
   <h2>Map</h2>
   <div id="homeMap"></div>
@@ -58,36 +48,24 @@ function renderStreetsList(){
   streetsListEl.innerHTML = "";
   let streets = JSON.parse(localStorage.getItem("streets")) || [];
   streets.sort();
-
   streets.forEach(street=>{
-    let li = document.createElement("li");
-    li.innerHTML = `
-      <span style="cursor:pointer; color:#007bff;" onclick="openStreet('${street}')">${street}</span>
-    `;
+    const li = document.createElement("li");
+    li.innerHTML = `<span style="cursor:pointer;color:#007bff;" onclick="openStreet('${street}')">${street}</span>`;
     streetsListEl.appendChild(li);
   });
 }
 
-// Initial render
-renderStreetsList();
-
 // ---------------- ADD STREET ----------------
 function addStreet(){
-  let streetName = prompt("Enter new street name:");
+  const streetName = prompt("Enter new street name:");
   if(!streetName) return;
-
   let streets = JSON.parse(localStorage.getItem("streets")) || [];
-
-  if(streets.includes(streetName)){
-    alert("Street already exists!");
-    return;
-  }
-
-  streets.push(streetName);
-  streets.sort();
+  if(streets.includes(streetName)){ alert("Street already exists!"); return; }
+  streets.push(streetName); streets.sort();
   localStorage.setItem("streets", JSON.stringify(streets));
   renderStreetsList();
 }
+renderStreetsList();
 
 // ---------------- OPEN STREET ----------------
 function openStreet(streetName){
@@ -95,27 +73,22 @@ function openStreet(streetName){
   window.location.href = "street.html";
 }
 
-// ---------------- INIT MAP (LEAFLET) ----------------
-const map = L.map('homeMap').setView([53.5526, -1.4820], 13); // Barnsley center
+// ---------------- MAP ----------------
+const map = L.map('homeMap').setView([53.5526,-1.4820],13);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
 
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-  attribution: '&copy; OpenStreetMap contributors'
-}).addTo(map);
-
-// Add markers for streets with saved locations
+// Markers for streets with saved locations
 function renderStreetMarkers(){
   let streets = JSON.parse(localStorage.getItem("streets")) || [];
   streets.forEach(street=>{
-    const location = JSON.parse(localStorage.getItem(street + "_location"));
-    if(location){
-      const marker = L.marker([location.lat, location.lng]).addTo(map)
+    const loc = JSON.parse(localStorage.getItem(street + "_location"));
+    if(loc){
+      const marker = L.marker([loc.lat, loc.lng]).addTo(map)
         .bindPopup(`<b>${street}</b><br><span style="cursor:pointer;color:#007bff;" onclick="openStreet('${street}')">Open Street</span>`);
     }
   });
 }
-
 renderStreetMarkers();
 </script>
-
 </body>
 </html>
