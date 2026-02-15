@@ -12,6 +12,12 @@ header h1 { margin:0; cursor:pointer; }
 header h1:hover { text-decoration: underline; }
 header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
 
+.street-info { margin:20px; padding:15px; background:white; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
+.street-info h1 { margin:0; font-weight:bold; }
+.street-info #directory { font-size:0.9em; color:#555; margin-top:5px; }
+.street-buttons { margin-top:10px; }
+.street-buttons button { margin-right:10px; padding:6px 12px; cursor:pointer; }
+
 .container { display:flex; margin:20px; gap:20px; }
 .left-column { width:250px; }
 .left-column h2 { margin-top:0; display:flex; justify-content:space-between; align-items:center; }
@@ -22,10 +28,8 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
 .object-name:hover { text-decoration:underline; }
 
 .right-column { flex:1; }
-
 #streetMap { width:100%; height:500px; border-radius:6px; }
 
-#directory { font-size:0.9em; color:#555; margin-bottom:10px; }
 button { padding:6px 12px; margin:5px; cursor:pointer; }
 </style>
 </head>
@@ -39,6 +43,17 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
   </div>
 </header>
 
+<!-- STREET INFO + BUTTONS -->
+<div class="street-info">
+  <h1 id="streetNameBold"></h1>
+  <div id="directory"></div>
+  <div class="street-buttons">
+    <button onclick="openEditStreet()">Edit</button>
+    <button onclick="openEditMap()">Edit Map</button>
+    <button onclick="deleteStreet()" style="background:#d9534f;color:white;">Delete</button>
+  </div>
+</div>
+
 <div class="container">
   <!-- LEFT COLUMN: Objects List -->
   <div class="left-column">
@@ -51,7 +66,6 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 
   <!-- RIGHT COLUMN: Map -->
   <div class="right-column">
-    <div id="directory"></div>
     <div id="streetMap"></div>
   </div>
 </div>
@@ -61,24 +75,13 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 function signup(){ alert("Sign Up clicked"); }
 function login(){ alert("Log In clicked"); }
 
-// ---------------- CATEGORY ICONS ----------------
-const categoryIcons = {
-  "townhouse": "https://polska-org.pl/gfx/category/500045.png",
-  "terraced house": "https://polska-org.pl/gfx/category/500046.png",
-  "house": "https://polska-org.pl/gfx/category/500129.png",
-  "semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
-  "building": "https://polska-org.pl/gfx/category/6216777.png",
-  "palace/manor": "https://polska-org.pl/gfx/obj/05h.png",
-  "villa": "https://polska-org.pl/gfx/obj/05c.png",
-  "warehouse/hall": "https://polska-org.pl/gfx/category/500049.png"
-};
-
 // ---------------- STREET DATA ----------------
 let street = localStorage.getItem("currentStreet");
 if(!street){
   alert("No street selected!");
   window.location.href = "index.html";
 }
+document.getElementById("streetNameBold").innerText = street;
 
 // ---------------- DIRECTORY ----------------
 document.getElementById("directory").innerHTML =
@@ -86,28 +89,43 @@ document.getElementById("directory").innerHTML =
    <span style="cursor:pointer; color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> &gt; 
    <b>${street}</b>`;
 
-// ---------------- OPEN CREATE OBJECT POPUP ----------------
-function openCreateObject(){
-  if(!street){
-    alert("No street selected!");
-    return;
-  }
-  window.open(
-    "object-create.html",
-    "CreateObject",
-    "width=450,height=520,resizable=no"
-  );
+// ---------------- STREET BUTTON FUNCTIONS ----------------
+function openEditStreet(){
+  window.open("street-edit.html", "EditStreet", "width=400,height=200,resizable=no");
 }
 
-// ---------------- RENDER OBJECT LIST ----------------
+function openEditMap(){
+  window.open("street-map.html", "EditMap", "width=600,height=600,resizable=no");
+}
+
+function deleteStreet(){
+  if(confirm("Are you sure you want to delete this street and all its objects?")){
+    // Remove all objects for this street
+    const ids = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+    ids.forEach(id=>{
+      localStorage.removeItem("object_" + id);
+      localStorage.removeItem("object_" + id + "_location");
+    });
+    localStorage.removeItem(street + "_objectIDs");
+    localStorage.removeItem(street + "_location");
+    localStorage.removeItem("currentStreet");
+    alert("Street deleted");
+    window.location.href = "index.html";
+  }
+}
+
+// ---------------- OBJECT LIST ----------------
+function openCreateObject(){
+  if(!street){ alert("No street selected"); return; }
+  window.open("object-create.html", "CreateObject", "width=450,height=520,resizable=no");
+}
+
 function renderObjects(){
   const listEl = document.getElementById("objectList");
   listEl.innerHTML = "";
-
   let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
   let objs = objectIDs.map(id => JSON.parse(localStorage.getItem("object_" + id)));
   objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true, sensitivity:'base'}));
-
   objs.forEach(obj=>{
     let li = document.createElement("li");
     li.innerHTML = `<div class="number-box">${obj.number}</div>
@@ -116,7 +134,6 @@ function renderObjects(){
   });
 }
 
-// ---------------- OPEN OBJECT ----------------
 function openObject(id){
   localStorage.setItem("currentObjectID", id);
   window.location.href = "object.html";
@@ -128,9 +145,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-// Render markers
 function renderStreetMarkers(){
-  // Remove existing markers first
   if(window.markersGroup){
     window.markersGroup.clearLayers();
   } else {
@@ -142,13 +157,7 @@ function renderStreetMarkers(){
     const obj = JSON.parse(localStorage.getItem("object_" + id));
     const loc = JSON.parse(localStorage.getItem("object_" + id + "_location"));
     if(loc){
-      const icon = L.icon({
-        iconUrl: categoryIcons[obj.category] || 'icons/default.png',
-        iconSize: [32,32],
-        iconAnchor: [16,32],
-        popupAnchor: [0,-32]
-      });
-      const marker = L.marker([loc.lat, loc.lng], {icon: icon, draggable:true}).addTo(window.markersGroup)
+      const marker = L.marker([loc.lat, loc.lng]).addTo(window.markersGroup)
         .bindPopup(obj.name);
       marker.on('click', ()=>openObject(id));
       marker.on('dragend', function(){
