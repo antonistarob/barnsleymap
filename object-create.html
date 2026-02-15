@@ -44,24 +44,15 @@ input, textarea, select {
   box-sizing:border-box;
 }
 
-textarea {
-  resize:vertical;
-}
+textarea { resize:vertical; }
 
 .buttons {
   text-align:center;
   margin-top:20px;
 }
 
-button {
-  padding:6px 14px;
-  margin:0 5px;
-  cursor:pointer;
-}
-
-.cancel {
-  background:#ccc;
-}
+button { padding:6px 14px; margin:0 5px; cursor:pointer; }
+.cancel { background:#ccc; }
 </style>
 </head>
 
@@ -128,28 +119,22 @@ function saveObject(){
     return;
   }
 
-  const id = Date.now() + Math.floor(Math.random() * 1000);
-
-  const obj = {
-    id,
-    street,
-    number,
-    name,
-    yearBuilt,
-    yearDestroyed,
-    description,
-    status,
-    category
-  };
-
+  const id = Date.now() + Math.floor(Math.random()*1000);
+  const obj = { id, street, number, name, yearBuilt, yearDestroyed, description, status, category };
   localStorage.setItem("object_" + id, JSON.stringify(obj));
 
+  // Add ID to street's object list
   const idsKey = street + "_objectIDs";
   let ids = JSON.parse(localStorage.getItem(idsKey)) || [];
   ids.push(id);
   localStorage.setItem(idsKey, JSON.stringify(ids));
 
-  window.opener.location.reload();
+  // Refresh parent
+  if(window.opener && !window.opener.closed){
+    window.opener.renderObjects?.();
+    window.opener.renderStreetMarkers?.();
+  }
+
   window.close();
 }
 
@@ -158,4 +143,7 @@ document.addEventListener("keydown", function(e){
   if(e.key === "Enter") saveObject();
   if(e.key === "Escape") window.close();
 });
-</script
+</script>
+
+</body>
+</html>
