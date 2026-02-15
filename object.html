@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Object Details</title>
+<style>
+body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
+header { 
+  background:#f0f0f0; 
+  color:black; 
+  padding:15px; 
+  display:flex; 
+  justify-content:space-between; 
+  align-items:center; 
+}
+header h1 { margin:0; cursor:pointer; }
+header h1:hover { text-decoration: underline; }
+header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
+
+.container {
+  margin:20px auto;
+  max-width:600px;
+  background:white;
+  padding:20px;
+  border-radius:6px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
+
+h2 { margin-top:0; }
+
+.label { font-weight:bold; margin-top:10px; display:block; }
+.value { margin-left:10px; }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <h1 onclick="window.location.href='street.html'">Historical Interactive Map of Barnsley</h1>
+  <div class="auth-buttons">
+    <button onclick="signup()">Sign Up</button>
+    <button onclick="login()">Log In</button>
+  </div>
+</header>
+
+<!-- OBJECT DETAILS -->
+<div class="container" id="objectContainer">
+  <h2 id="objectName"></h2>
+  <div><span class="label">Street Number:</span><span class="value" id="objectNumber"></span></div>
+  <div><span class="label">Year Built:</span><span class="value" id="objectYearBuilt"></span></div>
+  <div><span class="label">Year Destroyed:</span><span class="value" id="objectYearDestroyed"></span></div>
+  <div><span class="label">Description:</span><span class="value" id="objectDescription"></span></div>
+  <div><span class="label">Status:</span><span class="value" id="objectStatus"></span></div>
+</div>
+
+<script>
+// ---------------- AUTH MOCK ----------------
+function signup(){ alert("Sign Up clicked"); }
+function login(){ alert("Log In clicked"); }
+
+// ---------------- GET OBJECT DATA ----------------
+let street = localStorage.getItem("currentStreet");
+let objects = JSON.parse(localStorage.getItem(street + "_objects")) || [];
+let index = localStorage.getItem("currentObjectIndex");
+let obj = objects[index];
+
+if(!obj){
+  alert("No object selected!");
+  window.location.href = "street.html";
+}
+
+// ---------------- DISPLAY OBJECT DATA ----------------
+document.getElementById("objectName").innerText = `[${obj.type}] ${obj.name}`;
+document.getElementById("objectNumber").innerText = obj.number || "-";
+document.getElementById("objectYearBuilt").innerText = obj.yearBuilt || "-";
+document.getElementById("objectYearDestroyed").innerText = obj.yearDestroyed || "-";
+document.getElementById("objectDescription").innerText = obj.description || "-";
+document.getElementById("objectStatus").innerText = obj.status || "-";
+</script>
+
+</body>
+</html>
