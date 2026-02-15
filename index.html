@@ -243,14 +243,25 @@ streets.forEach(street => {
     addStreetToList(street);
 });
 
-// Save new street
+// Save new street with full data
 saveStreet.addEventListener('click', () => {
     const name = document.getElementById('streetName').value.trim();
+    const district = document.getElementById('district').value.trim();
+    const existing = document.getElementById('existing').checked;
+    const description = document.getElementById('description').value.trim();
+
     if(name !== '') {
+        // Add to list
         addStreetToList(name);
 
+        // Save name for the list
         streets.push(name);
         localStorage.setItem('streets', JSON.stringify(streets));
+
+        // Save full street data
+        let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+        streetsData[name] = { district, existing, description };
+        localStorage.setItem('streetsData', JSON.stringify(streetsData));
     }
 
     // Clear inputs and close popup
