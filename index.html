@@ -6,48 +6,62 @@
 <title>Historical Interactive Map of Barnsley</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-    /* --- Reset body padding only for header --- */
+    /* --- Body --- */
     body {
         font-family: Arial, sans-serif;
         margin: 0;
-        padding: 0 20px;
         background-color: #f7f7f7;
+        padding: 0; /* Remove general padding */
     }
+
+    /* --- Header --- */
     header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding: 15px 20px;
-        background-color: #888; /* Gray header */
+        background-color: #888; /* Gray */
         color: white;
-        width: 100vw; /* Full width */
+        width: 100%; /* Full width */
         box-sizing: border-box;
     }
+
     header h1 {
         margin: 0;
         font-size: 24px;
     }
+
     .auth-buttons button {
         margin-left: 10px;
         padding: 5px 10px;
         cursor: pointer;
     }
+
+    /* --- Sections --- */
+    section {
+        padding: 0 20px; /* Only content padding, not header */
+    }
+
     h2 {
         margin-top: 30px;
         font-size: 20px;
     }
+
     button {
         cursor: pointer;
     }
+
     #addStreetBtn {
         margin-left: 15px;
         padding: 5px 10px;
     }
+
     ul#streetList {
         list-style: none;
         padding: 0;
         margin-top: 10px;
     }
+
     ul#streetList li {
         background: white;
         margin-bottom: 5px;
@@ -57,51 +71,56 @@
 
     /* --- Popup Styles --- */
     .popup-overlay {
-        display: none;
+        display: none; /* Ensure hidden initially */
         position: fixed;
         top: 0; left: 0;
         width: 100%; height: 100%;
         background: rgba(0,0,0,0.5);
-        display: flex;
         justify-content: center;
         align-items: center;
         z-index: 1000;
     }
+
     .popup {
         background: white;
         padding: 25px;
         border-radius: 10px;
-        width: 400px; /* Bigger popup */
+        width: 400px; 
         max-width: 90%;
         box-sizing: border-box;
     }
+
     .popup h3 {
         text-align: center;
         font-weight: bold;
         margin-top: 0;
     }
+
     .popup label {
         display: block;
         margin-top: 10px;
     }
+
     .popup input[type="text"], .popup textarea {
         width: 100%;
         padding: 5px;
         margin-top: 5px;
         box-sizing: border-box;
     }
+
     .popup-buttons {
         margin-top: 15px;
         display: flex;
         justify-content: space-between;
     }
 
-    /* --- Map Styles --- */
+    /* --- Map --- */
     #map {
         height: 400px;
         margin-top: 20px;
         border-radius: 10px;
     }
+
 </style>
 </head>
 <body>
@@ -121,7 +140,7 @@
     <ul id="streetList"></ul>
 </section>
 
-<!-- Popup for Adding Street -->
+<!-- Popup -->
 <div class="popup-overlay" id="popupOverlay">
     <div class="popup">
         <h3>Add Street</h3>
@@ -160,15 +179,15 @@
     addStreetBtn.addEventListener('click', () => {
         popupOverlay.style.display = 'flex';
     });
+
     cancelStreet.addEventListener('click', () => {
         popupOverlay.style.display = 'none';
     });
 
-    // --- Street List Script ---
+    // --- Street List with localStorage ---
     const saveStreet = document.getElementById('saveStreet');
     const streetList = document.getElementById('streetList');
 
-    // Load streets from localStorage on page load
     let streets = JSON.parse(localStorage.getItem('streets')) || [];
     streets.forEach(street => {
         const li = document.createElement('li');
@@ -186,6 +205,7 @@
             streets.push(name);
             localStorage.setItem('streets', JSON.stringify(streets));
         }
+
         // Clear inputs and close popup
         document.getElementById('streetName').value = '';
         document.getElementById('district').value = '';
@@ -194,7 +214,7 @@
         popupOverlay.style.display = 'none';
     });
 
-    // --- Map Script ---
+    // --- Map ---
     const map = L.map('map').setView([53.5526, -1.4787], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
