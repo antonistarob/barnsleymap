@@ -155,7 +155,7 @@ if(!obj){
 
 // ---------------- DISPLAY OBJECT DATA ----------------
 function renderObjectData(){
-  document.getElementById("objectName").innerText = `[${obj.type}] ${obj.name}`;
+  document.getElementById("objectName").innerText = obj.name; // No [Building]
   document.getElementById("objectNumber").innerText = obj.number || "-";
   document.getElementById("objectYearBuilt").innerText = obj.yearBuilt || "-";
   document.getElementById("objectYearDestroyed").innerText = obj.yearDestroyed || "-";
