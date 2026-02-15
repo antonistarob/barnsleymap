@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8"/>
 <title>Street</title>
+<!-- Esri CSS & JS for embedded map -->
+<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
+<script src="https://js.arcgis.com/4.29/"></script>
+
 <style>
 body { font-family: Arial; padding:20px; background:#f5f5f5; }
 button { padding:6px 12px; margin:5px; cursor:pointer; }
@@ -28,6 +32,13 @@ ul { list-style:none; padding:0; }
 <div class="section">
   <h3>Street Photos (Panoramas)</h3>
   <div id="photoList"></div>
+</div>
+
+<!-- STREET LOCATION MAP -->
+<div class="section">
+  <h3>Street Location</h3>
+  <div id="streetMapDiv" style="width:100%; height:300px;"></div>
+  <p id="coordsDisplay"></p>
 </div>
 
 <!-- OBJECTS -->
@@ -147,9 +158,63 @@ function createObject(){
   }
 }
 
+// ---------------- RENDER STREET LOCATION MAP ----------------
+function renderStreetMap(){
+  const location = JSON.parse(localStorage.getItem(street + "_location"));
+  const coordsDisplay = document.getElementById("coordsDisplay");
+
+  if(location){
+    coordsDisplay.innerText = `Latitude: ${location.lat.toFixed(6)}, Longitude: ${location.lng.toFixed(6)}`;
+
+    require([
+      "esri/config",
+      "esri/Map",
+      "esri/views/MapView",
+      "esri/Graphic",
+      "esri/layers/GraphicsLayer"
+    ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer){
+
+      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- Replace with your secure key
+
+      const map = new Map({
+        basemap: "arcgis-light-gray"
+      });
+
+      const view = new MapView({
+        container: "streetMapDiv",
+        map: map,
+        center: [location.lng, location.lat],
+        zoom: 16
+      });
+
+      const graphicsLayer = new GraphicsLayer();
+      map.add(graphicsLayer);
+
+      const pointGraphic = new Graphic({
+        geometry: {
+          type: "point",
+          longitude: location.lng,
+          latitude: location.lat
+        },
+        symbol: {
+          type: "simple-marker",
+          color: "red",
+          size: "12px"
+        }
+      });
+
+      graphicsLayer.add(pointGraphic);
+    });
+
+  } else {
+    coordsDisplay.innerText = "No location set for this street yet.";
+  }
+}
+
 // ---------------- INITIAL RENDER ----------------
 renderObjects();
 renderPhotos();
+renderStreetMap();
 
 </script>
 
