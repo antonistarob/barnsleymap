@@ -264,9 +264,7 @@ function addStreetToList(name) {
 }
 
 // Load streets on page load
-streets.forEach(street => {
-    addStreetToList(street);
-});
+refreshStreetList();
 
 // Save new street with full data
 saveStreet.addEventListener('click', () => {
@@ -276,13 +274,10 @@ saveStreet.addEventListener('click', () => {
     const description = document.getElementById('description').value.trim();
 
     if(name !== '') {
-        // Add to list
-        addStreetToList(name);
-
-        // Save name for the list
-        streets.push(name);
-        localStorage.setItem('streets', JSON.stringify(streets));
-
+        
+streets.push(name);
+localStorage.setItem('streets', JSON.stringify(streets));
+refreshStreetList(); // refresh sorted list
         // Save full street data
         let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
         streetsData[name] = { district, existing, description };
