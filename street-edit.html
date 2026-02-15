@@ -1,73 +1,67 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"/>
 <title>Edit Street</title>
 <style>
-body {
-  font-family: Arial; margin:0; padding:0;
-  display:flex; justify-content:center; align-items:center; height:100vh;
-  background:#f5f5f5;
-}
-.popup {
-  background:white; padding:20px; width:350px; border-radius:6px;
-  box-shadow:0 2px 8px rgba(0,0,0,0.2);
-}
-.popup h2 { text-align:center; margin-top:0; margin-bottom:15px; font-weight:bold; }
-label { font-weight:bold; display:block; margin-top:10px; }
-input { width:100%; padding:6px; margin-top:4px; box-sizing:border-box; }
-.buttons { text-align:center; margin-top:15px; }
-button { padding:6px 14px; margin:0 5px; cursor:pointer; }
-.cancel { background:#ccc; }
+body { font-family: Arial; margin:0; padding:20px; }
+h2 { text-align:center; font-weight:bold; }
+label { display:block; margin:10px 0 5px; }
+input[type=text] { width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; }
+button { margin:10px 5px 0 0; padding:6px 12px; cursor:pointer; }
 </style>
 </head>
 <body>
-<div class="popup">
-  <h2>Edit Street</h2>
+
+<h2>Edit Street</h2>
+<form id="editStreetForm">
   <label>Street Name:</label>
-  <input type="text" id="streetNameInput">
-  <div class="buttons">
-    <button onclick="saveStreet()">Save</button>
-    <button class="cancel" onclick="window.close()">Cancel</button>
-  </div>
-</div>
+  <input type="text" name="streetName" required>
+  <button type="submit">Save</button>
+  <button type="button" onclick="window.close()">Cancel</button>
+</form>
 
 <script>
-const currentStreet = localStorage.getItem("currentStreet");
-document.getElementById("streetNameInput").value = currentStreet;
+let street = localStorage.getItem("currentStreet");
+if(!street){ alert("No street selected"); window.close(); }
+const input = document.querySelector('input[name="streetName"]');
+input.value = street;
 
-function saveStreet(){
-  const newName = document.getElementById("streetNameInput").value.trim();
-  if(!newName){ alert("Street name cannot be empty"); return; }
+document.getElementById("editStreetForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const newName = input.value.trim();
+  if(!newName){ alert("Enter street name"); return; }
+  
+  // Update streets array
+  let streets = JSON.parse(localStorage.getItem("streets")) || [];
+  streets = streets.map(s=>s===street ? newName : s);
+  localStorage.setItem("streets", JSON.stringify(streets));
 
-  // Rename objects keys
-  const idsKeyOld = currentStreet + "_objectIDs";
-  const ids = JSON.parse(localStorage.getItem(idsKeyOld)) || [];
-  ids.forEach(id=>{
-    const obj = JSON.parse(localStorage.getItem("object_" + id));
-    obj.street = newName;
-    localStorage.setItem("object_" + id, JSON.stringify(obj));
-  });
+  // Update currentStreet and object data
+  localStorage.setItem("currentStreet", newName);
+  
+  // Update object references for this street
+  let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
+  if(objectIDs.length>0){
+    localStorage.setItem(newName + "_objectIDs", JSON.stringify(objectIDs));
+    localStorage.removeItem(street + "_objectIDs");
+    objectIDs.forEach(id=>{
+      const obj = JSON.parse(localStorage.getItem("object_" + id));
+      obj.street = newName;
+      localStorage.setItem("object_" + id, JSON.stringify(obj));
+    });
+  }
 
-  // Rename IDs key
-  localStorage.setItem(newName + "_objectIDs", JSON.stringify(ids));
-  localStorage.removeItem(idsKeyOld);
-
-  // Rename location
-  const loc = localStorage.getItem(currentStreet + "_location");
+  // Update location
+  const loc = localStorage.getItem(street + "_location");
   if(loc){
     localStorage.setItem(newName + "_location", loc);
-    localStorage.removeItem(currentStreet + "_location");
+    localStorage.removeItem(street + "_location");
   }
 
-  localStorage.setItem("currentStreet", newName);
-
-  // Refresh parent
-  if(window.opener && !window.opener.closed){
-    window.opener.location.reload();
-  }
+  alert("Street updated");
   window.close();
-}
+});
 </script>
 </body>
 </html>
