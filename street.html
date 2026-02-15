@@ -100,8 +100,22 @@
 
 <h1 id="streetTitle"></h1>
 
-<!-- Edit/Delete Buttons -->
+    <h2>Objects on this street</h2>
+<table id="objectsTable" style="width:100%; border-collapse: collapse; margin-top:10px;">
+    <thead>
+        <tr>
+            <th style="text-align:left; border-bottom:1px solid #555; padding:5px;">Street Number</th>
+            <th style="text-align:left; border-bottom:1px solid #555; padding:5px;">Building Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dynamically filled -->
+    </tbody>
+</table>
+
+<!-- AddObject/Edit/Delete Buttons -->
 <div id="streetButtons" style="margin-bottom: 15px;">
+<button id="addObjectBtn" class="action-button" style="margin-right:10px;">Add Object</button>
 <button id="editBtn" class="action-button">Edit</button>
 <button id="deleteStreet" class="action-button">Delete</button>
 </div>
@@ -279,6 +293,40 @@ confirmDelete.addEventListener('click', () => {
     // Close popup and go back to index
     deletePopupOverlay.style.display = 'none';
     window.location.href = 'index.html';
+});
+
+    const addObjectBtn = document.getElementById('addObjectBtn');
+const objectsTableBody = document.querySelector('#objectsTable tbody');
+
+// Load objects for this street
+let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+let objects = streetObjects[streetName] || [];
+objects.forEach(obj => addObjectRow(obj.number, obj.name));
+
+// Function to add a row to the table
+function addObjectRow(number, name) {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+        <td style="padding:5px; border-bottom:1px solid #555;">${number}</td>
+        <td style="padding:5px; border-bottom:1px solid #555;">${name}</td>
+    `;
+    objectsTableBody.appendChild(tr);
+}
+
+// Add Object popup (simplified for now)
+addObjectBtn.addEventListener('click', () => {
+    const number = prompt('Enter Street Number:');
+    if(!number) return;
+    const name = prompt('Enter Building Name:');
+    if(!name) return;
+
+    // Save to localStorage
+    objects.push({number, name});
+    streetObjects[streetName] = objects;
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+    // Add to table
+    addObjectRow(number, name);
 });
 </script>
 
