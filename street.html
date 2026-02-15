@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8"/>
 <title>Street</title>
-<!-- Esri CSS & JS -->
-<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
-<script src="https://js.arcgis.com/4.29/"></script>
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
 body { font-family: Arial; margin:0; padding:0; display:flex; background:#f5f5f5; }
@@ -35,9 +35,37 @@ img { max-width:300px; display:block; margin:10px 0; }
 h2,h3,h4 { margin:10px 0; }
 ul { list-style:none; padding:0; }
 
-/* Sidebar list */
-.object-item { margin:6px 0; cursor:default; }
-.object-item span { font-weight:bold; }
+/* Sidebar object styling */
+.object-item {
+  display: flex;
+  align-items: center;
+  margin:6px 0;
+  padding:4px;
+  border-radius:4px;
+}
+.object-number {
+  background:#007bff;
+  color:white;
+  font-weight:bold;
+  padding:4px 8px;
+  border-radius:4px;
+  margin-right:10px;
+  min-width:40px;
+  text-align:center;
+  flex-shrink:0;
+}
+.object-info span {
+  font-weight:bold;
+  margin-right:5px;
+}
+
+/* Leaflet map */
+#streetMapDiv {
+  width: 100%;
+  height: 300px;
+  border-radius:6px;
+  margin-top:10px;
+}
 </style>
 </head>
 
@@ -70,7 +98,7 @@ ul { list-style:none; padding:0; }
 <!-- STREET LOCATION MAP -->
 <div class="section">
   <h3>Street Location</h3>
-  <div id="streetMapDiv" style="width:100%; height:300px;"></div>
+  <div id="streetMapDiv"></div>
   <p id="coordsDisplay"></p>
 </div>
 
@@ -96,14 +124,21 @@ document.getElementById("streetName").innerText = street;
 function renderObjects(){
   let sidebar = document.getElementById("sidebarList");
 
-  // Sort by number ascending
+  // Sort objects by number
   objects.sort((a,b)=>Number(a.number) - Number(b.number));
 
   sidebar.innerHTML = "";
   objects.forEach(obj=>{
     let li = document.createElement("li");
     li.classList.add("object-item");
-    li.innerHTML = `<span>[${obj.type}]</span> ${obj.name} (#${obj.number})`;
+
+    li.innerHTML = `
+      <div class="object-number">#${obj.number}</div>
+      <div class="object-info">
+        [${obj.type}] ${obj.name}
+      </div>
+    `;
+
     sidebar.appendChild(li);
   });
 }
@@ -190,7 +225,7 @@ function createObject(){
   }
 }
 
-// ---------------- RENDER STREET LOCATION MAP ----------------
+// ---------------- RENDER STREET LOCATION MAP (LEAFLET) ----------------
 function renderStreetMap(){
   const location = JSON.parse(localStorage.getItem(street + "_location"));
   const coordsDisplay = document.getElementById("coordsDisplay");
@@ -198,45 +233,18 @@ function renderStreetMap(){
   if(location){
     coordsDisplay.innerText = `Latitude: ${location.lat.toFixed(6)}, Longitude: ${location.lng.toFixed(6)}`;
 
-    require([
-      "esri/config",
-      "esri/Map",
-      "esri/views/MapView",
-      "esri/Graphic",
-      "esri/layers/GraphicsLayer"
-    ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer){
+    // Create Leaflet map
+    const map = L.map('streetMapDiv').setView([location.lat, location.lng], 16);
 
-      esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- Replace with your key
+    // OSM tiles
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-      const map = new Map({
-        basemap: "arcgis-light-gray"
-      });
-
-      const view = new MapView({
-        container: "streetMapDiv",
-        map: map,
-        center: [location.lng, location.lat],
-        zoom: 16
-      });
-
-      const graphicsLayer = new GraphicsLayer();
-      map.add(graphicsLayer);
-
-      const pointGraphic = new Graphic({
-        geometry: {
-          type: "point",
-          longitude: location.lng,
-          latitude: location.lat
-        },
-        symbol: {
-          type: "simple-marker",
-          color: "red",
-          size: "12px"
-        }
-      });
-
-      graphicsLayer.add(pointGraphic);
-    });
+    // Marker
+    L.marker([location.lat, location.lng]).addTo(map)
+      .bindPopup(street)
+      .openPopup();
 
   } else {
     coordsDisplay.innerText = "No location set for this street yet.";
@@ -247,7 +255,6 @@ function renderStreetMap(){
 renderObjects();
 renderPhotos();
 renderStreetMap();
-
 </script>
 
 </body>
