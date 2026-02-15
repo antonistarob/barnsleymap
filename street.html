@@ -253,7 +253,7 @@ const deleteMessage = document.getElementById('deleteMessage');
 // Open delete popup
 deleteBtn.addEventListener('click', () => {
     // Insert the street name dynamically
-    deleteMessage.textContent = `Are you sure you want to delete "${streetName}"?`;
+    deleteMessage.textContent = `Are you sure you want to delete <b>"${streetName}"<b/>?`;
     deletePopupOverlay.style.display = 'flex';
 });
 
