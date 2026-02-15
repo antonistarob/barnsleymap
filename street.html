@@ -103,8 +103,7 @@
 <h1 id="streetTitle"></h1>
 
 <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
-<p id="descriptionWrapper"><strong>Description:</strong></p>
-<p id="streetDescription"></p>
+<p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
     
 <!-- Objects Table -->
 <h2>Objects on this street</h2>
@@ -122,7 +121,7 @@
 
 <!-- AddObject/Edit/Delete Buttons -->
 <div id="streetButtons" style="margin-top:15px;">
-    <button id="addObjectBtn" class="action-button"">Add Object</button>
+    <button id="addObjectBtn" class="action-button">Add Object</button>
     <button id="editBtn" class="action-button">Edit</button>
     <button id="deleteStreet" class="action-button">Delete</button>
 </div>
@@ -186,26 +185,24 @@
        // District always shows
 document.getElementById('streetDistrict').textContent = data.district || 'N/A';
 
-// Existing: hide if true
+// Existing: hide if true, show 'No' if false
 const existingWrapper = document.getElementById('existingWrapper');
 const existingEl = document.getElementById('streetExisting');
-if(data.existing === false) {
+if (data.existing === false) {
     existingWrapper.style.display = 'block';
     existingEl.textContent = 'No';
 } else {
     existingWrapper.style.display = 'none';
 }
 
-// Description: hide if empty
+// Description: hide completely if empty
 const descriptionWrapper = document.getElementById('descriptionWrapper');
 const descEl = document.getElementById('streetDescription');
-if(data.description && data.description.trim() !== '') {
+if (data.description && data.description.trim() !== '') {
     descriptionWrapper.style.display = 'block';
-    descEl.style.display = 'block';
     descEl.textContent = data.description;
 } else {
     descriptionWrapper.style.display = 'none';
-    descEl.style.display = 'none';
 }
     } else {
         document.getElementById('streetTitle').textContent = 'Street not found';
