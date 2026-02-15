@@ -4,23 +4,33 @@
 <meta charset="utf-8"/>
 <title>Create Object</title>
 <style>
-body { font-family: Arial; margin:0; padding:20px; }
+body { font-family: Arial; margin:20px; }
 h2 { text-align:center; font-weight:bold; }
 label { display:block; margin:10px 0 5px; }
-input, textarea, select { width:100%; padding:6px; border-radius:4px; border:1px solid #ccc; margin-bottom:10px; }
-button { padding:6px 12px; margin-right:5px; cursor:pointer; }
+input, textarea, select { width:100%; padding:5px; }
+button { margin-top:10px; padding:6px 12px; cursor:pointer; }
 </style>
 </head>
 <body>
 
 <h2>Create Object</h2>
 <form id="createObjectForm">
-  <label>Street Number:</label><input type="text" name="number" required>
-  <label>Name:</label><input type="text" name="name" required>
-  <label>Year Built:</label><input type="text" name="yearBuilt">
-  <label>Year Destroyed:</label><input type="text" name="yearDestroyed">
-  <label>Description:</label><textarea name="description" rows="3"></textarea>
-  <label>Status:</label>
+  <label>Street Number (required)</label>
+  <input type="text" name="number" required>
+  
+  <label>Object Name (required)</label>
+  <input type="text" name="name" required>
+  
+  <label>Year Built (optional)</label>
+  <input type="text" name="yearBuilt">
+  
+  <label>Year Destroyed (optional)</label>
+  <input type="text" name="yearDestroyed">
+  
+  <label>Description (optional)</label>
+  <textarea name="description" rows="3"></textarea>
+  
+  <label>Status (required)</label>
   <select name="status" required>
     <option value="">Select status</option>
     <option value="Exists">Exists</option>
@@ -29,7 +39,8 @@ button { padding:6px 12px; margin-right:5px; cursor:pointer; }
     <option value="For Demolition">For Demolition</option>
     <option value="In construction">In construction</option>
   </select>
-  <label>Category:</label>
+  
+  <label>Category (required)</label>
   <select name="category" required>
     <option value="">Select category</option>
     <option value="townhouse">Townhouse</option>
@@ -41,34 +52,38 @@ button { padding:6px 12px; margin-right:5px; cursor:pointer; }
     <option value="villa">Villa</option>
     <option value="warehouse/hall">Warehouse/Hall</option>
   </select>
+  
   <button type="submit">Save</button>
   <button type="button" onclick="window.close()">Cancel</button>
 </form>
 
 <script>
 let street = localStorage.getItem("currentStreet");
-if(!street){ alert("No street selected"); window.close(); }
+let objectIDs = JSON.parse(localStorage.getItem(street+"_objectIDs")) || [];
 
 document.getElementById("createObjectForm").addEventListener("submit", function(e){
   e.preventDefault();
   const form = e.target;
+  const number = form.number.value.trim();
+  const name = form.name.value.trim();
+  const yearBuilt = form.yearBuilt.value.trim();
+  const yearDestroyed = form.yearDestroyed.value.trim();
+  const description = form.description.value.trim();
+  const status = form.status.value;
+  const category = form.category.value;
+
+  if(!number || !name || !status || !category){
+    alert("Fill required fields!");
+    return;
+  }
+
   const id = Date.now() + Math.floor(Math.random()*1000);
-  const obj = {
-    id,
-    street,
-    number: form.number.value.trim(),
-    name: form.name.value.trim(),
-    yearBuilt: form.yearBuilt.value.trim(),
-    yearDestroyed: form.yearDestroyed.value.trim(),
-    description: form.description.value.trim(),
-    status: form.status.value,
-    category: form.category.value
-  };
-  localStorage.setItem("object_" + id, JSON.stringify(obj));
-  let ids = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
-  ids.push(id);
-  localStorage.setItem(street + "_objectIDs", JSON.stringify(ids));
-  localStorage.setItem("currentObjectID", id);
+  const obj = {id, street, number, name, yearBuilt, yearDestroyed, description, status, category};
+  localStorage.setItem("object_"+id, JSON.stringify(obj));
+  
+  objectIDs.push(id);
+  localStorage.setItem(street+"_objectIDs", JSON.stringify(objectIDs));
+  
   alert("Object created!");
   window.close();
 });
