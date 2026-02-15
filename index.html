@@ -55,14 +55,25 @@ let streets = JSON.parse(localStorage.getItem("streets")) || [];
 // Alphabetical order
 streets.sort();
 
-// Render streets list
+// Render streets list with clickable text
 const streetsListEl = document.getElementById("streetsList");
+streetsListEl.innerHTML = ""; // clear existing
+
 streets.forEach(street=>{
   let li = document.createElement("li");
-  li.innerHTML = `
-    ${street} 
-    <button onclick="openStreet('${street}')">Open</button>
-  `;
+
+  // Make the street name clickable
+  let link = document.createElement("a");
+  link.href = "#";
+  link.innerText = street;
+  link.style.textDecoration = "none";
+  link.style.color = "#007bff";
+  link.onclick = function(){
+    localStorage.setItem("currentStreet", street);
+    window.location.href = "street.html";
+  };
+
+  li.appendChild(link);
   streetsListEl.appendChild(li);
 });
 
