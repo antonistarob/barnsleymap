@@ -133,11 +133,11 @@
     </div>
 </div>
 
-    <!-- Delete Confirmation Popup -->
+<!-- Delete Confirmation Popup -->
 <div class="popup-overlay" id="deletePopupOverlay">
     <div class="popup">
         <h3>Delete Street</h3>
-        <p>Are you sure you want to delete this street?</p>
+        <p id="deleteMessage">Are you sure you want to delete this street?</p>
         <div class="popup-buttons">
             <button id="confirmDelete" class="action-button">Yes, Delete</button>
             <button id="cancelDelete" class="action-button">Cancel</button>
@@ -248,9 +248,12 @@ const deleteBtn = document.getElementById('deleteStreet');
 const deletePopupOverlay = document.getElementById('deletePopupOverlay');
 const cancelDelete = document.getElementById('cancelDelete');
 const confirmDelete = document.getElementById('confirmDelete');
+const deleteMessage = document.getElementById('deleteMessage');
 
 // Open delete popup
 deleteBtn.addEventListener('click', () => {
+    // Insert the street name dynamically
+    deleteMessage.textContent = `Are you sure you want to delete "${streetName}"?`;
     deletePopupOverlay.style.display = 'flex';
 });
 
