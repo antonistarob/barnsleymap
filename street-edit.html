@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Edit Street</title>
+
+<style>
+body {
+  font-family: Arial, sans-serif;
+  background:#f5f5f5;
+  margin:0;
+  padding:0;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  height:100vh;
+}
+
+.popup {
+  background:white;
+  padding:20px;
+  width:320px;
+  border-radius:6px;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+.popup h2 {
+  text-align:center;
+  margin-top:0;
+  margin-bottom:20px;
+  font-weight:bold;
+}
+
+.label {
+  font-weight:bold;
+  margin-bottom:5px;
+  display:block;
+}
+
+input {
+  width:100%;
+  padding:6px;
+  margin-bottom:15px;
+  box-sizing:border-box;
+}
+
+.buttons {
+  text-align:center;
+}
+
+button {
+  padding:6px 14px;
+  margin:0 5px;
+  cursor:pointer;
+}
+
+.cancel {
+  background:#ccc;
+}
+</style>
+</head>
+
+<body>
+
+<div class="popup">
+  <h2>Edit Street</h2>
+
+  <label class="label">Street Name:</label>
+  <input type="text" id="streetNameInput">
+
+  <div class="buttons">
+    <button onclick="saveStreetName()">Save</button>
+    <button class="cancel" onclick="window.close()">Cancel</button>
+  </div>
+</div>
+
+<script>
+// Current street name
+const oldName = localStorage.getItem("currentStreet");
+document.getElementById("streetNameInput").value = oldName;
+document.getElementById("streetNameInput").select();
+
+function saveStreetName(){
+  const newName = document.getElementById("streetNameInput").value.trim();
+
+  if(!newName){
+    alert("Street name cannot be empty.");
+    return;
+  }
+
+  let streets = JSON.parse(localStorage.getItem("streets")) || [];
+  if(streets.includes(newName)){
+    alert("Street already exists!");
+    return;
+  }
+
+  // Update streets list
+  streets = streets.map(s => s === oldName ? newName : s);
+  localStorage.setItem("streets", JSON.stringify(streets));
+
+  // Move street location
+  const loc = localStorage.getItem(oldName + "_location");
+  if(loc){
+    localStorage.setItem(newName + "_location", loc);
+    localStorage.removeItem(oldName + "_location");
+  }
+
+  // Move object IDs and update objects
+  const ids = localStorage.getItem(oldName + "_objectIDs");
+  if(ids){
+    localStorage.setItem(newName + "_objectIDs", ids);
+    localStorage.removeItem(oldName + "_objectIDs");
+
+    JSON.parse(ids).forEach(id=>{
+      let obj = JSON.parse(localStorage.getItem("object_" + id));
+      obj.street = newName;
+      localStorage.setItem("object_" + id, JSON.stringify(obj));
+    });
+  }
+
+  // Update current street and refresh parent
+  localStorage.setItem("currentStreet", newName);
+  window.opener.location.reload();
+  window.close();
+}
+</script>
+
+</body>
+</html>
