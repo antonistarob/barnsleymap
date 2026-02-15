@@ -184,25 +184,29 @@
         const streetData = JSON.parse(localStorage.getItem('streetsData')) || {};
         const data = streetData[streetName] || {};
 
-        // District always shows
+       // District always shows
 document.getElementById('streetDistrict').textContent = data.district || 'N/A';
 
-// Existing: show only if false
+// Existing: hide if true
+const existingWrapper = document.getElementById('existingWrapper');
 const existingEl = document.getElementById('streetExisting');
 if(data.existing === false) {
-    existingEl.parentElement.style.display = 'block';
+    existingWrapper.style.display = 'block';
     existingEl.textContent = 'No';
 } else {
-    existingEl.parentElement.style.display = 'none';
+    existingWrapper.style.display = 'none';
 }
 
-// Description: show only if not empty
+// Description: hide if empty
+const descriptionWrapper = document.getElementById('descriptionWrapper');
 const descEl = document.getElementById('streetDescription');
 if(data.description && data.description.trim() !== '') {
-    descEl.parentElement.style.display = 'block';
+    descriptionWrapper.style.display = 'block';
+    descEl.style.display = 'block';
     descEl.textContent = data.description;
 } else {
-    descEl.parentElement.style.display = 'none';
+    descriptionWrapper.style.display = 'none';
+    descEl.style.display = 'none';
 }
     } else {
         document.getElementById('streetTitle').textContent = 'Street not found';
