@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Street Info</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: #121212;
+        color: #eee;
+        padding: 20px;
+    }
+    a {
+        color: #4a90e2;
+        text-decoration: none;
+    }
+    h1 {
+        margin-bottom: 10px;
+    }
+</style>
+</head>
+<body>
+
+<h1 id="streetTitle"></h1>
+<p><strong>District:</strong> <span id="streetDistrict"></span></p>
+<p><strong>Existing:</strong> <span id="streetExisting"></span></p>
+<p><strong>Description:</strong></p>
+<p id="streetDescription"></p>
+<a href="index.html">Back to Map</a>
+
+<script>
+    // Helper function to get URL parameter
+    function getQueryParam(param) {
+        const urlParams = new URLSearchParams(window.location.search);
+        return urlParams.get(param);
+    }
+
+    const streetName = getQueryParam('name');
+
+    if(streetName) {
+        // Show street name
+        document.getElementById('streetTitle').textContent = streetName;
+
+        // Load street info from localStorage
+        const streetData = JSON.parse(localStorage.getItem('streetsData')) || {};
+        const data = streetData[streetName] || {};
+
+        document.getElementById('streetDistrict').textContent = data.district || 'N/A';
+        document.getElementById('streetExisting').textContent = data.existing ? 'Yes' : 'No';
+        document.getElementById('streetDescription').textContent = data.description || 'No description';
+    } else {
+        document.getElementById('streetTitle').textContent = 'Street not found';
+    }
+</script>
+
+</body>
+</html>
