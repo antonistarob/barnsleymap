@@ -18,6 +18,62 @@
     h1 {
         margin-bottom: 10px;
     }
+
+     /* --- Popup Styles --- */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
+
+    .popup {
+        background: #1f1f1f;
+        padding: 25px;
+        border-radius: 10px;
+        width: 400px; 
+        max-width: 90%;
+        box-sizing: border-box;
+        color: #eee;
+        border: 1px solid #444;
+    }
+
+    .popup h3 {
+        text-align: center;
+        margin-top: 0;
+        color: #fff;
+    }
+
+    .popup label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    .popup input[type="text"], .popup textarea, .popup select {
+        width: 100%;
+        padding: 5px;
+        margin-top: 5px;
+        box-sizing: border-box;
+        background-color: #2b2b2b;
+        color: #eee;
+        border: 1px solid #555;
+        border-radius: 5px;
+    }
+
+    .popup input[type="checkbox"] {
+        transform: scale(1.2);
+        margin-right: 5px;
+    }
+
+    .popup-buttons {
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
+    }
 </style>
 </head>
 <body>
@@ -26,11 +82,11 @@
 
 <!-- Edit/Delete Buttons -->
 <div id="streetButtons" style="margin-bottom: 15px;">
-    <button id="editBtn" style="margin-right: 10px; background-color:#2b2b2b; color:#eee; padding: 2px 8px; font-size: 14px;">Edit</button>
+    <button id="editBtn" style="margin-right: 10px; padding: 2px 8px; font-size: 14px;">Edit</button>
     <button id="deleteStreet" style="padding: 2px 8px; background-color:#2b2b2b; color:#eee; font-size: 14px;">Delete</button>
 </div>
 
-    <!-- Edit Street Popup -->
+<!-- Edit Street Popup -->
 <div class="popup-overlay" id="editPopupOverlay">
     <div class="popup">
         <h3>Edit Street</h3>
@@ -88,7 +144,7 @@
     }
 
     // --- Edit Street Popup ---
-const editBtn = document.getElementById('editStreet');
+const editBtn = document.getElementById('editBtn');
 const editPopupOverlay = document.getElementById('editPopupOverlay');
 const cancelEditStreet = document.getElementById('cancelEditStreet');
 const saveEditStreet = document.getElementById('saveEditStreet');
