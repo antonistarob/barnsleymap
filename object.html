@@ -61,6 +61,7 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
   <!-- ACTION BUTTONS -->
   <button onclick="addPhoto()">Add Photo</button>
   <button onclick="editObject()">Edit</button>
+  <button onclick="enableEditMap()">Edit Map</button>
   <button onclick="deleteObject()" style="background:#d9534f;color:white;">Delete</button>
 
   <!-- Object fields -->
@@ -133,7 +134,6 @@ function renderObjectData(){
   document.getElementById("objectDescription").innerText = obj.description || "-";
   document.getElementById("objectStatus").innerText = obj.status || "-";
 
-  // Directory line with clickable Barnsley and street
   document.getElementById("directory").innerHTML =
     `United Kingdom &gt; England &gt; South Yorkshire &gt; 
      <span style="cursor:pointer; color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> &gt; 
@@ -234,18 +234,44 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 let marker;
 if(savedLocation){
-  marker = L.marker([savedLocation.lat, savedLocation.lng], {draggable:true}).addTo(map)
+  marker = L.marker([savedLocation.lat, savedLocation.lng], {draggable:false}).addTo(map)
            .bindPopup(obj.name)
            .openPopup();
+} else {
+  marker = L.marker([53.5526, -1.4820], {draggable:false}).addTo(map)
+           .bindPopup(obj.name);
 }
 
-// Click to place/adjust object
+// Place new marker by clicking map if none exists
 map.on('click', function(e){
-  const latlng = e.latlng;
-  if(marker) marker.setLatLng(latlng);
-  else marker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
-  localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
+  if(!marker){
+    const latlng = e.latlng;
+    marker = L.marker([latlng.lat, latlng.lng], {draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
+    saveLocation(latlng);
+  }
 });
+
+// ---------------- EDIT MAP FUNCTION ----------------
+function enableEditMap(){
+  if(marker){
+    marker.dragging.enable();
+    alert("Drag the marker to change the object's location. Changes are saved automatically.");
+  } else {
+    alert("Click on the map to place the object marker first.");
+  }
+}
+
+// Save location whenever marker is dragged
+function saveLocation(latlng){
+  localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
+}
+
+if(marker){
+  marker.on('dragend', function(e){
+    saveLocation(marker.getLatLng());
+    alert("Location updated!");
+  });
+}
 </script>
 </body>
 </html>
