@@ -7,14 +7,12 @@
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <style>
 body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
-header { background:#f0f0f0; color:black; padding:15px; display:flex; justify-content:space-between; align-items:center; }
+header { background:#f0f0f0; padding:15px; display:flex; justify-content:space-between; align-items:center; }
 header h1 { margin:0; }
 header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
-
 .section { margin:20px; background:white; padding:15px; border-radius:6px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
 #streetsList li { margin:5px 0; }
 #homeMap { width:100%; height:500px; margin-top:20px; border-radius:6px; }
-button { cursor:pointer; }
 </style>
 </head>
 <body>
@@ -28,7 +26,10 @@ button { cursor:pointer; }
 </header>
 
 <div class="section">
-  <h2>Streets <button onclick="addStreet()" style="margin-left:10px;">Add Street</button></h2>
+  <h2>
+    Streets
+    <button onclick="addStreet()" style="margin-left:10px;">Add Street</button>
+  </h2>
   <ul id="streetsList"></ul>
 </div>
 
@@ -42,53 +43,49 @@ button { cursor:pointer; }
 function signup(){ alert("Sign Up clicked"); }
 function login(){ alert("Log In clicked"); }
 
-// ---------------- LOAD STREETS ----------------
+// ---------------- STREETS LIST ----------------
 function renderStreetsList(){
   const streetsListEl = document.getElementById("streetsList");
   streetsListEl.innerHTML = "";
   let streets = JSON.parse(localStorage.getItem("streets")) || [];
   streets.sort();
   streets.forEach(street=>{
-    const li = document.createElement("li");
-    li.innerHTML = `<span style="cursor:pointer;color:#007bff;" onclick="openStreet('${street}')">${street}</span>`;
+    let li = document.createElement("li");
+    li.innerHTML = `<span style="cursor:pointer; color:#007bff;" onclick="openStreet('${street}')">${street}</span>`;
     streetsListEl.appendChild(li);
   });
 }
+renderStreetsList();
 
-// ---------------- ADD STREET ----------------
 function addStreet(){
-  const streetName = prompt("Enter new street name:");
-  if(!streetName) return;
+  let name = prompt("Enter street name:");
+  if(!name) return;
   let streets = JSON.parse(localStorage.getItem("streets")) || [];
-  if(streets.includes(streetName)){ alert("Street already exists!"); return; }
-  streets.push(streetName); streets.sort();
+  if(streets.includes(name)){ alert("Street already exists!"); return; }
+  streets.push(name);
+  streets.sort();
   localStorage.setItem("streets", JSON.stringify(streets));
   renderStreetsList();
 }
-renderStreetsList();
 
-// ---------------- OPEN STREET ----------------
-function openStreet(streetName){
-  localStorage.setItem("currentStreet", streetName);
-  window.location.href = "street.html";
+function openStreet(street){
+  localStorage.setItem("currentStreet", street);
+  window.location.href = street + ".html"; // Each street has separate HTML
 }
 
 // ---------------- MAP ----------------
 const map = L.map('homeMap').setView([53.5526,-1.4820],13);
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
 
-// Markers for streets with saved locations
-function renderStreetMarkers(){
-  let streets = JSON.parse(localStorage.getItem("streets")) || [];
-  streets.forEach(street=>{
-    const loc = JSON.parse(localStorage.getItem(street + "_location"));
-    if(loc){
-      const marker = L.marker([loc.lat, loc.lng]).addTo(map)
-        .bindPopup(`<b>${street}</b><br><span style="cursor:pointer;color:#007bff;" onclick="openStreet('${street}')">Open Street</span>`);
-    }
-  });
-}
-renderStreetMarkers();
+// Add invisible street markers for location reference
+let streets = JSON.parse(localStorage.getItem("streets")) || [];
+streets.forEach(street=>{
+  let loc = JSON.parse(localStorage.getItem(street + "_location"));
+  if(loc){
+    L.marker([loc.lat, loc.lng], {opacity:0}).addTo(map)
+      .bindPopup(street);
+  }
+});
 </script>
 </body>
 </html>
