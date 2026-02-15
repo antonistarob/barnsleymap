@@ -65,3 +65,186 @@ document.getElementById("editStreetForm").addEventListener("submit", function(e)
 </script>
 </body>
 </html>
+/workspace/barnsleymap$ /bin/bash -lc sed -n '1,360p' object.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Object Details</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<style>
+body { font-family: Arial; margin:20px; background:#f5f5f5; }
+h2 { text-align:center; font-weight:bold; }
+label { font-weight:bold; display:block; margin-top:10px; }
+.value { margin-left:5px; }
+#objectMapDiv { width:100%; height:400px; margin-top:15px; border-radius:6px; }
+button { margin-top:10px; padding:6px 12px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<h2>Object Details</h2>
+<div id="objectInfo">
+  <div><label>Street Number:</label><span class="value" id="objectNumber"></span></div>
+  <div><label>Name:</label><span class="value" id="objectName"></span></div>
+  <div><label>Year Built:</label><span class="value" id="objectYearBuilt"></span></div>
+  <div><label>Year Destroyed:</label><span class="value" id="objectYearDestroyed"></span></div>
+  <div><label>Description:</label><span class="value" id="objectDescription"></span></div>
+  <div><label>Status:</label><span class="value" id="objectStatus"></span></div>
+  <div><label>Category:</label><span class="value" id="objectCategory"></span></div>
+</div>
+
+<button onclick="editObject()">Edit</button>
+<button onclick="editMap()">Edit Map</button>
+<button onclick="deleteObject()" style="background:#d9534f;color:white;">Delete</button>
+
+<div id="objectMapDiv"></div>
+
+<script>
+let id = localStorage.getItem("currentObjectID");
+if(!id){ alert("No object selected"); window.close(); }
+let obj = JSON.parse(localStorage.getItem("object_"+id));
+if(!obj){ alert("Object missing"); window.close(); }
+
+document.getElementById("objectNumber").innerText = obj.number || "-";
+document.getElementById("objectName").innerText = obj.name || "-";
+document.getElementById("objectYearBuilt").innerText = obj.yearBuilt || "-";
+document.getElementById("objectYearDestroyed").innerText = obj.yearDestroyed || "-";
+document.getElementById("objectDescription").innerText = obj.description || "-";
+document.getElementById("objectStatus").innerText = obj.status || "-";
+document.getElementById("objectCategory").innerText = obj.category || "-";
+
+// ---------------- EDIT OBJECT ----------------
+function editObject(){
+  const name = prompt("Edit Object Name:", obj.name);
+  if(name){
+    obj.name = name;
+    localStorage.setItem("object_"+id, JSON.stringify(obj));
+    document.getElementById("objectName").innerText = name;
+    alert("Object updated!");
+  }
+}
+
+// ---------------- DELETE OBJECT ----------------
+function deleteObject(){
+  if(confirm("Delete this object?")){
+    localStorage.removeItem("object_"+id);
+    localStorage.removeItem("object_"+id+"_location");
+    let objectIDs = JSON.parse(localStorage.getItem(obj.street+"_objectIDs")) || [];
+    objectIDs = objectIDs.filter(oid=>oid!=id);
+    localStorage.setItem(obj.street+"_objectIDs", JSON.stringify(objectIDs));
+    alert("Object deleted!");
+    window.close();
+  }
+}
+
+// ---------------- EDIT MAP ----------------
+function editMap(){
+  const popup = window.open("object-map.html","Edit Object Map","width=800,height=600");
+  popup.addEventListener("beforeunload", ()=>{ location.reload(); });
+}
+
+// ---------------- MAP ----------------
+const savedLocation = JSON.parse(localStorage.getItem("object_"+id+"_location"));
+const map = L.map('objectMapDiv').setView(savedLocation?[savedLocation.lat,savedLocation.lng]:[53.5526,-1.4820],17);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ attribution:'&copy; OpenStreetMap contributors' }).addTo(map);
+if(savedLocation){
+  L.marker([savedLocation.lat,savedLocation.lng]).addTo(map).bindPopup(obj.name).openPopup();
+}
+</script>
+</body>
+</html>
+/workspace/barnsleymap$ /bin/bash -lc sed -n '1,360p' object-create.html
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+<title>Create Object</title>
+<style>
+body { font-family: Arial; margin:20px; }
+h2 { text-align:center; font-weight:bold; }
+label { display:block; margin:10px 0 5px; }
+input, textarea, select { width:100%; padding:5px; }
+button { margin-top:10px; padding:6px 12px; cursor:pointer; }
+</style>
+</head>
+<body>
+
+<h2>Create Object</h2>
+<form id="createObjectForm">
+  <label>Street Number (required)</label>
+  <input type="text" name="number" required>
+  
+  <label>Object Name (required)</label>
+  <input type="text" name="name" required>
+  
+  <label>Year Built (optional)</label>
+  <input type="text" name="yearBuilt">
+  
+  <label>Year Destroyed (optional)</label>
+  <input type="text" name="yearDestroyed">
+  
+  <label>Description (optional)</label>
+  <textarea name="description" rows="3"></textarea>
+  
+  <label>Status (required)</label>
+  <select name="status" required>
+    <option value="">Select status</option>
+    <option value="Exists">Exists</option>
+    <option value="Doesn't Exist">Doesn't Exist</option>
+    <option value="Exists partially">Exists partially</option>
+    <option value="For Demolition">For Demolition</option>
+    <option value="In construction">In construction</option>
+  </select>
+  
+  <label>Category (required)</label>
+  <select name="category" required>
+    <option value="">Select category</option>
+    <option value="townhouse">Townhouse</option>
+    <option value="terraced house">Terraced House</option>
+    <option value="house">House</option>
+    <option value="semi-detached house">Semi-Detached House</option>
+    <option value="building">Building</option>
+    <option value="palace/manor">Palace/Manor</option>
+    <option value="villa">Villa</option>
+    <option value="warehouse/hall">Warehouse/Hall</option>
+  </select>
+  
+  <button type="submit">Save</button>
+  <button type="button" onclick="window.close()">Cancel</button>
+</form>
+
+<script>
+let street = localStorage.getItem("currentStreet");
+let objectIDs = JSON.parse(localStorage.getItem(street+"_objectIDs")) || [];
+
+document.getElementById("createObjectForm").addEventListener("submit", function(e){
+  e.preventDefault();
+  const form = e.target;
+  const number = form.number.value.trim();
+  const name = form.name.value.trim();
+  const yearBuilt = form.yearBuilt.value.trim();
+  const yearDestroyed = form.yearDestroyed.value.trim();
+  const description = form.description.value.trim();
+  const status = form.status.value;
+  const category = form.category.value;
+
+  if(!number || !name || !status || !category){
+    alert("Fill required fields!");
+    return;
+  }
+
+  const id = Date.now() + Math.floor(Math.random()*1000);
+  const obj = {id, street, number, name, yearBuilt, yearDestroyed, description, status, category};
+  localStorage.setItem("object_"+id, JSON.stringify(obj));
+  
+  objectIDs.push(id);
+  localStorage.setItem(street+"_objectIDs", JSON.stringify(objectIDs));
+  
+  alert("Object created!");
+  window.close();
+});
+</script>
+</body>
+</html>
