@@ -188,7 +188,7 @@
 </select>
         
         <label>
-            <input type="checkbox" id="existing"> Existing
+            <input type="checkbox" id="existing" checked> Existing
         </label>
 
         <label for="description">Description:</label>
@@ -270,7 +270,7 @@ saveStreet.addEventListener('click', () => {
     // Clear inputs and close popup
     document.getElementById('streetName').value = '';
     document.getElementById('district').value = '';
-    document.getElementById('existing').checked = false;
+    document.getElementById('existing').checked = true;
     document.getElementById('description').value = '';
     popupOverlay.style.display = 'none';
 });
