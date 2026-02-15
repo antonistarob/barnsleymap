@@ -226,6 +226,28 @@ const streetList = document.getElementById('streetList');
 
 let streets = JSON.parse(localStorage.getItem('streets')) || [];
 
+// Function to refresh the street list alphabetically
+function refreshStreetList() {
+    // Clear current list
+    streetList.innerHTML = '';
+
+    // Sort streets alphabetically
+    streets.sort((a, b) => a.localeCompare(b));
+
+    streets.forEach(street => {
+        const li = document.createElement('li');
+        li.textContent = street;
+        li.style.cursor = 'pointer';
+
+        li.addEventListener('click', () => {
+            const streetParam = encodeURIComponent(street);
+            window.location.href = 'street.html?name=' + streetParam;
+        });
+
+        streetList.appendChild(li);
+    });
+}
+    
 // Helper function to create a clickable street item
 function addStreetToList(name) {
     const li = document.createElement('li'); // Create the list item
