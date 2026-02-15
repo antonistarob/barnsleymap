@@ -4,11 +4,12 @@
 <meta charset="utf-8"/>
 <title>Barnsley Archive</title>
 
+<!-- Esri CSS and JS -->
 <link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
 <script src="https://js.arcgis.com/4.29/"></script>
 
 <style>
-body { font-family: Arial; margin:0; background:#f5f5f5; }
+body { font-family: Arial, sans-serif; margin:0; background:#f5f5f5; }
 
 header {
   background:white;
@@ -33,6 +34,7 @@ section { padding:20px; }
 
 #viewDiv {
   height:400px;
+  margin-top:20px;
 }
 
 ul { list-style:none; padding:0; }
@@ -40,6 +42,12 @@ ul { list-style:none; padding:0; }
 .street-link {
   cursor:pointer;
   color:blue;
+  text-decoration:underline;
+  margin:3px 0;
+}
+
+.directory {
+  font-weight:bold;
 }
 </style>
 </head>
@@ -66,7 +74,7 @@ ul { list-style:none; padding:0; }
 
 <section>
   <h3>Directory</h3>
-  <p>United Kingdom > England > South Yorkshire > Barnsley</p>
+  <p class="directory">United Kingdom > England > South Yorkshire > Barnsley</p>
   <button onclick="addStreet()">Add Street</button>
 
   <h4>Streets</h4>
@@ -74,8 +82,7 @@ ul { list-style:none; padding:0; }
 </section>
 
 <script>
-/* ---------------- LOGIN SYSTEM (Basic Demo) ---------------- */
-
+/* ---------------- LOGIN SYSTEM ---------------- */
 function signup(){
   let user = prompt("Enter username:");
   if(user){
@@ -93,15 +100,13 @@ function login(){
   }
 }
 
-/* ---------------- MOST VIEWED SLIDER ---------------- */
-
+/* ---------------- MOST VIEWED PHOTOS ---------------- */
 let photos = [
   "Town Centre 1950",
   "Market Street 1932",
   "Old Barnsley Station",
   "Church Street 1960"
 ];
-
 let index = 0;
 function rotatePhotos(){
   document.getElementById("slider").innerText = photos[index];
@@ -111,7 +116,6 @@ setInterval(rotatePhotos, 3000);
 rotatePhotos();
 
 /* ---------------- STREETS SYSTEM ---------------- */
-
 let streets = JSON.parse(localStorage.getItem("streets")) || [];
 
 function renderStreets(){
@@ -142,7 +146,6 @@ function openStreet(street){
 renderStreets();
 
 /* ---------------- ESRI MAP ---------------- */
-
 require([
   "esri/config",
   "esri/Map",
@@ -151,7 +154,7 @@ require([
   "esri/layers/GraphicsLayer"
 ], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
 
-  esriConfig.apiKey = "YOUR_NEW_API_KEY_HERE";
+  esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- REPLACE with your secure key
 
   const map = new Map({
     basemap: "arcgis-light-gray"
@@ -167,11 +170,8 @@ require([
   const graphicsLayer = new GraphicsLayer();
   map.add(graphicsLayer);
 
-  let streets = JSON.parse(localStorage.getItem("streets")) || [];
-
   streets.forEach(street => {
     let location = JSON.parse(localStorage.getItem(street + "_location"));
-
     if(location){
       const pointGraphic = new Graphic({
         geometry: {
@@ -189,7 +189,6 @@ require([
           content: `<button onclick="openStreetFromMap('${street}')">Open Street</button>`
         }
       });
-
       graphicsLayer.add(pointGraphic);
     }
   });
@@ -198,8 +197,6 @@ require([
     localStorage.setItem("currentStreet", street);
     window.location.href = "street.html";
   }
-
-});
 
 });
 </script>
