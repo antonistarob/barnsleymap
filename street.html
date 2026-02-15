@@ -37,7 +37,6 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 
 #createObjectFormContainer { display:none; background:white; padding:15px; border-radius:6px; margin-top:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
 #createObjectFormContainer h3 { margin-top:0; }
-
 </style>
 </head>
 <body>
@@ -112,19 +111,19 @@ function login(){ alert("Log In clicked"); }
 
 // ---------------- CATEGORY ICONS ----------------
 const categoryIcons = {
- "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
-  "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
-  "House": "https://polska-org.pl/gfx/category/500129.png",
-  "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
-  "Building": "https://polska-org.pl/gfx/category/6216777.png",
-  "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
-  "Villa": "https://polska-org.pl/gfx/obj/05c.png",
-  "Warehouse/Hall": "https://polska-org.pl/gfx/category/500049.png"
+  "townhouse": "icons/townhouse.png",
+  "terraced house": "icons/terraced.png",
+  "house": "icons/house.png",
+  "semi-detached house": "icons/semi.png",
+  "building": "icons/building.png",
+  "palace/manor": "icons/palace.png",
+  "villa": "icons/villa.png",
+  "warehouse/hall": "icons/warehouse.png"
 };
 
 // ---------------- STREET DATA ----------------
 let street = localStorage.getItem("currentStreet");
-let objects = JSON.parse(localStorage.getItem(street + "_objects")) || [];
+let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
 
 // ---------------- DIRECTORY ----------------
 document.getElementById("directory").innerHTML =
@@ -136,20 +135,23 @@ document.getElementById("directory").innerHTML =
 function renderObjects(){
   const listEl = document.getElementById("objectList");
   listEl.innerHTML = "";
-  // Sort objects by number (alphanumeric)
-  objects.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true, sensitivity:'base'}));
-  objects.forEach((obj,index)=>{
+  
+  let objs = objectIDs.map(id => JSON.parse(localStorage.getItem("object_" + id)));
+  // Sort by street number alphanumerically
+  objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true, sensitivity:'base'}));
+
+  objs.forEach(obj=>{
     let li = document.createElement("li");
     li.innerHTML = `<div class="number-box">${obj.number}</div>
-                    <span class="object-name" onclick="openObject(${index})">${obj.name}</span>`;
+                    <span class="object-name" onclick="openObject('${obj.id}')">${obj.name}</span>`;
     listEl.appendChild(li);
   });
 }
 renderObjects();
 
 // ---------------- OPEN OBJECT ----------------
-function openObject(index){
-  localStorage.setItem("currentObjectIndex", index);
+function openObject(id){
+  localStorage.setItem("currentObjectID", id);
   window.location.href = "object.html";
 }
 
@@ -158,15 +160,14 @@ function createObject(){
   document.getElementById("formTitle").innerText = "Create Object";
   document.getElementById("createObjectFormContainer").style.display = "block";
   document.getElementById("createObjectForm").reset();
-  editingIndex = null;
 }
 
+// ---------------- HIDE FORM ----------------
 function hideObjectForm(){
   document.getElementById("createObjectFormContainer").style.display = "none";
 }
 
 // ---------------- FORM SUBMIT ----------------
-let editingIndex = null;
 document.getElementById("createObjectForm").addEventListener("submit", function(e){
   e.preventDefault();
   const form = e.target;
@@ -183,15 +184,16 @@ document.getElementById("createObjectForm").addEventListener("submit", function(
     return;
   }
 
-  const obj = { number, name, yearBuilt, yearDestroyed, description, status, category };
+  // generate unique ID
+  const id = Date.now() + Math.floor(Math.random()*1000);
 
-  if(editingIndex !== null){
-    objects[editingIndex] = obj;
-  } else {
-    objects.push(obj);
-  }
+  const obj = {id, street, number, name, yearBuilt, yearDestroyed, description, status, category};
+  localStorage.setItem("object_" + id, JSON.stringify(obj));
 
-  localStorage.setItem(street + "_objects", JSON.stringify(objects));
+  // add to street objectIDs
+  objectIDs.push(id);
+  localStorage.setItem(street + "_objectIDs", JSON.stringify(objectIDs));
+
   renderObjects();
   hideObjectForm();
 });
@@ -202,30 +204,23 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
   attribution:'&copy; OpenStreetMap contributors'
 }).addTo(map);
 
-let markers = [];
-objects.forEach((obj,index)=>{
-  const savedLoc = JSON.parse(localStorage.getItem(street + "_object_" + index + "_location"));
-  if(savedLoc){
+// render markers for all objects
+objectIDs.forEach(id=>{
+  const obj = JSON.parse(localStorage.getItem("object_" + id));
+  const loc = JSON.parse(localStorage.getItem("object_" + id + "_location"));
+  if(loc){
     const icon = L.icon({
       iconUrl: categoryIcons[obj.category] || 'icons/default.png',
       iconSize: [32,32],
       iconAnchor: [16,32],
       popupAnchor: [0,-32]
     });
-    const marker = L.marker([savedLoc.lat, savedLoc.lng], {icon: icon, draggable:true}).addTo(map)
-                     .bindPopup(obj.name);
-    marker.on('click', ()=>openObject(index));
-    markers.push(marker);
+    const marker = L.marker([loc.lat, loc.lng], {icon: icon, draggable:true}).addTo(map)
+      .bindPopup(obj.name);
+    marker.on('click', ()=>openObject(id));
     marker.on('dragend', function(){
-      localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify(marker.getLatLng()));
+      localStorage.setItem("object_" + id + "_location", JSON.stringify(marker.getLatLng()));
     });
-  }
-});
-
-// ---------------- CLICK MAP TO PLACE MARKER FOR NEW OBJECT ----------------
-map.on('click', function(e){
-  if(editingIndex===null){
-    alert("Place object marker after creating the object first!");
   }
 });
 </script>
