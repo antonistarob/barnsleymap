@@ -20,7 +20,8 @@ body {
 /* Then wrap the sidebar and main content in a container */
 #contentWrapper {
   display: flex;
-  flex-direction: row;  /* sidebar left, main content right */
+  flex-direction: row;
+  height: calc(100vh - 60px); /* full viewport minus header height (adjust 60px if your header is taller) */
 }
 
 /* Header */
@@ -42,14 +43,19 @@ header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer
   background:white;
   padding:15px;
   box-shadow:2px 0 5px rgba(0,0,0,0.1);
-  overflow-y:auto;
-  height:100vh;
+  overflow-y:auto;        /* makes objects scroll if too long */
+  height: 100%;           /* fill vertical space of contentWrapper */
+  box-sizing: border-box;
 }
 
 /* Main content */
+
 #mainContent {
   flex-grow:1;
   padding:20px;
+  overflow-y:auto;        /* scroll main content if needed */
+  height: 100%;
+  box-sizing: border-box;
 }
 
 /* Action buttons */
