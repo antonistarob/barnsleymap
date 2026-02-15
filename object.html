@@ -3,10 +3,8 @@
 <head>
 <meta charset="utf-8"/>
 <title>Object Details</title>
-<!-- Leaflet CSS & JS -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
 <style>
 body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
 header { 
@@ -39,7 +37,8 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 #photoList img { max-width:300px; display:block; margin:10px 0; }
 #createObjectFormContainer { margin-top:20px; }
 
-#objectMapDiv { width:100%; height:300px; border-radius:6px; margin-top:10px; }
+#objectMapDiv { width:100%; height:400px; border-radius:6px; margin-top:10px; }
+.section { margin-top:20px; }
 </style>
 </head>
 <body>
@@ -76,12 +75,12 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
     <div id="photoList"></div>
   </div>
 
-  <!-- MAP SECTION -->
+  <!-- MAP SECTION (hidden initially) -->
   <div class="section" id="mapSection" style="display:none;">
     <h3>Object Location</h3>
     <div id="objectMapDiv"></div>
     <p id="coordsDisplay"></p>
-    <small>Click on the map to set the object's location. Drag the marker to adjust.</small>
+    <small>Click on the map to place the object location. Drag the marker to adjust.</small>
   </div>
 
   <!-- EDIT OBJECT FORM (hidden initially) -->
@@ -215,23 +214,23 @@ function deleteObject(){
   }
 }
 
-// ---------------- OBJECT MAP ----------------
+// ---------------- MAP SECTION (street-map style) ----------------
 let map, marker;
 function toggleMap(){
   const mapSection = document.getElementById("mapSection");
   if(mapSection.style.display === "none"){
     mapSection.style.display = "block";
 
-    const location = JSON.parse(localStorage.getItem(street + "_object_" + index + "_location"));
+    const savedLocation = JSON.parse(localStorage.getItem(street + "_object_" + index + "_location"));
 
-    map = L.map('objectMapDiv').setView(location ? [location.lat, location.lng] : [53.5526, -1.4820], 17);
+    map = L.map('objectMapDiv').setView(savedLocation ? [savedLocation.lat, savedLocation.lng] : [53.5526, -1.4820], 17);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    if(location){
-      marker = L.marker([location.lat, location.lng], {draggable:true}).addTo(map)
+    if(savedLocation){
+      marker = L.marker([savedLocation.lat, savedLocation.lng], {draggable:true}).addTo(map)
                .bindPopup(obj.name)
                .openPopup();
     }
@@ -240,7 +239,8 @@ function toggleMap(){
       const latlng = e.latlng;
       if(marker) marker.setLatLng(latlng);
       else marker = L.marker(latlng, {draggable:true}).addTo(map).bindPopup(obj.name).openPopup();
-      // save immediately on placement
+
+      // Save location immediately
       localStorage.setItem(street + "_object_" + index + "_location", JSON.stringify({lat:latlng.lat, lng:latlng.lng}));
       alert("Location saved!");
     });
@@ -250,6 +250,5 @@ function toggleMap(){
   }
 }
 </script>
-
 </body>
 </html>
