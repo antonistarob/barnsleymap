@@ -3,10 +3,13 @@
 <head>
 <meta charset="utf-8"/>
 <title>Street Page</title>
+
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
 <style>
 body { font-family: Arial; margin:0; padding:0; background:#f5f5f5; }
+
 header { 
   background:#f0f0f0; 
   color:black; 
@@ -20,25 +23,56 @@ header h1:hover { text-decoration: underline; }
 header .auth-buttons button { margin-left:10px; padding:6px 12px; cursor:pointer; }
 
 .container { display:flex; margin:20px; gap:20px; }
+
 .left-column { width:250px; }
 .left-column h2 { margin-top:0; display:flex; justify-content:space-between; align-items:center; }
 .left-column ul { list-style:none; padding:0; }
 .left-column li { margin:5px 0; display:flex; align-items:center; }
-.number-box { width:40px; height:30px; background:white; display:flex; justify-content:center; align-items:center; margin-right:5px; border:1px solid #ccc; border-radius:4px; }
+
+.number-box {
+  width:40px;
+  height:30px;
+  background:white;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  margin-right:5px;
+  border:1px solid #ccc;
+  border-radius:4px;
+}
+
 .object-name { cursor:pointer; color:#007bff; }
 .object-name:hover { text-decoration:underline; }
 
 .right-column { flex:1; }
 
+#streetHeader {
+  background:white;
+  padding:15px;
+  border-radius:6px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+  margin-bottom:15px;
+}
+
+#streetTitle { font-size:1.5em; font-weight:bold; }
+
+#directory { font-size:0.9em; color:#555; margin:5px 0 10px 0; }
+
+button { padding:6px 12px; margin-right:5px; cursor:pointer; }
+
 #streetMap { width:100%; height:500px; border-radius:6px; }
 
-#directory { font-size:0.9em; color:#555; margin-bottom:10px; }
-button { padding:6px 12px; margin:5px; cursor:pointer; }
-
-#createObjectFormContainer { display:none; background:white; padding:15px; border-radius:6px; margin-top:20px; box-shadow:0 2px 5px rgba(0,0,0,0.1); }
-#createObjectFormContainer h3 { margin-top:0; }
+#createObjectFormContainer {
+  display:none;
+  background:white;
+  padding:15px;
+  border-radius:6px;
+  margin-top:20px;
+  box-shadow:0 2px 5px rgba(0,0,0,0.1);
+}
 </style>
 </head>
+
 <body>
 
 <header>
@@ -50,7 +84,8 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 </header>
 
 <div class="container">
-  <!-- LEFT COLUMN: Objects List -->
+
+  <!-- LEFT COLUMN -->
   <div class="left-column">
     <h2>
       Objects
@@ -59,33 +94,46 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
     <ul id="objectList"></ul>
   </div>
 
-  <!-- RIGHT COLUMN: Map -->
+  <!-- RIGHT COLUMN -->
   <div class="right-column">
-    <div id="directory"></div>
+
+    <!-- STREET HEADER -->
+    <div id="streetHeader">
+      <div id="streetTitle"></div>
+      <div id="directory"></div>
+      <div>
+        <button onclick="editStreet()">Edit</button>
+        <button onclick="editStreetMap()">Edit Map</button>
+        <button onclick="deleteStreet()" style="background:#d9534f;color:white;">Delete</button>
+      </div>
+    </div>
+
     <div id="streetMap"></div>
 
-    <!-- CREATE / EDIT OBJECT FORM -->
+    <!-- CREATE OBJECT FORM -->
     <div id="createObjectFormContainer">
       <h3 id="formTitle">Create Object</h3>
       <form id="createObjectForm">
         <label>Street Number (required): <input type="text" name="number" required></label><br><br>
         <label>Name (required): <input type="text" name="name" required></label><br><br>
-        <label>Year Built (optional): <input type="text" name="yearBuilt"></label><br><br>
-        <label>Year Destroyed (optional): <input type="text" name="yearDestroyed"></label><br><br>
-        <label>Description (optional): <textarea name="description" rows="3" cols="30"></textarea></label><br><br>
-        <label>Status (required):
+        <label>Year Built: <input type="text" name="yearBuilt"></label><br><br>
+        <label>Year Destroyed: <input type="text" name="yearDestroyed"></label><br><br>
+        <label>Description:<br>
+          <textarea name="description" rows="3" cols="30"></textarea>
+        </label><br><br>
+        <label>Status:
           <select name="status" required>
-            <option value="">Select status</option>
-            <option value="Exists">Exists</option>
-            <option value="Doesn't Exist">Doesn't Exist</option>
-            <option value="Exists partially">Exists partially</option>
-            <option value="For Demolition">For Demolition</option>
-            <option value="In construction">In construction</option>
+            <option value="">Select</option>
+            <option>Exists</option>
+            <option>Doesn't Exist</option>
+            <option>Exists partially</option>
+            <option>For Demolition</option>
+            <option>In construction</option>
           </select>
         </label><br><br>
-        <label>Building Category (required):
+        <label>Category:
           <select name="category" required>
-            <option value="">Select category</option>
+            <option value="">Select</option>
             <option value="townhouse">Townhouse</option>
             <option value="terraced house">Terraced House</option>
             <option value="house">House</option>
@@ -96,7 +144,7 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
             <option value="warehouse/hall">Warehouse/Hall</option>
           </select>
         </label><br><br>
-        <button type="submit">Save Changes</button>
+        <button type="submit">Save</button>
         <button type="button" onclick="hideObjectForm()">Cancel</button>
       </form>
     </div>
@@ -105,11 +153,11 @@ button { padding:6px 12px; margin:5px; cursor:pointer; }
 </div>
 
 <script>
-// ---------------- AUTH MOCK ----------------
+// AUTH MOCK
 function signup(){ alert("Sign Up clicked"); }
 function login(){ alert("Log In clicked"); }
 
-// ---------------- CATEGORY ICONS ----------------
+// CATEGORY ICONS
 const categoryIcons = {
   "townhouse": "icons/townhouse.png",
   "terraced house": "icons/terraced.png",
@@ -121,108 +169,121 @@ const categoryIcons = {
   "warehouse/hall": "icons/warehouse.png"
 };
 
-// ---------------- STREET DATA ----------------
+// STREET DATA
 let street = localStorage.getItem("currentStreet");
 let objectIDs = JSON.parse(localStorage.getItem(street + "_objectIDs")) || [];
 
-// ---------------- DIRECTORY ----------------
+// STREET HEADER
+document.getElementById("streetTitle").innerText = street;
 document.getElementById("directory").innerHTML =
-  `United Kingdom &gt; England &gt; South Yorkshire &gt; 
-   <span style="cursor:pointer; color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> &gt; 
+  `United Kingdom &gt; England &gt; South Yorkshire &gt;
+   <span style="cursor:pointer;color:#007bff;" onclick="window.location.href='index.html'">Barnsley</span> &gt;
    <b>${street}</b>`;
 
-// ---------------- RENDER OBJECT LIST ----------------
+// RENDER OBJECTS
 function renderObjects(){
-  const listEl = document.getElementById("objectList");
-  listEl.innerHTML = "";
-  
+  const list = document.getElementById("objectList");
+  list.innerHTML = "";
+
   let objs = objectIDs.map(id => JSON.parse(localStorage.getItem("object_" + id)));
-  // Sort by street number alphanumerically
-  objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true, sensitivity:'base'}));
+  objs.sort((a,b)=>a.number.localeCompare(b.number, undefined, {numeric:true}));
 
   objs.forEach(obj=>{
-    let li = document.createElement("li");
-    li.innerHTML = `<div class="number-box">${obj.number}</div>
-                    <span class="object-name" onclick="openObject('${obj.id}')">${obj.name}</span>`;
-    listEl.appendChild(li);
+    const li = document.createElement("li");
+    li.innerHTML = `
+      <div class="number-box">${obj.number}</div>
+      <span class="object-name" onclick="openObject('${obj.id}')">${obj.name}</span>
+    `;
+    list.appendChild(li);
   });
 }
 renderObjects();
 
-// ---------------- OPEN OBJECT ----------------
+// OPEN OBJECT
 function openObject(id){
   localStorage.setItem("currentObjectID", id);
   window.location.href = "object.html";
 }
 
-// ---------------- CREATE OBJECT ----------------
+// CREATE OBJECT
 function createObject(){
   document.getElementById("formTitle").innerText = "Create Object";
   document.getElementById("createObjectFormContainer").style.display = "block";
   document.getElementById("createObjectForm").reset();
 }
-
-// ---------------- HIDE FORM ----------------
 function hideObjectForm(){
   document.getElementById("createObjectFormContainer").style.display = "none";
 }
 
-// ---------------- FORM SUBMIT ----------------
+// SAVE OBJECT
 document.getElementById("createObjectForm").addEventListener("submit", function(e){
   e.preventDefault();
-  const form = e.target;
-  const number = form.number.value.trim();
-  const name = form.name.value.trim();
-  const yearBuilt = form.yearBuilt.value.trim();
-  const yearDestroyed = form.yearDestroyed.value.trim();
-  const description = form.description.value.trim();
-  const status = form.status.value;
-  const category = form.category.value;
-
-  if(!number || !name || !status || !category){
-    alert("Please fill out all required fields!");
-    return;
-  }
-
-  // generate unique ID
+  const f = e.target;
   const id = Date.now() + Math.floor(Math.random()*1000);
-
-  const obj = {id, street, number, name, yearBuilt, yearDestroyed, description, status, category};
+  const obj = {
+    id,
+    street,
+    number:f.number.value,
+    name:f.name.value,
+    yearBuilt:f.yearBuilt.value,
+    yearDestroyed:f.yearDestroyed.value,
+    description:f.description.value,
+    status:f.status.value,
+    category:f.category.value
+  };
   localStorage.setItem("object_" + id, JSON.stringify(obj));
-
-  // add to street objectIDs
   objectIDs.push(id);
   localStorage.setItem(street + "_objectIDs", JSON.stringify(objectIDs));
-
   renderObjects();
   hideObjectForm();
 });
 
-// ---------------- MAP ----------------
-const map = L.map('streetMap').setView([53.5526, -1.4820], 17);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
-  attribution:'&copy; OpenStreetMap contributors'
+// STREET ACTIONS
+function editStreet(){
+  window.open("street-edit.html","EditStreet","width=400,height=200");
+}
+function editStreetMap(){
+  window.location.href = "street-map.html";
+}
+function deleteStreet(){
+  if(!confirm("Delete this street and all objects?")) return;
+
+  let streets = JSON.parse(localStorage.getItem("streets")) || [];
+  streets = streets.filter(s=>s!==street);
+  localStorage.setItem("streets", JSON.stringify(streets));
+
+  localStorage.removeItem(street + "_location");
+  objectIDs.forEach(id=>{
+    localStorage.removeItem("object_" + id);
+    localStorage.removeItem("object_" + id + "_location");
+  });
+  localStorage.removeItem(street + "_objectIDs");
+  localStorage.removeItem("currentStreet");
+  window.location.href = "index.html";
+}
+
+// MAP
+const map = L.map("streetMap").setView([53.5526,-1.4820],17);
+L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{
+  attribution:"&copy; OpenStreetMap contributors"
 }).addTo(map);
 
-// render markers for all objects
 objectIDs.forEach(id=>{
   const obj = JSON.parse(localStorage.getItem("object_" + id));
   const loc = JSON.parse(localStorage.getItem("object_" + id + "_location"));
   if(loc){
     const icon = L.icon({
-      iconUrl: categoryIcons[obj.category] || 'icons/default.png',
-      iconSize: [32,32],
-      iconAnchor: [16,32],
-      popupAnchor: [0,-32]
+      iconUrl: categoryIcons[obj.category] || "icons/default.png",
+      iconSize:[32,32],
+      iconAnchor:[16,32]
     });
-    const marker = L.marker([loc.lat, loc.lng], {icon: icon, draggable:true}).addTo(map)
+    const marker = L.marker([loc.lat,loc.lng],{icon,draggable:true}).addTo(map)
       .bindPopup(obj.name);
-    marker.on('click', ()=>openObject(id));
-    marker.on('dragend', function(){
-      localStorage.setItem("object_" + id + "_location", JSON.stringify(marker.getLatLng()));
-    });
+    marker.on("click",()=>openObject(id));
+    marker.on("dragend",()=>localStorage.setItem("object_" + id + "_location",JSON.stringify(marker.getLatLng())));
   }
 });
 </script>
+
 </body>
 </html>
