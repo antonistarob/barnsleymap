@@ -30,6 +30,33 @@
     <button id="deleteStreet" style="padding: 2px 8px; font-size: 14px;">Delete</button>
 </div>
 
+    <!-- Edit Street Popup -->
+<div class="popup-overlay" id="editPopupOverlay">
+    <div class="popup">
+        <h3>Edit Street</h3>
+        <label for="editStreetName">Street Name:</label>
+        <input type="text" id="editStreetName">
+
+        <label for="editDistrict">District:</label>
+        <select id="editDistrict">
+            <option value="Town Centre">Town Centre</option>
+            <!-- Add more districts here if needed -->
+        </select>
+
+        <label>
+            <input type="checkbox" id="editExisting"> Existing
+        </label>
+
+        <label for="editDescription">Description:</label>
+        <textarea id="editDescription" rows="3"></textarea>
+
+        <div class="popup-buttons">
+            <button id="saveEditStreet">Save</button>
+            <button id="cancelEditStreet">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <p><strong>District:</strong> <span id="streetDistrict"></span></p>
 <p><strong>Existing:</strong> <span id="streetExisting"></span></p>
 <p><strong>Description:</strong></p>
@@ -59,6 +86,66 @@
     } else {
         document.getElementById('streetTitle').textContent = 'Street not found';
     }
+
+    // --- Edit Street Popup ---
+const editBtn = document.getElementById('editBtn');
+const editPopupOverlay = document.getElementById('editPopupOverlay');
+const cancelEditStreet = document.getElementById('cancelEditStreet');
+const saveEditStreet = document.getElementById('saveEditStreet');
+
+const editStreetNameInput = document.getElementById('editStreetName');
+const editDistrictInput = document.getElementById('editDistrict');
+const editExistingInput = document.getElementById('editExisting');
+const editDescriptionInput = document.getElementById('editDescription');
+
+// Open edit popup with current street data
+editBtn.addEventListener('click', () => {
+    const streetData = JSON.parse(localStorage.getItem('streetsData')) || {};
+    const data = streetData[streetName] || {};
+
+    editStreetNameInput.value = streetName;
+    editDistrictInput.value = data.district || 'Town Centre';
+    editExistingInput.checked = data.existing !== undefined ? data.existing : true;
+    editDescriptionInput.value = data.description || '';
+
+    editPopupOverlay.style.display = 'flex';
+});
+
+// Cancel edit
+cancelEditStreet.addEventListener('click', () => {
+    editPopupOverlay.style.display = 'none';
+});
+
+// Save edit
+saveEditStreet.addEventListener('click', () => {
+    const newName = editStreetNameInput.value.trim();
+    const newDistrict = editDistrictInput.value.trim();
+    const newExisting = editExistingInput.checked;
+    const newDescription = editDescriptionInput.value.trim();
+
+    if(newName !== '') {
+        let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+
+        // If street name changed, update key
+        if(newName !== streetName) {
+            streetsData[newName] = { district: newDistrict, existing: newExisting, description: newDescription };
+            delete streetsData[streetName];
+
+            // Update streets list in localStorage
+            let streetsList = JSON.parse(localStorage.getItem('streets')) || [];
+            streetsList = streetsList.map(s => s === streetName ? newName : s);
+            localStorage.setItem('streets', JSON.stringify(streetsList));
+        } else {
+            streetsData[newName] = { district: newDistrict, existing: newExisting, description: newDescription };
+        }
+
+        localStorage.setItem('streetsData', JSON.stringify(streetsData));
+
+        // Close popup and reload to reflect name change
+        editPopupOverlay.style.display = 'none';
+        window.location.reload();
+    }
+});
 </script>
 
 </body>
