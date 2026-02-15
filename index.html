@@ -225,15 +225,14 @@ let streets = JSON.parse(localStorage.getItem('streets')) || [];
 
 // Helper function to create a clickable street item
 function addStreetToList(name) {
-    const li = document.createElement('li');
-    li.textContent = name;
-    li.style.cursor = 'pointer';
+    const li = document.createElement('li'); // Create the list item
+    li.textContent = name;                    // Show the street name
+    li.style.cursor = 'pointer';              // Make it look clickable
 
-    // Create a safe filename from the street name
-    const fileName = name.toLowerCase().replace(/\s+/g, '_') + '.html';
-
+    // Click redirects to dynamic street page
     li.addEventListener('click', () => {
-        window.location.href = fileName; // redirect to street HTML
+        const streetParam = encodeURIComponent(name);
+        window.location.href = 'street.html?name=' + streetParam;
     });
 
     streetList.appendChild(li);
