@@ -3,123 +3,68 @@
 <head>
 <meta charset="utf-8"/>
 <title>Set Street Location</title>
-
-<!-- Esri CSS and JS -->
-<link rel="stylesheet" href="https://js.arcgis.com/4.29/esri/themes/light/main.css"/>
-<script src="https://js.arcgis.com/4.29/"></script>
+<!-- Leaflet CSS & JS -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <style>
-html, body, #viewDiv {
-  padding:0;
-  margin:0;
-  height:100%;
-  width:100%;
-}
-button {
-  position:absolute;
-  top:10px;
-  left:10px;
-  z-index:99;
-  padding:8px 12px;
-  cursor:pointer;
-}
+body { font-family: Arial; margin:0; padding:0; }
+#mapDiv { width:100%; height:600px; }
+button { padding:6px 12px; margin:10px; cursor:pointer; }
 </style>
 </head>
 
 <body>
 
+<h2 id="streetName"></h2>
+<p>Click on the map to place the street location.</p>
+<div id="mapDiv"></div>
 <button onclick="saveLocation()">Save Location</button>
-<div id="viewDiv"></div>
 
 <script>
-require([
-  "esri/config",
-  "esri/Map",
-  "esri/views/MapView",
-  "esri/Graphic",
-  "esri/layers/GraphicsLayer"
-], function(esriConfig, Map, MapView, Graphic, GraphicsLayer) {
+// ---------------- GET CURRENT STREET ----------------
+let street = localStorage.getItem("currentStreet");
+if(!street){
+  alert("No street selected!");
+  window.location.href = "index.html";
+}
+document.getElementById("streetName").innerText = street;
 
-  esriConfig.apiKey = "AAPTxy8BH1VEsoebNVZXo8HurF9ISRTrAh1OrRfmL2PhQzmZtXOAqDthSV6k7MMV3d9A0I8Yzm8893mWylV-AAzjHW8Vdje5nHbcCoWP8oTym3uv8avVcv3Vo0378-pNaQV4lBazkO4PICEb7s0wAYVjvz431sxHmWEOmvQBV_CFHX8jVjCLIgSL9VflJACm47m1x6ZEzK3oOJxg3TmVwHL4Qy_o8flbD_c7ThfAebykl1o.AT1_J9TBjsr2"; // <-- REPLACE with your secure key
+// ---------------- INIT LEAFLET MAP ----------------
+let map = L.map('mapDiv').setView([53.5526, -1.4820], 13); // Barnsley center
 
-  // Get current street from localStorage
-  const street = localStorage.getItem("currentStreet");
-  if(!street){
-    alert("No street selected!");
-    window.location.href = "index.html";
-  }
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '&copy; OpenStreetMap contributors'
+}).addTo(map);
 
-  // Create the map
-  const map = new Map({
-    basemap: "arcgis-light-gray"
-  });
+// ---------------- PLACE EXISTING MARKER IF ANY ----------------
+let savedLocation = JSON.parse(localStorage.getItem(street + "_location"));
+let marker = null;
+if(savedLocation){
+  marker = L.marker([savedLocation.lat, savedLocation.lng]).addTo(map);
+  map.setView([savedLocation.lat, savedLocation.lng], 16);
+}
 
-  const view = new MapView({
-    container: "viewDiv",
-    map: map,
-    center: [-1.4820, 53.5526], // Barnsley center
-    zoom: 14
-  });
-
-  const graphicsLayer = new GraphicsLayer();
-  map.add(graphicsLayer);
-
-  let selectedPoint = null;
-
-  // Add existing location marker if street already has one
-  let savedLocation = JSON.parse(localStorage.getItem(street + "_location"));
-  if(savedLocation){
-    selectedPoint = savedLocation;
-    const pointGraphic = new Graphic({
-      geometry: {
-        type: "point",
-        longitude: savedLocation.lng,
-        latitude: savedLocation.lat
-      },
-      symbol: {
-        type: "simple-marker",
-        color: "red",
-        size: "12px"
-      }
-    });
-    graphicsLayer.add(pointGraphic);
-    view.center = [savedLocation.lng, savedLocation.lat];
-    view.zoom = 16;
-  }
-
-  // Click on map to select new location
-  view.on("click", function(event){
-    graphicsLayer.removeAll();
-
-    selectedPoint = {
-      lat: event.mapPoint.latitude,
-      lng: event.mapPoint.longitude
-    };
-
-    const pointGraphic = new Graphic({
-      geometry: event.mapPoint,
-      symbol: {
-        type: "simple-marker",
-        color: "red",
-        size: "12px"
-      }
-    });
-
-    graphicsLayer.add(pointGraphic);
-  });
-
-  // Save location
-  window.saveLocation = function(){
-    if(selectedPoint){
-      localStorage.setItem(street + "_location", JSON.stringify(selectedPoint));
-      alert("Location saved!");
-      window.location.href = "street.html";
-    } else {
-      alert("Click on the map first to set location.");
-    }
-  }
-
+// ---------------- ADD MARKER ON CLICK ----------------
+map.on('click', function(e){
+  if(marker) map.removeLayer(marker);
+  marker = L.marker([e.latlng.lat, e.latlng.lng]).addTo(map);
 });
+
+// ---------------- SAVE LOCATION ----------------
+function saveLocation(){
+  if(!marker){
+    alert("Please click on the map to select a location first.");
+    return;
+  }
+
+  const latlng = marker.getLatLng();
+  const locationData = { lat: latlng.lat, lng: latlng.lng };
+  localStorage.setItem(street + "_location", JSON.stringify(locationData));
+
+  alert("Location saved!");
+  window.location.href = "street.html";
+}
 </script>
 
 </body>
