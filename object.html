@@ -30,6 +30,7 @@ header {
 header h1 {
     margin: 0;
     font-size: 24px;
+    color: #fff;
 }
 
 .header-link {
@@ -59,7 +60,7 @@ header h1 {
 .left-column {
     width: 200px;
     position: fixed;
-    top: 40px;
+    top: 40px; /* below header */
     left: 0;
     bottom: 0;
     padding: 10px;
@@ -67,14 +68,44 @@ header h1 {
     overflow-y: auto;
 }
 
+.objects-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.objects-table th,
+.objects-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid #555;
+    text-align: left;
+}
+
+.objects-table th {
+    background-color: #1f1f1f;
+}
+
 /* MAIN CONTENT */
 .main-content {
     margin-left: 230px;
-    margin-top: 0px;
+    margin-top: 0px; /* below header */
     padding: 20px;
 }
 
 h1 { margin-top: 0; }
+
+a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+a.object-link {
+    cursor: pointer;
+    text-decoration: none;
+}
+
+a.object-link:hover {
+    text-decoration: underline;
+}
 
 .action-button {
     cursor: pointer;
@@ -150,7 +181,9 @@ h1 { margin-top: 0; }
 <!-- HEADER -->
 <header>
     <h1>
-        <a href="index.html" class="header-link">Historical Interactive Map of Barnsley</a>
+        <a href="index.html" class="header-link">
+            Historical Interactive Map of Barnsley
+        </a>
     </h1>
     <div class="auth-buttons">
         <button>Sign Up</button>
@@ -160,122 +193,72 @@ h1 { margin-top: 0; }
 
 <!-- LEFT COLUMN -->
 <div class="left-column">
-    <h2>Object Info</h2>
-    <p>Street: <span id="objectStreet"></span></p>
+    <h2>Objects on this street</h2>
+    <table class="objects-table">
+        <thead>
+            <tr><th>No.</th><th>Name</th></tr>
+        </thead>
+        <tbody id="objectsTableBody"></tbody>
+    </table>
 </div>
 
 <!-- MAIN CONTENT -->
 <div class="main-content">
     <h1 id="objectTitle"></h1>
+    <p id="objectDirectory" style="margin-top:5px; color:#ccc;"></p>
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
-
-    <div style="margin:15px 0;">
-        <button id="editBtn" class="action-button">Edit</button>
-        <button id="deleteBtn" class="action-button">Delete</button>
-    </div>
-</div>
-
-<!-- EDIT OBJECT POPUP -->
-<div class="popup-overlay" id="editPopup">
-    <div class="popup">
-        <h3>Edit Object</h3>
-
-        <label>Object Name:</label>
-        <input type="text" id="editObjectName">
-
-        <label>Description:</label>
-        <textarea id="editDescription" rows="3"></textarea>
-
-        <div class="popup-buttons">
-            <button id="saveEditObject" class="action-button">Save</button>
-            <button onclick="closeEdit()" class="action-button">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- DELETE POPUP -->
-<div class="popup-overlay" id="deletePopup">
-    <div class="popup">
-        <p id="deleteMessage"></p>
-        <div class="popup-buttons">
-            <button id="confirmDelete" class="action-button">Yes</button>
-            <button id="cancelDelete" class="action-button">No</button>
-        </div>
-    </div>
 </div>
 
 <script>
-// Get query params
-const params = new URLSearchParams(window.location.search);
-const streetName = params.get('street');
-const objectName = params.get('object');
+const qp = p => new URLSearchParams(location.search).get(p);
+const streetName = qp('street');
+const objectName = qp('object');
 
 /* ELEMENTS */
+const objectsTableBody = document.getElementById('objectsTableBody');
 const objectTitle = document.getElementById('objectTitle');
-const objectStreet = document.getElementById('objectStreet');
+const objectDirectory = document.getElementById('objectDirectory');
 const objectDescription = document.getElementById('objectDescription');
-
-const editBtn = document.getElementById('editBtn');
-const deleteBtn = document.getElementById('deleteBtn');
-
-const editPopup = document.getElementById('editPopup');
-const deletePopup = document.getElementById('deletePopup');
-const deleteMessage = document.getElementById('deleteMessage');
-
-const editObjectName = document.getElementById('editObjectName');
-const editDescription = document.getElementById('editDescription');
 
 /* DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 
-if(!streetObjects[streetName] || !streetObjects[streetName].find(o => o.name === objectName)){
+/* Find the object data */
+const objectsList = streetObjects[streetName] || [];
+const data = objectsList.find(o => o.name === objectName);
+
+if(!data){
     objectTitle.textContent = 'Object not found';
     throw new Error('Object missing');
 }
 
-const data = streetObjects[streetName].find(o => o.name === objectName);
-
 /* DISPLAY */
 objectTitle.textContent = data.name;
-objectStreet.textContent = streetName;
 objectDescription.textContent = data.description || 'N/A';
 
-/* EDIT OBJECT */
-editBtn.onclick = () => {
-    editObjectName.value = data.name;
-    editDescription.value = data.description || '';
-    editPopup.style.display = 'flex';
-};
+/* Directory line: "Street Name **Number**" */
+objectDirectory.innerHTML = `${streetName} <strong>${data.number || ''}</strong>`;
 
-document.getElementById('saveEditObject').onclick = () => {
-    // Update object data
-    data.name = editObjectName.value;
-    data.description = editDescription.value;
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    location.reload();
-};
+/* LOAD OBJECTS IN LEFT COLUMN */
+objectsList.forEach(o => {
+    objectsTableBody.insertAdjacentHTML(
+        'beforeend',
+        `<tr>
+            <td>${o.number}</td>
+            <td>
+                <a class="object-link" onclick="goToObject('${o.name}')">${o.name}</a>
+            </td>
+        </tr>`
+    );
+});
 
-function closeEdit(){
-    editPopup.style.display = 'none';
+/* Function to navigate to object page */
+function goToObject(name){
+    const streetParam = encodeURIComponent(streetName);
+    const objectParam = encodeURIComponent(name);
+    window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
 }
-
-/* DELETE OBJECT */
-deleteBtn.onclick = () => {
-    deleteMessage.innerHTML = `Delete <b>${data.name}</b>?`;
-    deletePopup.style.display = 'flex';
-};
-
-document.getElementById('cancelDelete').onclick = () => {
-    deletePopup.style.display = 'none';
-};
-
-document.getElementById('confirmDelete').onclick = () => {
-    // Remove object from array
-    streetObjects[streetName] = streetObjects[streetName].filter(o => o.name !== data.name);
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    // Go back to street page
-    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-};
 </script>
 
 </body>
