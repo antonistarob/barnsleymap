@@ -316,17 +316,25 @@ savePhotoBtn.onclick = () => {
 
     const reader = new FileReader();
     reader.onload = function(e){
-        const newPhoto = {
+        const objectIndex = streetObjects[streetName].findIndex(o=>o.name===objectName);
+        if(objectIndex === -1) return alert("Object not found.");
+
+        if(!streetObjects[streetName][objectIndex].photos) 
+            streetObjects[streetName][objectIndex].photos = [];
+
+        streetObjects[streetName][objectIndex].photos.push({
             name: fileInput.name,
             date: photoDate.value,
             description: photoDescription.value,
             dataUrl: e.target.result
-        };
+        });
 
-        const objectIndex = streetObjects[streetName].findIndex(o=>o.name===objectName);
-        if(!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos = [];
-        streetObjects[streetName][objectIndex].photos.push(newPhoto);
-        localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+        // Reload obj from storage
+        const updatedObjects = JSON.parse(localStorage.getItem('streetObjects'));
+        Object.assign(obj, updatedObjects[streetName][objectIndex]);
+
         closeAddPhoto();
         displayPhotos();
     };
