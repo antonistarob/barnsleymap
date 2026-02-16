@@ -101,7 +101,9 @@
     <a href="index.html">Back to Map</a>
 
 <h1 id="streetTitle"></h1>
-
+    
+   <p><strong>District:</strong> <span id="streetDistrict"></span></p>
+    
 <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
 <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
     
@@ -183,7 +185,6 @@
         const data = streetData[streetName] || {};
 
        // District always shows
-    <p><strong>District:</strong> <span id="streetDistrict"></span></p>
 document.getElementById('streetDistrict').textContent = data.district || 'N/A';
 
 // Existing: hide if true
