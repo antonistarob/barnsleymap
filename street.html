@@ -183,9 +183,10 @@
         const data = streetData[streetName] || {};
 
        // District always shows
+    <p><strong>District:</strong> <span id="streetDistrict"></span></p>
 document.getElementById('streetDistrict').textContent = data.district || 'N/A';
 
-// Existing: hide if true, show 'No' if false
+// Existing: hide if true
 const existingWrapper = document.getElementById('existingWrapper');
 const existingEl = document.getElementById('streetExisting');
 if (data.existing === false) {
@@ -204,9 +205,6 @@ if (data.description && data.description.trim() !== '') {
 } else {
     descriptionWrapper.style.display = 'none';
 }
-    } else {
-        document.getElementById('streetTitle').textContent = 'Street not found';
-    }
 
     // --- Edit Street Popup ---
 const editBtn = document.getElementById('editBtn');
