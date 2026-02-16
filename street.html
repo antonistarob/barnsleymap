@@ -308,7 +308,7 @@ if(data.description){
         'beforeend',
         `<tr>
             <td>${o.number}</td>
-            <td style="cursor:pointer; color:#4a90e2;" onclick="goToObject('${o.name}')">${o.name}</td>
+            <td style="cursor:pointer; text-decoration:underline;" onclick="goToObject('${o.name}')">${o.name}</td>
         </tr>`
     );
 });
@@ -319,7 +319,7 @@ function goToObject(objectName){
     const objectParam = encodeURIComponent(objectName);
     window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
 }
-
+    
 /* ADD OBJECT */
 addObjectBtn.onclick = () => {
     const number = prompt('Street Number');
