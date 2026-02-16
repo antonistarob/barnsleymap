@@ -185,13 +185,32 @@ editBtn.onclick = () => {
 };
 
 document.getElementById('saveEditStreet').onclick = () => {
-    streetsData[streetName] = {
-        district: editDistrict.value,
-        existing: editExisting.checked,
-        description: editDescription.value
-    };
+    const newName = editStreetName.value.trim();
+    if (!newName) return alert("Street name cannot be empty.");
+
+    // If the street name changed, rename the key in streetsData
+    if (newName !== streetName) {
+        streetsData[newName] = {
+            district: editDistrict.value,
+            existing: editExisting.checked,
+            description: editDescription.value
+        };
+        delete streetsData[streetName];
+
+        // Also update the streets array
+        streets = streets.map(s => s === streetName ? newName : s);
+        localStorage.setItem('streets', JSON.stringify(streets));
+    } else {
+        // Name didn't change, just update data
+        streetsData[streetName] = {
+            district: editDistrict.value,
+            existing: editExisting.checked,
+            description: editDescription.value
+        };
+    }
+
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
-    location.reload();
+    window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
 };
 
 function closeEdit(){ editPopup.style.display = 'none'; }
