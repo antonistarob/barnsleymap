@@ -477,6 +477,8 @@ savePhotoBtn.onclick = () => {   //updated photo
 const mapBtn = document.getElementById('mapBtn');
 const mapPopup = document.getElementById('mapPopup');
 let editMap, editMarker;
+let tempLat = null;
+let tempLng = null;
 
 // OPEN MAP POPUP
 mapBtn.onclick = () => {
@@ -490,6 +492,8 @@ function closeMapPopup(){
         editMap.remove();
         editMap = null;
         editMarker = null;
+        tempLat = null;
+        tempLng = null;
     }
 }
 
@@ -512,12 +516,14 @@ function initEditMap(){
     }
 
     // CLICK TO SET LOCATION
-    editMap.on('click', e => {
-        if(editMarker) editMarker.remove();
-        editMarker = L.marker(e.latlng).addTo(editMap);
-        obj.lat = e.latlng.lat;
-        obj.lng = e.latlng.lng;
-    });
+editMap.on('click', e => {
+    if (editMarker) editMarker.remove();
+    editMarker = L.marker(e.latlng).addTo(editMap);
+
+    // store TEMP values only
+    tempLat = e.latlng.lat;
+    tempLng = e.latlng.lng;
+});
 
     // ZOOM TRACKING
     const zoomInput = document.getElementById('mapZoom');
@@ -533,15 +539,14 @@ function initEditMap(){
 
 // SAVE (placeholder – no behaviour change yet)
 document.getElementById('saveMapBtn').onclick = () => {
-    if (!editMarker) {
-        alert("Please click the map to set a location first.");
-        return;
-    }
+if (tempLat === null || tempLng === null) {
+    alert("Please click the map to set a location first.");
+    return;
+}
 
-    const pos = editMarker.getLatLng();
-
-    obj.lat = pos.lat;
-    obj.lng = pos.lng;
+// NOW commit to object
+obj.lat = tempLat;
+obj.lng = tempLng;
     obj.zoom = editMap.getZoom();
     obj.zoomMin = Number(document.getElementById('mapZoomMin').value) || editMap.getMinZoom();
     obj.zoomMax = Number(document.getElementById('mapZoomMax').value) || editMap.getMaxZoom();
