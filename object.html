@@ -541,6 +541,27 @@ document.getElementById('saveMapBtn').onclick = () => {
     closeMapPopup();
 };
 
+    // SAVE MAP LOCATION (object page)
+obj.map = {
+    lat: selectedLatLng.lat,
+    lng: selectedLatLng.lng,
+    zoom: map.getZoom(),
+    zoomMin: Number(zoomMinInput.value) || map.getMinZoom(),
+    zoomMax: Number(zoomMaxInput.value) || map.getMaxZoom()
+};
+
+localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+// Show map section immediately
+document.getElementById('mapNotSetText').style.display = 'none';
+document.getElementById('mapSection').style.display = 'block';
+
+// Rebuild map cleanly
+setTimeout(initObjectMap, 0);
+
+// Close popup
+closeMapPopup();
+
     
 /* DISPLAY PHOTOS */
 function displayPhotos(){
@@ -595,23 +616,37 @@ function displayPhotos(){
     });
 }
     
-   function initObjectMap(){
-    const mapDiv = document.getElementById('objectMap');
-    if(!mapDiv) return;
-    const streetData = JSON.parse(localStorage.getItem('streetsData')) || {};
-    const streetInfo = streetData[streetName] || {};
-    const lat = streetInfo.lat || 53.552;
-    const lng = streetInfo.lng || -1.478;
+function initObjectMap() {
+    if (!obj.map) return;
 
-    const map = L.map('objectMap').setView([lat,lng],16);
+    const mapDiv = document.getElementById('objectMap');
+    mapDiv.innerHTML = ''; // important: prevents Leaflet re-init error
+
+    const map = L.map('objectMap', {
+        minZoom: obj.map.zoomMin || 1,
+        maxZoom: obj.map.zoomMax || 19
+    }).setView(
+        [obj.map.lat, obj.map.lng],
+        obj.map.zoom || 16
+    );
+
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution:'&copy; OpenStreetMap contributors'
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    if(streetInfo.lat && streetInfo.lng){
-        L.marker([lat,lng]).addTo(map)
-        .bindPopup(`${streetName}`).openPopup();
-    }
+    L.marker([obj.map.lat, obj.map.lng]).addTo(map);
+}
+
+const mapSection = document.getElementById('mapSection');
+const mapNotSetText = document.getElementById('mapNotSetText');
+
+if (obj.map && obj.map.lat && obj.map.lng) {
+    mapNotSetText.style.display = 'none';
+    mapSection.style.display = 'block';
+    initObjectMap();
+} else {
+    mapSection.style.display = 'none';
+    mapNotSetText.style.display = 'block';
 }
     
 // Initialize map
