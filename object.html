@@ -54,7 +54,7 @@ h1 { margin-top:0; }
 </header>
 
 <div class="left-column">
-    <h2>Objects on this street</h2>
+    <h2 id="objectsHeader">Objects on this street</h2>
     <table class="objects-table">
         <thead><tr><th>No.</th><th>Name</th></tr></thead>
         <tbody id="objectsTableBody"></tbody>
@@ -147,6 +147,9 @@ streetEl.onclick = () => {
 };
 
 document.getElementById('objectNumber').textContent = obj.number || 'N/A';
+
+    const objectsHeader = document.getElementById('objectsHeader');
+objectsHeader.textContent = `Objects on ${streetName}`;
 
 /* EXISTING AND DESCRIPTION LOGIC */
 const existingWrapper = document.getElementById('existingWrapper');
