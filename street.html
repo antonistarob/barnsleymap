@@ -66,19 +66,17 @@
 <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
 <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
 
-<h2>Objects on this street</h2>
-<table id="objectsTable">
-  <thead>
-    <tr><th>Street Number</th><th>Building Name</th></tr>
-  </thead>
-  <tbody></tbody>
-</table>
-
-<div id="streetButtons">
-  <button id="addObjectBtn" class="action-button">Add Object</button>
-  <button id="editBtn" class="action-button">Edit</button>
-  <button id="deleteStreet" class="action-button">Delete</button>
+<div id="streetButtons" style="margin:15px 0;">
+    <button id="addObjectBtn" class="action-button">Add Object</button>
+    <button id="editBtn" class="action-button">Edit</button>
+    <button id="deleteStreet" class="action-button">Delete</button>
 </div>
+
+<!-- Objects Table -->
+<h2>Objects on this street</h2>
+<table id="objectsTable" style="width:100%; border-collapse: collapse; margin-top:10px;">
+    ...
+</table>
 
 <!-- Edit Popup -->
 <div class="popup-overlay" id="editPopupOverlay">
