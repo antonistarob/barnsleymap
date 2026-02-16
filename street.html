@@ -72,7 +72,7 @@ a {
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.7);
-    display: none;                 /* ONLY none here */
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -102,7 +102,6 @@ a {
     border-radius: 5px;
 }
 
-/* BUTTON ROW */
 .popup-buttons {
     margin-top: 20px;
     display: flex;
@@ -145,13 +144,12 @@ a {
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
         <h3>Edit Street</h3>
-        <label>Street Name <input id="editStreetName"></label>
         <label>District <input id="editDistrict"></label>
         <label><input type="checkbox" id="editExisting"> Existing</label>
         <label>Description <textarea id="editDescription"></textarea></label>
 
         <div class="popup-buttons">
-            <button onclick="closeEdit()" class="action-button">Cancel</button>
+            <button class="action-button" onclick="closeEdit()">Cancel</button>
             <button id="saveEditStreet" class="action-button">Save</button>
         </div>
     </div>
@@ -163,15 +161,21 @@ a {
         <p id="deleteMessage"></p>
 
         <div class="popup-buttons">
-            <button onclick="closeDelete()" class="action-button">Cancel</button>
+            <button class="action-button" onclick="closeDelete()">Cancel</button>
             <button id="confirmDelete" class="action-button">Yes</button>
         </div>
     </div>
 </div>
 
 <script>
+/* HELPERS */
 const qp = p => new URLSearchParams(location.search).get(p);
+
+/* DATA */
 const streetName = qp('name');
+const streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+const data = streetsData[streetName];
 
 /* ELEMENTS */
 const streetTitle = document.getElementById('streetTitle');
@@ -182,6 +186,11 @@ const streetDescription = document.getElementById('streetDescription');
 const descriptionWrapper = document.getElementById('descriptionWrapper');
 const objectsTableBody = document.getElementById('objectsTableBody');
 
+/* POPUPS */
+const editPopup = document.getElementById('editPopup');
+const deletePopup = document.getElementById('deletePopup');
+const deleteMessage = document.getElementById('deleteMessage');
+
 /* BUTTONS */
 const addObjectBtn = document.getElementById('addObjectBtn');
 const editBtn = document.getElementById('editBtn');
@@ -189,28 +198,18 @@ const deleteStreet = document.getElementById('deleteStreet');
 const saveEditStreet = document.getElementById('saveEditStreet');
 const confirmDelete = document.getElementById('confirmDelete');
 
-/* POPUPS */
-const editPopup = document.getElementById('editPopup');
-const deletePopup = document.getElementById('deletePopup');
-const deleteMessage = document.getElementById('deleteMessage');
-
 /* EDIT FIELDS */
-const editStreetName = document.getElementById('editStreetName');
 const editDistrict = document.getElementById('editDistrict');
 const editExisting = document.getElementById('editExisting');
 const editDescription = document.getElementById('editDescription');
 
-/* DATA */
-const streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
-const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const data = streetsData[streetName];
-
+/* VALIDATION */
 if(!data){
     streetTitle.textContent = 'Street not found';
     throw new Error('Street missing');
 }
 
-/* DISPLAY DATA */
+/* DISPLAY */
 streetTitle.textContent = streetName;
 streetDistrict.textContent = data.district || 'N/A';
 
@@ -226,7 +225,7 @@ if(data.description){
     descriptionWrapper.style.display = 'none';
 }
 
-/* LOAD OBJECTS */
+/* OBJECTS */
 (streetObjects[streetName] || []).forEach(o=>{
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
@@ -235,7 +234,7 @@ if(data.description){
 });
 
 /* ADD OBJECT */
-addObjectBtn.addEventListener('click', () => {
+addObjectBtn.onclick = () => {
     const number = prompt('Street Number');
     const name = prompt('Building Name');
     if(!number || !name) return;
@@ -244,18 +243,17 @@ addObjectBtn.addEventListener('click', () => {
     streetObjects[streetName].push({ number, name });
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
     location.reload();
-});
+};
 
-/* EDIT STREET */
-editBtn.addEventListener('click', () => {
-    editStreetName.value = streetName;
+/* EDIT */
+editBtn.onclick = () => {
     editDistrict.value = data.district || '';
     editExisting.checked = data.existing !== false;
     editDescription.value = data.description || '';
     editPopup.style.display = 'flex';
-});
+};
 
-saveEditStreet.addEventListener('click', () => {
+saveEditStreet.onclick = () => {
     streetsData[streetName] = {
         district: editDistrict.value,
         existing: editExisting.checked,
@@ -263,25 +261,26 @@ saveEditStreet.addEventListener('click', () => {
     };
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
     location.reload();
-});
+};
 
-/* DELETE STREET */
-deleteStreet.addEventListener('click', () => {
+/* DELETE */
+deleteStreet.onclick = () => {
     deleteMessage.innerHTML = `Delete <b>${streetName}</b>?`;
     deletePopup.style.display = 'flex';
-});
+};
 
-confirmDelete.addEventListener('click', () => {
+confirmDelete.onclick = () => {
     delete streetsData[streetName];
+    delete streetObjects[streetName];
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
     location.href = 'index.html';
-});
+};
 
-/* CLOSE FUNCTIONS */
+/* CLOSE */
 function closeEdit(){ editPopup.style.display = 'none'; }
 function closeDelete(){ deletePopup.style.display = 'none'; }
 </script>
-
 
 </body>
 </html>
