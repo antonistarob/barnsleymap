@@ -97,7 +97,7 @@ h1 { margin-top:0; }
 
 <script>
 const qp = p => new URLSearchParams(location.search).get(p);
-let streetName = qp('name'); // note: we use 'let' because streetName can change
+let streetName = qp('name'); // make streetName let so we can rename
 
 /* ELEMENTS */
 const streetTitle = document.getElementById('streetTitle');
@@ -130,41 +130,33 @@ if(!streetsData[streetName]){
     throw new Error('Street missing');
 }
 
-let data = streetsData[streetName];
+const data = streetsData[streetName];
 
 /* DISPLAY STREET INFO */
-function displayStreet() {
-    streetTitle.textContent = streetName;
-    streetDistrict.textContent = data.district || 'N/A';
-    if(data.existing === false){
-        streetExisting.textContent = 'No';
-        existingWrapper.style.display = 'block';
-    } else {
-        existingWrapper.style.display = 'none';
-    }
-    if(data.description){
-        streetDescription.textContent = data.description;
-        descriptionWrapper.style.display = 'block';
-    } else {
-        descriptionWrapper.style.display = 'none';
-    }
-
-    // Clear and load objects
-    objectsTableBody.innerHTML = '';
-    (streetObjects[streetName] || []).forEach(o => {
-        objectsTableBody.insertAdjacentHTML(
-            'beforeend',
-            `<tr>
-                <td>${o.number}</td>
-                <td style="cursor:pointer;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='';" onclick="goToObject('${o.name}')">${o.name}</td>
-            </tr>`
-        );
-    });
+streetTitle.textContent = streetName;
+streetDistrict.textContent = data.district || 'N/A';
+if(data.existing === false){
+    streetExisting.textContent = 'No';
+} else {
+    existingWrapper.style.display = 'none';
+}
+if(data.description){
+    streetDescription.textContent = data.description;
+} else {
+    descriptionWrapper.style.display = 'none';
 }
 
-displayStreet();
+/* LOAD OBJECTS */
+(objectsTableBody.innerHTML = '', (streetObjects[streetName] || []).forEach(o => {
+    objectsTableBody.insertAdjacentHTML(
+        'beforeend',
+        `<tr>
+            <td>${o.number}</td>
+            <td style="cursor:pointer;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='';" onclick="goToObject('${o.name}')">${o.name}</td>
+        </tr>`
+    );
+}));
 
-/* NAVIGATE TO OBJECT */
 function goToObject(name){
     const streetParam = encodeURIComponent(streetName);
     const objectParam = encodeURIComponent(name);
@@ -178,38 +170,38 @@ addObjectBtn.onclick = () => {
     editExisting.checked = true;
     editDescription.value = '';
 
-    editPopup.dataset.mode = 'addObject';
+    // Fix labels to show Object input
+    const labels = editPopup.querySelectorAll('label');
+    labels[0].textContent = 'Object Name:';
+    labels[1].textContent = 'Number:';
 
-    // Change labels to object mode
-    editPopup.querySelector('h3').textContent = 'Add Object';
-    editPopup.querySelector('label[for="editStreetName"]').textContent = 'Object Name:';
-    editPopup.querySelector('label[for="editDistrict"]').textContent = 'Number:';
     editPopup.style.display = 'flex';
+    editPopup.dataset.mode = 'addObject';
 };
 
-/* EDIT STREET POPUP */
+/* EDIT STREET */
 editBtn.onclick = () => {
     editStreetName.value = streetName;
     editDistrict.value = data.district || 'Town Centre';
     editExisting.checked = data.existing !== false;
     editDescription.value = data.description || '';
 
-    editPopup.dataset.mode = 'edit';
+    // Reset labels for street
+    const labels = editPopup.querySelectorAll('label');
+    labels[0].textContent = 'Street Name:';
+    labels[1].textContent = 'District:';
 
-    // Change labels to street mode
-    editPopup.querySelector('h3').textContent = 'Edit Street';
-    editPopup.querySelector('label[for="editStreetName"]').textContent = 'Street Name:';
-    editPopup.querySelector('label[for="editDistrict"]').textContent = 'District:';
     editPopup.style.display = 'flex';
+    editPopup.dataset.mode = 'edit';
 };
 
-/* SAVE EDIT STREET OR ADD OBJECT */
+/* SAVE EDIT / ADD OBJECT */
 document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
 
     if(mode === 'edit') {
         const newName = editStreetName.value.trim();
-        if(!newName) return alert("Street name cannot be empty.");
+        if (!newName) return alert("Street name cannot be empty.");
 
         const updatedData = {
             district: editDistrict.value,
@@ -217,16 +209,14 @@ document.getElementById('saveEditStreet').onclick = () => {
             description: editDescription.value
         };
 
-        if(newName !== streetName){
-            // Move street data
+        if (newName !== streetName) {
+            // Rename street
             streetsData[newName] = updatedData;
             delete streetsData[streetName];
 
-            // Update streets array
             streets = streets.map(s => s === streetName ? newName : s);
             localStorage.setItem('streets', JSON.stringify(streets));
 
-            // Move objects
             if(streetObjects[streetName]){
                 streetObjects[newName] = streetObjects[streetName];
                 delete streetObjects[streetName];
@@ -239,11 +229,9 @@ document.getElementById('saveEditStreet').onclick = () => {
         }
 
         localStorage.setItem('streetsData', JSON.stringify(streetsData));
-        data = streetsData[streetName];
-        closeEdit();
-        displayStreet();
-
-    } else if(mode === 'addObject'){
+        window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+    }
+    else if(mode === 'addObject') {
         const objectName = editStreetName.value.trim();
         const objectNumber = editDistrict.value.trim();
         const objectExisting = editExisting.checked;
@@ -261,8 +249,7 @@ document.getElementById('saveEditStreet').onclick = () => {
         });
 
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        closeEdit();
-        displayStreet();
+        window.location.reload();
     }
 };
 
@@ -282,12 +269,14 @@ document.getElementById('confirmDelete').onclick = () => {
     streets = streets.filter(s => s !== streetName);
     localStorage.setItem('streets', JSON.stringify(streets));
 
-    // Also remove objects
-    delete streetObjects[streetName];
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    if(streetObjects[streetName]){
+        delete streetObjects[streetName];
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    }
 
     window.location.href = 'index.html';
 };
 </script>
+
 </body>
 </html>
