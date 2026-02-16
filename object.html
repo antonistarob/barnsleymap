@@ -280,20 +280,26 @@ editGradeListed.onchange = ()=> gradeOptions.style.display=editGradeListed.check
 flatpickr(editDateListed,{altInput:true,altFormat:"d/m/Y",dateFormat:"Y-m-d",theme:"dark"});
 
 /* SAVE EDIT OBJECT */
-document.getElementById('saveEditObject').onclick=()=>{
-    obj.name=editObjectName.value.trim()||obj.name;
-    obj.number=editObjectNumber.value.trim();
-    obj.status=editStatus.value;
-    obj.yearBuilt=editYearBuilt.value.trim();
-    obj.yearDemolished=editYearDemolished.value.trim();
-    obj.gradeListed=editGradeListed.checked;
-    obj.grade=editGrade.value;
-    obj.listEntryNumber=editListEntryNumber.value.trim();
-    obj.dateListed=editDateListed.value.trim();
-    obj.description=editDescription.value.trim();
-    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
-    location.reload();
+document.getElementById('saveEditObject').onclick = () => {
+    const newName = editObjectName.value.trim() || obj.name;
+
+    obj.name = newName;
+    obj.number = editObjectNumber.value.trim();
+    obj.status = editStatus.value;
+    obj.yearBuilt = editYearBuilt.value.trim();
+    obj.yearDemolished = editYearDemolished.value.trim();
+    obj.gradeListed = editGradeListed.checked;
+    obj.grade = editGrade.value;
+    obj.listEntryNumber = editListEntryNumber.value.trim();
+    obj.dateListed = editDateListed.value.trim();
+    obj.description = editDescription.value.trim();
+
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+    // Reload page with updated object name in URL
+    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(newName)}`;
 };
+    
 function closeEdit(){ editPopup.style.display='none'; }
 
 /* DELETE OBJECT */
