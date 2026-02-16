@@ -185,40 +185,60 @@ editBtn.onclick = () => {
 };
 
 document.getElementById('saveEditStreet').onclick = () => {
-    const newName = editStreetName.value.trim();
-    if (!newName) return alert("Street name cannot be empty.");
+    const mode = editPopup.dataset.mode;
 
-    // Prepare updated street data
-    const updatedData = {
-        district: editDistrict.value,
-        existing: editExisting.checked,
-        description: editDescription.value
-    };
+    if(mode === 'edit') {
+        const newName = editStreetName.value.trim();
+        if (!newName) return alert("Street name cannot be empty.");
 
-    if (newName !== streetName) {
-        // 1️⃣ Rename key in streetsData
-        streetsData[newName] = updatedData;
-        delete streetsData[streetName];
+        const updatedData = {
+            district: editDistrict.value,
+            existing: editExisting.checked,
+            description: editDescription.value
+        };
 
-        // 2️⃣ Update streets array
-        streets = streets.map(s => s === streetName ? newName : s);
-        localStorage.setItem('streets', JSON.stringify(streets));
+        if (newName !== streetName) {
+            streetsData[newName] = updatedData;
+            delete streetsData[streetName];
 
-        // 3️⃣ Move objects under new street name
-        if (streetObjects[streetName]) {
-            streetObjects[newName] = streetObjects[streetName];
-            delete streetObjects[streetName];
-            localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+            streets = streets.map(s => s === streetName ? newName : s);
+            localStorage.setItem('streets', JSON.stringify(streets));
+
+            if(streetObjects[streetName]){
+                streetObjects[newName] = streetObjects[streetName];
+                delete streetObjects[streetName];
+                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+            }
+        } else {
+            streetsData[streetName] = updatedData;
         }
-    } else {
-        // Name didn't change, just update data
-        streetsData[streetName] = updatedData;
+
+        localStorage.setItem('streetsData', JSON.stringify(streetsData));
+        window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
     }
+    else if(mode === 'addObject') {
+        // Add Object mode
+        const objectName = editStreetName.value.trim();
+        const objectNumber = editDistrict.value.trim();
+        const objectExisting = editExisting.checked;
+        const objectDescription = editDescription.value.trim();
 
-    localStorage.setItem('streetsData', JSON.stringify(streetsData));
+        if(!objectName) return alert("Object name cannot be empty.");
 
-    // Reload street page with new name
-    window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
+        if(!streetObjects[streetName]) streetObjects[streetName] = [];
+
+        streetObjects[streetName].push({
+            name: objectName,
+            number: objectNumber,
+            existing: objectExisting,
+            description: objectDescription
+        });
+
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+        // Reload to show new object in left column
+        window.location.reload();
+    }
 };
 
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
