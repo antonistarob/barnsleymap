@@ -220,7 +220,6 @@ document.getElementById('saveEditStreet').onclick = () => {
     // Reload street page with new name
     window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
 };
-    }
 
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
     window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
