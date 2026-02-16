@@ -84,6 +84,16 @@ header h1 {
     background-color: #1f1f1f;
 }
 
+    .object-link {
+    cursor: pointer;
+    text-decoration: none; /* no underline by default */
+    color: inherit;        /* keep same color as text */
+}
+
+.object-link:hover {
+    text-decoration: underline; /* underline on hover */
+}
+
 /* MAIN CONTENT */
 .main-content {
     margin-left: 230px;
@@ -308,7 +318,7 @@ if(data.description){
         'beforeend',
         `<tr>
             <td>${o.number}</td>
-            <td style="cursor:pointer; text-decoration:underline;" onclick="goToObject('${o.name}')">${o.name}</td>
+            <td class="object-link" onclick="goToObject('${o.name}')">${o.name}</td>
         </tr>`
     );
 });
