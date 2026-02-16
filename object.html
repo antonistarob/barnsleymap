@@ -533,36 +533,29 @@ function initEditMap(){
 
 // SAVE (placeholder – no behaviour change yet)
 document.getElementById('saveMapBtn').onclick = () => {
+    if (!editMarker) {
+        alert("Please click the map to set a location first.");
+        return;
+    }
+
+    const pos = editMarker.getLatLng();
+
+    obj.lat = pos.lat;
+    obj.lng = pos.lng;
     obj.zoom = editMap.getZoom();
-    obj.zoomMin = document.getElementById('mapZoomMin').value;
-    obj.zoomMax = document.getElementById('mapZoomMax').value;
+    obj.zoomMin = Number(document.getElementById('mapZoomMin').value) || editMap.getMinZoom();
+    obj.zoomMax = Number(document.getElementById('mapZoomMax').value) || editMap.getMaxZoom();
 
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
     closeMapPopup();
+
+    // Show map section + render it
+    mapNotSetText.style.display = 'none';
+    mapSection.style.display = 'block';
+    initObjectMap();
 };
 
-    // SAVE MAP LOCATION (object page)
-obj.map = {
-    lat: selectedLatLng.lat,
-    lng: selectedLatLng.lng,
-    zoom: map.getZoom(),
-    zoomMin: Number(zoomMinInput.value) || map.getMinZoom(),
-    zoomMax: Number(zoomMaxInput.value) || map.getMaxZoom()
-};
-
-localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-// Show map section immediately
-document.getElementById('mapNotSetText').style.display = 'none';
-document.getElementById('mapSection').style.display = 'block';
-
-// Rebuild map cleanly
-setTimeout(initObjectMap, 0);
-
-// Close popup
-closeMapPopup();
-
-    
 /* DISPLAY PHOTOS */
 function displayPhotos(){
     const photosDiv = document.getElementById('photosDiv');
