@@ -4,383 +4,72 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Object Info</title>
-
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #eee;
-    margin: 0;
-}
+body { font-family: Arial; background:#121212; color:#eee; margin:0; }
 
-/* --- HEADER --- */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #1f1f1f;
-    color: #eee;
-    width: 100%;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 10;
-}
+header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
+header h1 { margin:0; font-size:24px; }
+.header-link { color:#fff; text-decoration:none; }
+.header-link:hover { text-decoration:underline; }
 
-header h1 {
-    margin: 0;
-    font-size: 24px;
-    color: #fff;
-}
+.main-content { margin:20px; }
+h1 { margin-top:0; }
 
-.header-link {
-    color: #fff;
-    text-decoration: none;
-}
+.action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
+.action-button:hover { background:#444; }
 
-.header-link:hover {
-    text-decoration: underline;
-}
+.info-line { margin:5px 0; font-size:14px; color:#aaa; }
 
-.auth-buttons button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
-    background-color: #333;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-}
-
-.auth-buttons button:hover {
-    background-color: #444;
-}
-
-/* LEFT COLUMN */
-.left-column {
-    width: 200px;
-    position: fixed;
-    top: 40px; /* below header */
-    left: 0;
-    bottom: 0;
-    padding: 10px;
-    border-right: 1px solid #333;
-    overflow-y: auto;
-}
-
-.objects-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.objects-table th,
-.objects-table td {
-    padding: 6px 8px;
-    border-bottom: 1px solid #555;
-    text-align: left;
-}
-
-.objects-table th {
-    background-color: #1f1f1f;
-}
-
-/* MAIN CONTENT */
-.main-content {
-    margin-left: 230px;
-    margin-top: 0px; /* below header */
-    padding: 20px;
-}
-
-h1 { margin-top: 0; }
-
-.object-directory {
-    margin-top: 5px;
-    color: #ccc;
-}
-
-.object-directory a {
-    color: #ccc;
-    text-decoration: none;
-}
-
-.object-directory a:hover {
-    text-decoration: underline;
-}
-
-a.object-link {
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-}
-
-a.object-link:hover {
-    text-decoration: underline;
-}
-
-.action-button {
-    cursor: pointer;
-    background-color: #333;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-    padding: 6px 12px;
-    font-size: 14px;
-}
-
-.action-button:hover {
-    background-color: #444;
-}
-
-/* POPUPS */
-.popup-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.popup {
-    background: #1f1f1f;
-    padding: 25px;
-    border-radius: 10px;
-    width: 400px;
-    max-width: 90%;
-    border: 1px solid #444;
-}
-
-.popup h3 {
-    text-align: center;
-    margin-top: 0;
-}
-
-.popup label {
-    display: block;
-    margin-top: 10px;
-}
-
-.popup input[type="text"],
-.popup textarea,
-.popup select {
-    width: 100%;
-    padding: 5px;
-    margin-top: 5px;
-    background-color: #2b2b2b;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-}
-
-.popup input[type="checkbox"] {
-    margin-left: 6px;
-    transform: scale(1.1);
-}
-
-.popup-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-}
+.rules { margin-top:15px; padding:10px; background:#1f1f1f; border-radius:8px; border:1px solid #444; }
 </style>
 </head>
-
 <body>
 
-<!-- HEADER -->
 <header>
-    <h1>
-        <a href="index.html" class="header-link">
-            Historical Interactive Map of Barnsley
-        </a>
-    </h1>
-    <div class="auth-buttons">
-        <button>Sign Up</button>
-        <button>Log In</button>
-    </div>
+    <h1><a href="index.html" class="header-link">Historical Interactive Map of Barnsley</a></h1>
 </header>
 
-<!-- LEFT COLUMN -->
-<div class="left-column">
-    <h2>Objects on this street</h2>
-    <table class="objects-table">
-        <thead>
-            <tr><th>No.</th><th>Name</th></tr>
-        </thead>
-        <tbody id="objectsTableBody"></tbody>
-    </table>
-</div>
-
-<!-- MAIN CONTENT -->
 <div class="main-content">
     <h1 id="objectTitle"></h1>
-    <p class="object-directory" id="objectDirectory"></p>
-    <p id="existingWrapper"><strong>Existing:</strong> <span id="objectExisting"></span></p>
-    <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
+    <div class="info-line"><strong>Street:</strong> <span id="objectStreet"></span></div>
+    <div class="info-line"><strong>Number:</strong> <span id="objectNumber"></span></div>
+    <div class="info-line"><strong>Existing:</strong> <span id="objectExisting"></span></div>
 
-    <div style="margin:15px 0;">
-        <button id="editObjectBtn" class="action-button">Edit</button>
-        <button id="deleteObjectBtn" class="action-button">Delete</button>
-    </div>
-</div>
+    <div class="rules" id="objectDescription"></div>
 
-<!-- EDIT OBJECT POPUP -->
-<div class="popup-overlay" id="editPopup">
-    <div class="popup">
-        <h3>Edit Object</h3>
-
-        <label>Object Name:</label>
-        <input type="text" id="editObjectName">
-
-        <label>Number:</label>
-        <input type="text" id="editObjectNumber">
-
-        <label>
-            Existing
-            <input type="checkbox" id="editObjectExisting">
-        </label>
-
-        <label>Description:</label>
-        <textarea id="editObjectDescription" rows="3"></textarea>
-
-        <div class="popup-buttons">
-            <button id="saveEditObject" class="action-button">Save</button>
-            <button onclick="closeEdit()" class="action-button">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- DELETE OBJECT POPUP -->
-<div class="popup-overlay" id="deletePopup">
-    <div class="popup">
-        <p id="deleteMessage"></p>
-        <div class="popup-buttons">
-            <button id="confirmDeleteObject" class="action-button">Yes</button>
-            <button id="cancelDeleteObject" class="action-button">No</button>
-        </div>
+    <div style="margin-top:20px;">
+        <button onclick="window.history.back()" class="action-button">Back</button>
     </div>
 </div>
 
 <script>
-const qp = p => decodeURIComponent(new URLSearchParams(location.search).get(p) || '').trim();
+const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
 const objectName = qp('object');
 
-/* DATA */
+/* LOAD DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 
-const objectsList = streetObjects[streetName] || [];
-
-// Match object by trimming and case-insensitive comparison
-let data = objectsList.find(o => o.name.trim().toLowerCase() === objectName.toLowerCase());
-
-if(!data){
-    objectTitle.textContent = 'Object not found';
+/* FIND OBJECT */
+const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+if(!obj){
+    document.getElementById('objectTitle').textContent = 'Object not found';
     throw new Error('Object missing');
 }
 
-/* ELEMENTS */
-const objectsTableBody = document.getElementById('objectsTableBody');
-const objectTitle = document.getElementById('objectTitle');
-const objectDirectory = document.getElementById('objectDirectory');
-const objectDescription = document.getElementById('objectDescription');
-const objectExisting = document.getElementById('objectExisting');
-const existingWrapper = document.getElementById('existingWrapper');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
+/* DISPLAY INFO */
+document.getElementById('objectTitle').textContent = obj.name;
+document.getElementById('objectStreet').textContent = streetName;
+document.getElementById('objectNumber').textContent = obj.number || 'N/A';
+document.getElementById('objectExisting').textContent = obj.existing ? 'Yes' : 'No';
+document.getElementById('objectDescription').textContent = obj.description || 'No description available';
 
-/* BUTTONS */
-const editObjectBtn = document.getElementById('editObjectBtn');
-const deleteObjectBtn = document.getElementById('deleteObjectBtn');
-const editPopup = document.getElementById('editPopup');
-const deletePopup = document.getElementById('deletePopup');
-const deleteMessage = document.getElementById('deleteMessage');
-
-/* EDIT FIELDS */
-const editObjectName = document.getElementById('editObjectName');
-const editObjectNumber = document.getElementById('editObjectNumber');
-const editObjectExisting = document.getElementById('editObjectExisting');
-const editObjectDescription = document.getElementById('editObjectDescription');
-
-/* DATA */
-let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
-
-const objectsList = streetObjects[streetName] || [];
-let data = objectsList.find(o => o.name === objectName);
-
-if(!data){
-    objectTitle.textContent = 'Object not found';
-    throw new Error('Object missing');
-}
-
-/* DISPLAY */
-objectTitle.textContent = data.name;
-objectDescription.textContent = data.description || '';
-objectExisting.textContent = data.existing === false ? 'No' : '';
-if(data.existing !== false) existingWrapper.style.display = 'none';
-if(!data.description) descriptionWrapper.style.display = 'none';
-
-const streetParam = encodeURIComponent(streetName);
-objectDirectory.innerHTML = `<a href="street.html?name=${streetParam}">${streetName}</a> <strong>${data.number || ''}</strong>`;
-
-/* LOAD OBJECTS IN LEFT COLUMN */
-objectsList.forEach(o => {
-    objectsTableBody.insertAdjacentHTML(
-        'beforeend',
-        `<tr>
-            <td>${o.number}</td>
-            <td>
-                <a class="object-link" onclick="goToObject('${o.name}')">${o.name}</a>
-            </td>
-        </tr>`
-    );
-});
-
-function goToObject(name){
-    const streetParam = encodeURIComponent(streetName);
-    const objectParam = encodeURIComponent(name);
-    window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
-}
-
-/* EDIT OBJECT */
-editObjectBtn.onclick = () => {
-    editObjectName.value = data.name;
-    editObjectNumber.value = data.number || '';
-    editObjectExisting.checked = data.existing !== false;
-    editObjectDescription.value = data.description || '';
-    editPopup.style.display = 'flex';
-};
-
-document.getElementById('saveEditObject').onclick = () => {
-    data.name = editObjectName.value;
-    data.number = editObjectNumber.value;
-    data.existing = editObjectExisting.checked;
-    data.description = editObjectDescription.value;
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    location.reload();
-};
-
-function closeEdit(){
-    editPopup.style.display = 'none';
-}
-
-/* DELETE OBJECT */
-deleteObjectBtn.onclick = () => {
-    deleteMessage.innerHTML = `Delete <b>${data.name}</b>?`;
-    deletePopup.style.display = 'flex';
-};
-
-document.getElementById('cancelDeleteObject').onclick = () => {
-    deletePopup.style.display = 'none';
-};
-
-document.getElementById('confirmDeleteObject').onclick = () => {
-    const idx = objectsList.findIndex(o => o.name === data.name);
-    if(idx !== -1) objectsList.splice(idx, 1);
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.href = `street.html?name=${streetParam}`;
+/* Optional: highlight street link */
+document.getElementById('objectStreet').style.cursor = 'pointer';
+document.getElementById('objectStreet').style.textDecoration = 'underline';
+document.getElementById('objectStreet').onclick = () => {
+    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
 </script>
 
