@@ -184,6 +184,12 @@ editBtn.onclick = () => {
     editPopup.dataset.mode = 'edit';
 };
 
+so, the “Add Object” popup is reusing the street edit inputs, which is fine, but you were clearing fields incorrectly: editDistrict.value = '' for the object number works, but the labels and IDs are confusing since they still say “Street Name” and “District”.
+
+✅ Fixed saveEditStreet handler
+
+Replace the entire document.getElementById('saveEditStreet').onclick = ... block with this clean version:
+
 document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
 
@@ -198,18 +204,22 @@ document.getElementById('saveEditStreet').onclick = () => {
         };
 
         if (newName !== streetName) {
+            // Rename street
             streetsData[newName] = updatedData;
             delete streetsData[streetName];
 
+            // Update streets array
             streets = streets.map(s => s === streetName ? newName : s);
             localStorage.setItem('streets', JSON.stringify(streets));
 
+            // Move objects
             if(streetObjects[streetName]){
                 streetObjects[newName] = streetObjects[streetName];
                 delete streetObjects[streetName];
                 localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
             }
         } else {
+            // Just update data
             streetsData[streetName] = updatedData;
         }
 
@@ -217,7 +227,6 @@ document.getElementById('saveEditStreet').onclick = () => {
         window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
     }
     else if(mode === 'addObject') {
-        // Add Object mode
         const objectName = editStreetName.value.trim();
         const objectNumber = editDistrict.value.trim();
         const objectExisting = editExisting.checked;
@@ -236,13 +245,9 @@ document.getElementById('saveEditStreet').onclick = () => {
 
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-        // Reload to show new object in left column
+        // Reload street to show the new object
         window.location.reload();
     }
-};
-
-    localStorage.setItem('streetsData', JSON.stringify(streetsData));
-    window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
 };
 
 function closeEdit(){ editPopup.style.display = 'none'; }
