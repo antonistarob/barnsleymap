@@ -99,6 +99,9 @@ streetEl.onclick = () => {
     window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
 
+    const numberEl = document.getElementById('objectNumber');
+numberEl.textContent = objectNumber;     // bold number
+
 document.getElementById('objectNumber').textContent = obj.number || 'N/A';
 
 /* EXISTING AND DESCRIPTION LOGIC */
