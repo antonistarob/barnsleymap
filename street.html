@@ -134,16 +134,13 @@ if(!streetName || !streetsData[streetName]){
     streetTitle.textContent = streetName;
     streetDistrict.textContent = data.district || 'N/A';
 
-    // Existing
-    if(data.existing === false){
-        existingWrapper.style.display='block';
-        streetExisting.textContent='No';
-    } else if(data.existing === true){
-        existingWrapper.style.display='block';
-        streetExisting.textContent='Yes';
-    } else {
-        existingWrapper.style.display='none';
-    }
+  // Existing: show only if false
+if(data.existing === false){
+    existingWrapper.style.display='block';
+    streetExisting.textContent='No';
+} else {
+    existingWrapper.style.display='none';
+}
 
     // Description
     if(data.description && data.description.trim() !== ''){
