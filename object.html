@@ -73,11 +73,41 @@ h1 { margin-top:0; }
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
 
     <div style="margin:15px 0;">
+    <button id="addPhotoBtn" class="action-button">Add Photo</button>
+    <button id="editBtn" class="action-button">Edit</button>
+    <button id="deleteBtn" class="action-button">Delete</button>
+</div>
+
+
+    <div style="margin:15px 0;">
         <button id="editBtn" class="action-button">Edit</button>
         <button id="deleteBtn" class="action-button">Delete</button>
     </div>
 </div>
 
+<!-- ADD PHOTO POPUP -->
+<div class="popup-overlay" id="addPhotoPopup">
+    <div class="popup" style="width:450px; max-width:95%;">
+        <h3 id="addPhotoTitle" style="text-align:center;">Adding photo(s) to:</h3>
+        <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
+        
+        <label for="photoFile">File:</label>
+        <input type="file" id="photoFile" accept="image/*">
+
+        <label for="photoDate">Date:</label>
+        <input type="date" id="photoDate" style="background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
+
+        <label for="photoDescription">Photo Description:</label>
+        <textarea id="photoDescription" rows="3"></textarea>
+
+        <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
+            <button id="savePhotoBtn" class="action-button">Add Photo</button>
+            <button onclick="closeAddPhoto()" class="action-button">Cancel</button>
+        </div>
+    </div>
+</div>
+
+    
 <!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
@@ -171,6 +201,29 @@ const editListEntryNumber = document.getElementById('editListEntryNumber');
 const editDateListed = document.getElementById('editDateListed');
 const editDescription = document.getElementById('editDescription');
 
+    const addPhotoBtn = document.getElementById('addPhotoBtn');
+const addPhotoPopup = document.getElementById('addPhotoPopup');
+const addPhotoTitle = document.getElementById('addPhotoTitle');
+const addPhotoSubTitle = document.getElementById('addPhotoSubTitle');
+const photoFile = document.getElementById('photoFile');
+const photoDate = document.getElementById('photoDate');
+const photoDescription = document.getElementById('photoDescription');
+const savePhotoBtn = document.getElementById('savePhotoBtn');
+
+addPhotoBtn.onclick = () => {
+    addPhotoTitle.textContent = `Adding photo(s) to:`;
+    addPhotoSubTitle.textContent = `${obj.name} ${obj.number || ''}`; // Object + number
+    photoFile.value = '';
+    photoDate.value = '';
+    photoDescription.value = '';
+    addPhotoPopup.style.display = 'flex';
+};
+
+function closeAddPhoto(){
+    addPhotoPopup.style.display = 'none';
+}
+
+
 /* LOAD DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o=>o.name===objectName);
@@ -256,6 +309,30 @@ document.getElementById('confirmDelete').onclick=()=>{
     localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
     window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 };
+
+    savePhotoBtn.onclick = () => {
+    const fileInput = photoFile.files[0];
+    if(!fileInput) return alert("Please select a photo file.");
+
+    const newPhoto = {
+        name: fileInput.name,
+        date: photoDate.value,
+        description: photoDescription.value
+    };
+
+    // Prepare storage
+    if(!streetObjects[streetName]) streetObjects[streetName] = [];
+    const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
+    if(objectIndex === -1) return alert("Object not found.");
+
+    if(!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos = [];
+    streetObjects[streetName][objectIndex].photos.push(newPhoto);
+
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    closeAddPhoto();
+    alert("Photo added!");
+};
+
 </script>
 
 </body>
