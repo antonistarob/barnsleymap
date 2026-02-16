@@ -77,10 +77,10 @@
         color: #fff;
     }
 
-    .left-column {
-    max-width: 350px;       /* Control width of the column */
-    margin-left: 0;         /* Align to left edge of screen */
-    margin-top: 20px;       /* Optional spacing from top */
+.left-column {
+    width: 300px;       /* Table stays small */
+    margin-left: 0;     /* Align to left of screen */
+    float: left;        /* Push to left */
 }
 
 </style>
@@ -103,20 +103,20 @@
         <button id="deleteStreet" class="action-button">Delete</button>
     </div>
 
-    <!-- Objects Table -->
+  <!-- Objects Table moved to left -->
+<div class="left-column">
     <h2>Objects on this street</h2>
     <table id="objectsTable" class="objects-table">
         <thead>
             <tr>
-                <th>Number</th>
-                <th>Name</th>
+                <th>Street Number</th>
+                <th>Building Name</th>
             </tr>
         </thead>
         <tbody>
-            <!-- Rows inserted dynamically via JS -->
+            <!-- Dynamically filled -->
         </tbody>
     </table>
-
 </div>
 
 <!-- Edit Popup -->
