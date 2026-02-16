@@ -347,28 +347,40 @@ addPhotoBtn.onclick = () => {
 };
 function closeAddPhoto(){ addPhotoPopup.style.display = 'none'; }
 
-savePhotoBtn.onclick = () => {
-    const fileInput = photoFile.files[0];
-    if(!fileInput) return alert("Please select a photo file.");
-    const reader = new FileReader();
-    reader.onload = function(e){
-        const objectIndex = streetObjects[streetName].findIndex(o=>o.name===objectName);
-        if(objectIndex===-1) return alert("Object not found.");
-        if(!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos=[];
-        streetObjects[streetName][objectIndex].photos.push({
-            name: fileInput.name,
-            date: photoDate.value,
-            description: photoDescription.value,
-            dataUrl: e.target.result
-        });
-        localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
-        Object.assign(obj, streetObjects[streetName][objectIndex]);
-        photoFile.value=''; photoDate.value=''; photoDescription.value='';
-        closeAddPhoto();
-        displayPhotos();
-        alert("Photo added!");
-    };
-    reader.readAsDataURL(fileInput);
+savePhotoBtn.onclick = () => {   //updated photo 
+    const files = photoFile.files;
+    if(!files || files.length === 0) return alert("Please select at least one photo file.");
+
+    const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
+    if(objectIndex === -1) return alert("Object not found.");
+    if(!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos = [];
+
+    let filesProcessed = 0;
+
+    for(let i = 0; i < files.length; i++){
+        const reader = new FileReader();
+        reader.onload = function(e){
+            streetObjects[streetName][objectIndex].photos.push({
+                name: files[i].name,
+                date: photoDate.value,
+                description: photoDescription.value,
+                dataUrl: e.target.result
+            });
+            filesProcessed++;
+            if(filesProcessed === files.length){
+                // Save once after all files processed
+                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+                Object.assign(obj, streetObjects[streetName][objectIndex]);
+                photoFile.value = ''; 
+                photoDate.value = ''; 
+                photoDescription.value = '';
+                closeAddPhoto();
+                displayPhotos();
+                alert(`${filesProcessed} photo(s) added!`);
+            }
+        };
+        reader.readAsDataURL(files[i]);
+    }
 };
 
 /* DISPLAY PHOTOS */
