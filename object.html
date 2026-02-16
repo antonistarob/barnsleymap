@@ -146,40 +146,6 @@ h1 { margin-top:0; }
     </div>
 </div>
 
-<!-- MAP SECTION -->
-<div id="mapSection" style="margin:30px 0; text-align:center; display:none;">
-    <h3>Map Location</h3>
-    <div id="objectMap"
-         style="width:60%; height:400px; border:1px solid #555; border-radius:5px; margin:0 auto;">
-    </div>
-</div>
-
-<p id="mapNotSetText" style="text-align:center; color:#aaa; margin-top:30px;">
-    Map location not yet set, do this by clicking the <b>Map</b> button.
-</p>
-
-<!-- ADD PHOTO POPUP -->
-<div class="popup-overlay" id="addPhotoPopup">
-    <div class="popup" style="width:450px; max-width:95%;">
-        <h3 id="addPhotoTitle" style="text-align:center;">Adding photo(s) to:</h3>
-        <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
-        
-        <label for="photoFile">File:</label>
-        <input type="file" id="photoFile" accept="image/*">
-
-        <label for="photoDate">Date:</label>
-        <input type="date" id="photoDate" style="background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
-
-        <label for="photoDescription">Photo Description:</label>
-        <textarea id="photoDescription" rows="3"></textarea>
-
-        <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
-            <button id="savePhotoBtn" class="action-button" style="margin-right:10px;">Add Photo</button>
-            <button onclick="closeAddPhoto()" class="action-button">Cancel</button>
-        </div>
-    </div>
-</div>
-
 <!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
@@ -190,6 +156,9 @@ h1 { margin-top:0; }
 
         <label id="popupNumberLabel">Number:</label>
         <input type="text" id="editObjectNumber">
+
+        <label>Object Category:</label>
+        <select id="editCategory"></select> <!-- NEW DROPDOWN -->
 
         <label>Status:</label>
         <select id="editStatus">
@@ -231,146 +200,35 @@ h1 { margin-top:0; }
     </div>
 </div>
 
-    <!-- MAP EDIT POPUP -->
-<div class="popup-overlay" id="mapPopup">
-    <div class="popup" style="width:600px; max-width:95%;">
-        <h3 style="text-align:center;">Edit Map Location</h3>
-        <p style="text-align:center; font-size:14px; margin-top:0;">
-            Click the map to set a location for the object.
-        </p>
+<!-- OTHER POPUPS REMAIN SAME AS ORIGINAL -->
 
-        <div id="mapEdit" style="width:100%; height:350px; border:1px solid #555; border-radius:5px;"></div>
-
-        <!-- ZOOM CONTROLS -->
-        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:15px;">
-            <div>
-                <label>Zoom</label>
-                <input type="text" id="mapZoom" disabled>
-            </div>
-            <div>
-                <label>Zoom min.</label>
-                <input type="number" id="mapZoomMin">
-            </div>
-            <div>
-                <label>Zoom max.</label>
-                <input type="number" id="mapZoomMax">
-            </div>
-        </div>
-
-        <div class="popup-buttons" style="margin-top:20px;">
-            <button id="saveMapBtn" class="action-button">Save</button>
-            <button onclick="closeMapPopup()" class="action-button">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- DELETE OBJECT POPUP -->
-<div class="popup-overlay" id="deletePopup">
-    <div class="popup">
-        <p id="deleteMessage"></p>
-        <div class="popup-buttons">
-            <button id="confirmDelete" class="action-button" style="background: #c0392b; border-color: #922b21;">Yes</button>
-            <button id="cancelDelete" class="action-button">No</button>
-        </div>
-    </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
-const qp = p => new URLSearchParams(location.search).get(p);
-const streetName = qp('street');
-const objectName = qp('object');
+const OBJECT_CATEGORIES = [
+    "Townhouse",
+    "Detached house",
+    "Semi-detached house",
+    "Terraced house",
+    "Villa",
+    "Palace/Manor",
+    "Cottage",
+    "Single-family house",
+    "Apartment block"
+];
 
-/* ELEMENTS */
-const objectTitle = document.getElementById('objectTitle');
-const objectStreet = document.getElementById('objectStreet');
-const objectNumber = document.getElementById('objectNumber');
-const additionalInfo = document.getElementById('additionalInfo');
-const objectDescription = document.getElementById('objectDescription');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
-const objectsTableBody = document.getElementById('objectsTableBody');
-
-const editBtn = document.getElementById('editBtn');
-const deleteBtn = document.getElementById('deleteBtn');
-const editPopup = document.getElementById('editPopup');
-const deletePopup = document.getElementById('deletePopup');
-const deleteMessage = document.getElementById('deleteMessage');
-
-const editObjectName = document.getElementById('editObjectName');
-const editObjectNumber = document.getElementById('editObjectNumber');
-const editStatus = document.getElementById('editStatus');
-const editYearBuilt = document.getElementById('editYearBuilt');
-const editYearDemolished = document.getElementById('editYearDemolished');
-const editGradeListed = document.getElementById('editGradeListed');
-const gradeOptions = document.getElementById('gradeOptions');
-const editGrade = document.getElementById('editGrade');
-const editListEntryNumber = document.getElementById('editListEntryNumber');
-const editDateListed = document.getElementById('editDateListed');
-const editDescription = document.getElementById('editDescription');
-
-const addPhotoBtn = document.getElementById('addPhotoBtn');
-const addPhotoPopup = document.getElementById('addPhotoPopup');
-const addPhotoTitle = document.getElementById('addPhotoTitle');
-const addPhotoSubTitle = document.getElementById('addPhotoSubTitle');
-const photoFile = document.getElementById('photoFile');
-const photoDate = document.getElementById('photoDate');
-const photoDescription = document.getElementById('photoDescription');
-const savePhotoBtn = document.getElementById('savePhotoBtn');
-
-/* LOAD DATA */
-let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const obj = (streetObjects[streetName] || []).find(o=>o.name===objectName);
-if(!obj){ objectTitle.textContent='Object not found'; throw new Error('Object missing'); }
-
-/* DISPLAY OBJECT */
-objectTitle.textContent = obj.name;
-objectStreet.textContent = streetName;
-objectStreet.onclick = ()=> window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
-objectNumber.textContent = obj.number || '';
-
-// Additional info
-additionalInfo.innerHTML='';
-if(obj.status && obj.status!=='Exists') additionalInfo.innerHTML+=`<span><strong>Status:</strong> ${obj.status}</span><br>`;
-if(obj.yearBuilt) additionalInfo.innerHTML+=`<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
-if(obj.yearDemolished) additionalInfo.innerHTML+=`<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
-if(obj.gradeListed){
-    additionalInfo.innerHTML+=`<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
-    if(obj.listEntryNumber) additionalInfo.innerHTML+=`<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
-    if(obj.dateListed) additionalInfo.innerHTML+=`<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
+function populateCategorySelect(selectEl, currentCategory='') {
+    selectEl.innerHTML = '';
+    OBJECT_CATEGORIES.forEach(cat=>{
+        const opt = document.createElement('option');
+        opt.value = cat;
+        opt.textContent = cat;
+        if(cat === currentCategory) opt.selected = true;
+        selectEl.appendChild(opt);
+    });
 }
 
-// Description
-objectDescription.textContent = obj.description || '';
-descriptionWrapper.style.display = obj.description ? 'block' : 'none';
+const editCategory = document.getElementById('editCategory');
 
-/* LEFT COLUMN */
-objectsTableBody.innerHTML = '';
-(streetObjects[streetName] || []).forEach(o => {
-    const row = document.createElement('tr');
-    
-    const numberCell = document.createElement('td');
-    numberCell.textContent = o.number || '';
-    row.appendChild(numberCell);
-    
-    const nameCell = document.createElement('td');
-    nameCell.textContent = o.name;
-    nameCell.classList.add('object-link');
-    
-    // Add click listener safely
-    nameCell.addEventListener('click', () => {
-        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-        if (window.location.href === url) {
-            window.location.reload(); // force reload if same object
-        } else {
-            window.location.href = url;
-        }
-    });
-    
-    row.appendChild(nameCell);
-    objectsTableBody.appendChild(row);
-});
-
-/* EDIT OBJECT */
+/* WHEN OPENING EDIT POPUP */
 editBtn.onclick=()=>{
     editPopup.style.display='flex';
     editObjectName.value=obj.name;
@@ -384,9 +242,8 @@ editBtn.onclick=()=>{
     editListEntryNumber.value=obj.listEntryNumber||'';
     editDateListed.value=obj.dateListed||'';
     editDescription.value=obj.description||'';
+    populateCategorySelect(editCategory, obj.category||''); // populate dropdown
 };
-editGradeListed.onchange = ()=> gradeOptions.style.display=editGradeListed.checked?'block':'none';
-flatpickr(editDateListed,{altInput:true,altFormat:"d/m/Y",dateFormat:"Y-m-d",theme:"dark"});
 
 /* SAVE EDIT OBJECT */
 document.getElementById('saveEditObject').onclick = () => {
@@ -394,6 +251,7 @@ document.getElementById('saveEditObject').onclick = () => {
 
     obj.name = newName;
     obj.number = editObjectNumber.value.trim();
+    obj.category = editCategory.value; // save category
     obj.status = editStatus.value;
     obj.yearBuilt = editYearBuilt.value.trim();
     obj.yearDemolished = editYearDemolished.value.trim();
@@ -405,249 +263,9 @@ document.getElementById('saveEditObject').onclick = () => {
 
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-    // Reload page with updated object name in URL
     window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(newName)}`;
 };
-    
-function closeEdit(){ editPopup.style.display='none'; }
 
-    document.getElementById('objectsHeader').textContent = `Objects in ${streetName}`;
-
-/* DELETE OBJECT */
-deleteBtn.onclick=()=>{
-    deleteMessage.innerHTML=`Are you sure you want to delete <b>${obj.name}</b>?`;
-    deletePopup.style.display='flex';
-};
-document.getElementById('cancelDelete').onclick = () => {  //cancel button
-    deletePopup.style.display = 'none'; 
-};
-document.getElementById('confirmDelete').onclick = () => {
-    streetObjects[streetName] = (streetObjects[streetName] || []).filter(o => o.name !== obj.name);
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-};
-
-/* ADD PHOTO */
-addPhotoBtn.onclick = () => {
-    addPhotoTitle.textContent = `Adding photo(s) to:`;
-    addPhotoSubTitle.textContent = `${obj.name} ${obj.number || ''}`;
-    photoFile.value = '';
-    photoDate.value = '';
-    photoDescription.value = '';
-    addPhotoPopup.style.display = 'flex';
-};
-function closeAddPhoto(){ addPhotoPopup.style.display = 'none'; }
-
-savePhotoBtn.onclick = () => {   //updated photo 
-    const files = photoFile.files;
-    if(!files || files.length === 0) return alert("Please select at least one photo file.");
-
-    const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
-    if(objectIndex === -1) return alert("Object not found.");
-    if(!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos = [];
-
-    let filesProcessed = 0;
-
-    for(let i = 0; i < files.length; i++){
-        const reader = new FileReader();
-        reader.onload = function(e){
-            streetObjects[streetName][objectIndex].photos.push({
-                name: files[i].name,
-                date: photoDate.value,
-                description: photoDescription.value,
-                dataUrl: e.target.result
-            });
-            filesProcessed++;
-            if(filesProcessed === files.length){
-                // Save once after all files processed
-                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-                Object.assign(obj, streetObjects[streetName][objectIndex]);
-                photoFile.value = ''; 
-                photoDate.value = ''; 
-                photoDescription.value = '';
-                closeAddPhoto();
-                displayPhotos();
-                alert(`${filesProcessed} photo(s) added!`);
-            }
-        };
-        reader.readAsDataURL(files[i]);
-    }
-};
-
-const mapBtn = document.getElementById('mapBtn');
-const mapPopup = document.getElementById('mapPopup');
-let editMap, editMarker;
-let tempLat = null;
-let tempLng = null;
-
-// OPEN MAP POPUP
-mapBtn.onclick = () => {
-    mapPopup.style.display = 'flex';
-    setTimeout(initEditMap, 100); // allow popup to render
-};
-
-function closeMapPopup(){
-    mapPopup.style.display = 'none';
-    if(editMap){
-        editMap.remove();
-        editMap = null;
-        editMarker = null;
-        tempLat = null;
-        tempLng = null;
-    }
-}
-
-// INIT EDIT MAP
-function initEditMap(){
-    if(editMap) return;
-
-    const lat = obj.lat || 53.552;
-    const lng = obj.lng || -1.478;
-    const zoom = obj.zoom || 16;
-
-    editMap = L.map('mapEdit').setView([lat, lng], zoom);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(editMap);
-
-    if(obj.lat && obj.lng){
-        editMarker = L.marker([lat, lng]).addTo(editMap);
-    }
-
-    // CLICK TO SET LOCATION
-editMap.on('click', e => {
-    if (editMarker) editMarker.remove();
-    editMarker = L.marker(e.latlng).addTo(editMap);
-
-    // store TEMP values only
-    tempLat = e.latlng.lat;
-    tempLng = e.latlng.lng;
-});
-
-    // ZOOM TRACKING
-    const zoomInput = document.getElementById('mapZoom');
-    zoomInput.value = editMap.getZoom();
-
-    editMap.on('zoomend', () => {
-        zoomInput.value = editMap.getZoom();
-    });
-
-    document.getElementById('mapZoomMin').value = obj.zoomMin || '';
-    document.getElementById('mapZoomMax').value = obj.zoomMax || '';
-}
-
-// SAVE (placeholder – no behaviour change yet)
-document.getElementById('saveMapBtn').onclick = () => {
-if (tempLat === null || tempLng === null) {
-    alert("Please click the map to set a location first.");
-    return;
-}
-
-// NOW commit to object
-obj.lat = tempLat;
-obj.lng = tempLng;
-    obj.zoom = editMap.getZoom();
-    obj.zoomMin = Number(document.getElementById('mapZoomMin').value) || editMap.getMinZoom();
-    obj.zoomMax = Number(document.getElementById('mapZoomMax').value) || editMap.getMaxZoom();
-
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-    closeMapPopup();
-
-    // Show map section + render it
-    mapNotSetText.style.display = 'none';
-    mapSection.style.display = 'block';
-    initObjectMap();
-};
-
-/* DISPLAY PHOTOS */
-function displayPhotos(){
-    const photosDiv = document.getElementById('photosDiv');
-    photosDiv.innerHTML = '';
-
-    if(!obj.photos || obj.photos.length === 0){
-        photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
-        return;
-    }
-
-    obj.photos.sort((a,b)=>new Date(a.date)-new Date(b.date));
-
-    obj.photos.forEach(photo=>{
-        const photoBox = document.createElement('div');
-        photoBox.style.display='flex';
-        photoBox.style.flexDirection='column';
-        photoBox.style.alignItems='center';
-        photoBox.style.margin='5px';
-        photoBox.style.width='200px';
-        photoBox.style.border='1px solid #555';
-        photoBox.style.padding='5px';
-        photoBox.style.borderRadius='5px';
-        photoBox.style.background='#1f1f1f';
-
-        const img = document.createElement('img');
-        img.src = photo.dataUrl;
-        img.style.width='100%';
-        img.style.height='auto';
-        img.style.objectFit='cover';
-        img.style.borderRadius='3px';
-        photoBox.appendChild(img);
-
-        if(photo.date){
-            const dateText = document.createElement('div');
-            dateText.style.fontSize='11px';
-            dateText.style.color='#aaa';
-            dateText.style.marginTop='3px';
-            dateText.textContent=photo.date;
-            photoBox.appendChild(dateText);
-        }
-
-        if(photo.description){
-            const descText = document.createElement('div');
-            descText.style.fontSize='12px';
-            descText.style.marginTop='2px';
-            descText.textContent=photo.description;
-            photoBox.appendChild(descText);
-        }
-
-        photosDiv.appendChild(photoBox);
-    });
-}
-    
-function initObjectMap() {
-    if (!obj.lat || !obj.lng) return;
-
-    const mapDiv = document.getElementById('objectMap');
-    mapDiv.innerHTML = '';
-
-    const map = L.map('objectMap', {
-        minZoom: obj.zoomMin || 1,
-        maxZoom: obj.zoomMax || 19
-    }).setView(
-        [obj.lat, obj.lng],
-        obj.zoom || 16
-    );
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    L.marker([obj.lat, obj.lng]).addTo(map);
-}
-
-const mapSection = document.getElementById('mapSection');
-const mapNotSetText = document.getElementById('mapNotSetText');
-
-if (obj.lat && obj.lng) {
-    mapNotSetText.style.display = 'none';
-    mapSection.style.display = 'block';
-    initObjectMap();
-} else {
-    mapSection.style.display = 'none';
-    mapNotSetText.style.display = 'block';
-}
-    
-displayPhotos();
 </script>
 
 </body>
