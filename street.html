@@ -76,36 +76,48 @@
         background-color: #1f1f1f;
         color: #fff;
     }
+
+    .left-column {
+    max-width: 350px;       /* Control width of the column */
+    margin-left: 0;         /* Align to left edge of screen */
+    margin-top: 20px;       /* Optional spacing from top */
+}
+
 </style>
 </head>
 <body>
 
 <a href="index.html">Back to Map</a>
 
-<h1 id="streetTitle"></h1>
-<p><strong>District:</strong> <span id="streetDistrict"></span></p>
-<p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
-<p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
+<div class="left-column">
 
-<div id="streetButtons" style="margin:15px 0;">
-    <button id="addObjectBtn" class="action-button">Add Object</button>
-    <button id="editBtn" class="action-button">Edit</button>
-    <button id="deleteStreet" class="action-button">Delete</button>
+    <h1 id="streetTitle"></h1>
+    <p><strong>District:</strong> <span id="streetDistrict"></span></p>
+    <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
+    <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
+
+    <!-- Action Buttons -->
+    <div id="streetButtons" style="margin:15px 0;">
+        <button id="addObjectBtn" class="action-button">Add Object</button>
+        <button id="editBtn" class="action-button">Edit</button>
+        <button id="deleteStreet" class="action-button">Delete</button>
+    </div>
+
+    <!-- Objects Table -->
+    <h2>Objects on this street</h2>
+    <table id="objectsTable" class="objects-table">
+        <thead>
+            <tr>
+                <th>Street Number</th>
+                <th>Building Name</th>
+            </tr>
+        </thead>
+        <tbody>
+            <!-- Rows inserted dynamically via JS -->
+        </tbody>
+    </table>
+
 </div>
-
-<!-- Objects Table -->
-<h2>Objects on this street</h2>
-<table id="objectsTable" class="objects-table">
-    <thead>
-        <tr>
-            <th>Number</th>
-            <th>Name</th>
-        </tr>
-    </thead>
-    <tbody>
-        <!-- Dynamically filled -->
-    </tbody>
-</table>
 
 <!-- Edit Popup -->
 <div class="popup-overlay" id="editPopupOverlay">
