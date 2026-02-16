@@ -263,9 +263,9 @@ a.object-link:hover {
 </div>
 
 <script>
-const qp = p => new URLSearchParams(location.search).get(p);
-const streetName = qp('street');
-const objectName = qp('object');
+// Decode and trim URL parameter for street
+const qp = p => decodeURIComponent(new URLSearchParams(location.search).get(p) || '').trim();
+const streetName = qp('name');
 
 /* ELEMENTS */
 const objectsTableBody = document.getElementById('objectsTableBody');
@@ -290,8 +290,8 @@ const editObjectExisting = document.getElementById('editObjectExisting');
 const editObjectDescription = document.getElementById('editObjectDescription');
 
 /* DATA */
-let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 
 const objectsList = streetObjects[streetName] || [];
 let data = objectsList.find(o => o.name === objectName);
@@ -302,14 +302,20 @@ if(!data){
 }
 
 /* DISPLAY */
-objectTitle.textContent = data.name;
-objectDescription.textContent = data.description || '';
-objectExisting.textContent = data.existing === false ? 'No' : '';
-if(data.existing !== false) existingWrapper.style.display = 'none';
-if(!data.description) descriptionWrapper.style.display = 'none';
+streetTitle.textContent = streetName;
+streetDistrict.textContent = data.district || 'N/A';
 
-const streetParam = encodeURIComponent(streetName);
-objectDirectory.innerHTML = `<a href="street.html?name=${streetParam}">${streetName}</a> <strong>${data.number || ''}</strong>`;
+if(data.existing === false){
+    streetExisting.textContent = 'No';
+} else {
+    existingWrapper.style.display = 'none';
+}
+
+if(data.description){
+    streetDescription.textContent = data.description;
+} else {
+    descriptionWrapper.style.display = 'none';
+}
 
 /* LOAD OBJECTS IN LEFT COLUMN */
 objectsList.forEach(o => {
