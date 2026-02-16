@@ -312,16 +312,20 @@ function closeAddPhoto(){ addPhotoPopup.style.display='none'; }
 
 savePhotoBtn.onclick = () => {
     const fileInput = photoFile.files[0];
-    if(!fileInput) return alert("Please select a photo file.");
+    if (!fileInput) return alert("Please select a photo file.");
 
+    // Read the file as Data URL
     const reader = new FileReader();
-    reader.onload = function(e){
-        const objectIndex = streetObjects[streetName].findIndex(o=>o.name===objectName);
-        if(objectIndex === -1) return alert("Object not found.");
+    reader.onload = function(e) {
+        // Find the object in localStorage
+        const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
+        if (objectIndex === -1) return alert("Object not found.");
 
-        if(!streetObjects[streetName][objectIndex].photos) 
+        if (!streetObjects[streetName][objectIndex].photos) {
             streetObjects[streetName][objectIndex].photos = [];
+        }
 
+        // Push new photo with data URL
         streetObjects[streetName][objectIndex].photos.push({
             name: fileInput.name,
             date: photoDate.value,
@@ -329,31 +333,64 @@ savePhotoBtn.onclick = () => {
             dataUrl: e.target.result
         });
 
+        // Save back to localStorage
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-        // Reload obj from storage
+        // Update current object
         const updatedObjects = JSON.parse(localStorage.getItem('streetObjects'));
         Object.assign(obj, updatedObjects[streetName][objectIndex]);
 
+        // Clear form
+        photoFile.value = '';
+        photoDate.value = '';
+        photoDescription.value = '';
+
+        // Close popup
         closeAddPhoto();
+
+        // Refresh photo display
         displayPhotos();
+
+        alert("Photo added!");
     };
     reader.readAsDataURL(fileInput);
 };
 
 /* DISPLAY PHOTOS */
-function displayPhotos(){
-    const photosContainer = document.getElementById('photosContainer');
-    photosContainer.innerHTML='';
-    const photos = obj.photos || [];
-    photos.sort((a,b)=>new Date(a.date)-new Date(b.date)).forEach(photo=>{
-        const box = document.createElement('div');
-        box.className='photo-box';
-        box.innerHTML=`<img src="${photo.dataUrl}" alt="Photo"><span>${photo.date || ''}</span>`;
-        photosContainer.appendChild(box);
+function displayPhotos() {
+    const photosDiv = document.getElementById('photosDiv');
+    photosDiv.innerHTML = '';
+
+    if (!obj.photos || obj.photos.length === 0) return;
+
+    // Sort oldest to newest
+    obj.photos.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    obj.photos.forEach(photo => {
+        const photoBox = document.createElement('div');
+        photoBox.style.display = 'inline-block';
+        photoBox.style.margin = '5px';
+        photoBox.style.textAlign = 'center';
+
+        const img = document.createElement('img');
+        img.src = photo.dataUrl;
+        img.style.width = '100px';
+        img.style.height = '100px';
+        img.style.objectFit = 'cover';
+        img.style.border = '1px solid #555';
+        photoBox.appendChild(img);
+
+        if(photo.date) {
+            const dateText = document.createElement('div');
+            dateText.style.fontSize = '12px';
+            dateText.style.color = '#aaa';
+            dateText.textContent = photo.date;
+            photoBox.appendChild(dateText);
+        }
+
+        photosDiv.appendChild(photoBox);
     });
 }
-displayPhotos();
 </script>
 
 </body>
