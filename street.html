@@ -7,6 +7,10 @@
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; }
 
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 /* HEADER */
 header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
 header h1 { margin:0; font-size:24px; }
@@ -170,6 +174,14 @@ const editGrade = document.getElementById('editGrade');
 const editListEntryNumber = document.getElementById('editListEntryNumber');
 const editDateListed = document.getElementById('editDateListed');
 
+    // Initialize dark-themed flatpickr
+flatpickr(editDateListed, {
+    altInput: true,
+    altFormat: "d/m/Y",
+    dateFormat: "Y-m-d",
+    theme: "dark"
+});
+
 // Show/hide grade fields based on checkbox
 editGradeListed.onchange = () => {
     gradeDetails.style.display = editGradeListed.checked ? 'block' : 'none';
@@ -203,30 +215,32 @@ addObjectBtn.onclick = () => {
 document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
 
-    if (mode === 'addObject') {
-        const objectName = editStreetName.value.trim();
-        const objectNumber = editDistrict.value.trim();
-        const objectDescription = editDescription.value.trim();
-        if(!objectName) return alert("Object name cannot be empty.");
+else if(mode === 'addObject') {
+    const objectName = editStreetName.value.trim();
+    const objectNumber = editDistrict.value.trim();
+    const objectDescription = editDescription.value.trim();
+    const objectStatus = editExisting.value;
 
-        if(!streetObjects[streetName]) streetObjects[streetName] = [];
+    if(!objectName) return alert("Object name cannot be empty.");
 
-        streetObjects[streetName].push({
-            name: objectName,
-            number: objectNumber,
-            status: editExisting.value,
-            yearBuilt: editYearBuilt.value.trim(),
-            yearDemolished: editYearDemolished.value.trim(),
-            description: objectDescription,
-            gradeListed: editGradeListed.checked,
-            grade: editGradeListed.checked ? editGrade.value : '',
-            listEntryNumber: editGradeListed.checked ? editListEntryNumber.value.trim() : '',
-            dateListed: editGradeListed.checked ? editDateListed.value : ''
-        });
+    if(!streetObjects[streetName]) streetObjects[streetName] = [];
 
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        window.location.reload();
-    }
+    streetObjects[streetName].push({
+        name: objectName,
+        number: objectNumber,
+        status: objectStatus,
+        yearBuilt: editYearBuilt.value.trim(),
+        yearDemolished: editYearDemolished.value.trim(),
+        description: objectDescription,
+        gradeListed: editGradeListed.checked,
+        grade: editGradeListed.checked ? editGrade.value : '',
+        listEntryNumber: editGradeListed.checked ? editListEntryNumber.value.trim() : '',
+        dateListed: editGradeListed.checked ? editDateListed.value : ''
+    });
+
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    window.location.reload();
+}
 
     // ... existing edit street logic remains unchanged
 };
