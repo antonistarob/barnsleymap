@@ -228,6 +228,39 @@ h1 { margin-top:0; }
     </div>
 </div>
 
+    <!-- MAP EDIT POPUP -->
+<div class="popup-overlay" id="mapPopup">
+    <div class="popup" style="width:600px; max-width:95%;">
+        <h3 style="text-align:center;">Edit Map Location</h3>
+        <p style="text-align:center; font-size:14px; margin-top:0;">
+            Click the map to set a location for the object.
+        </p>
+
+        <div id="mapEdit" style="width:100%; height:350px; border:1px solid #555; border-radius:5px;"></div>
+
+        <!-- ZOOM CONTROLS -->
+        <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:15px;">
+            <div>
+                <label>Zoom</label>
+                <input type="text" id="mapZoom" disabled>
+            </div>
+            <div>
+                <label>Zoom min.</label>
+                <input type="number" id="mapZoomMin">
+            </div>
+            <div>
+                <label>Zoom max.</label>
+                <input type="number" id="mapZoomMax">
+            </div>
+        </div>
+
+        <div class="popup-buttons" style="margin-top:20px;">
+            <button id="saveMapBtn" class="action-button">Save</button>
+            <button onclick="closeMapPopup()" class="action-button">Cancel</button>
+        </div>
+    </div>
+</div>
+
 <!-- DELETE OBJECT POPUP -->
 <div class="popup-overlay" id="deletePopup">
     <div class="popup">
@@ -438,6 +471,72 @@ savePhotoBtn.onclick = () => {   //updated photo
     }
 };
 
+const mapBtn = document.getElementById('mapBtn');
+const mapPopup = document.getElementById('mapPopup');
+let editMap, editMarker;
+
+// OPEN MAP POPUP
+mapBtn.onclick = () => {
+    mapPopup.style.display = 'flex';
+    setTimeout(initEditMap, 100); // allow popup to render
+};
+
+function closeMapPopup(){
+    mapPopup.style.display = 'none';
+    if(editMap){
+        editMap.remove();
+        editMap = null;
+        editMarker = null;
+    }
+}
+
+// INIT EDIT MAP
+function initEditMap(){
+    if(editMap) return;
+
+    const lat = obj.lat || 53.552;
+    const lng = obj.lng || -1.478;
+    const zoom = obj.zoom || 16;
+
+    editMap = L.map('mapEdit').setView([lat, lng], zoom);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(editMap);
+
+    if(obj.lat && obj.lng){
+        editMarker = L.marker([lat, lng]).addTo(editMap);
+    }
+
+    // CLICK TO SET LOCATION
+    editMap.on('click', e => {
+        if(editMarker) editMarker.remove();
+        editMarker = L.marker(e.latlng).addTo(editMap);
+        obj.lat = e.latlng.lat;
+        obj.lng = e.latlng.lng;
+    });
+
+    // ZOOM TRACKING
+    const zoomInput = document.getElementById('mapZoom');
+    zoomInput.value = editMap.getZoom();
+
+    editMap.on('zoomend', () => {
+        zoomInput.value = editMap.getZoom();
+    });
+
+    document.getElementById('mapZoomMin').value = obj.zoomMin || '';
+    document.getElementById('mapZoomMax').value = obj.zoomMax || '';
+}
+
+// SAVE (placeholder – no behaviour change yet)
+document.getElementById('saveMapBtn').onclick = () => {
+    obj.zoom = editMap.getZoom();
+    obj.zoomMin = document.getElementById('mapZoomMin').value;
+    obj.zoomMax = document.getElementById('mapZoomMax').value;
+
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    closeMapPopup();
+};
 
     
 /* DISPLAY PHOTOS */
