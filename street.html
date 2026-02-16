@@ -88,6 +88,23 @@ h1 { margin-top:0; }
 <label>Year Demolished:</label>
 <input type="text" id="editYearDemolished" placeholder="e.g. 1975">
 
+        <!-- Inside your popup -->
+<label><input type="checkbox" id="editGradeListed"> Grade Listed</label>
+
+<div id="gradeDetails" style="display:none; margin-left:15px;">
+    <label>Grade:</label>
+    <select id="editGrade">
+        <option value="Grade I">Grade I</option>
+        <option value="Grade II*">Grade II*</option>
+        <option value="Grade II">Grade II</option>
+    </select>
+    <label>List Entry Number:</label>
+    <input type="text" id="editListEntryNumber">
+    <label>Date First Listed:</label>
+    <input type="date" id="editDateListed">
+</div>
+
+
         
         <!-- Status -->
         <label>Status:</label>
@@ -146,6 +163,73 @@ const editExisting = document.getElementById('editExisting');
 const editDescription = document.getElementById('editDescription');
 const editYearBuilt = document.getElementById('editYearBuilt');
 const editYearDemolished = document.getElementById('editYearDemolished');    
+
+    const editGradeListed = document.getElementById('editGradeListed');
+const gradeDetails = document.getElementById('gradeDetails');
+const editGrade = document.getElementById('editGrade');
+const editListEntryNumber = document.getElementById('editListEntryNumber');
+const editDateListed = document.getElementById('editDateListed');
+
+// Show/hide grade fields based on checkbox
+editGradeListed.onchange = () => {
+    gradeDetails.style.display = editGradeListed.checked ? 'block' : 'none';
+};
+
+// When opening Add Object popup, reset grade fields
+addObjectBtn.onclick = () => {
+    document.getElementById('popupTitle').textContent = 'Add Object';
+    document.getElementById('popupNameLabel').textContent = 'Object Name:';
+    document.getElementById('popupNumberLabel').textContent = 'Number:';
+
+    editStreetName.value = '';
+    editDistrict.value = '';
+    editYearBuilt.value = '';
+    editYearDemolished.value = '';
+    editExisting.value = 'Exists';
+    editDescription.value = '';
+
+    // Grade Listed reset
+    editGradeListed.checked = false;
+    gradeDetails.style.display = 'none';
+    editGrade.value = 'Grade I';
+    editListEntryNumber.value = '';
+    editDateListed.value = '';
+
+    editPopup.style.display = 'flex';
+    editPopup.dataset.mode = 'addObject';
+};
+
+// When saving object
+document.getElementById('saveEditStreet').onclick = () => {
+    const mode = editPopup.dataset.mode;
+
+    if (mode === 'addObject') {
+        const objectName = editStreetName.value.trim();
+        const objectNumber = editDistrict.value.trim();
+        const objectDescription = editDescription.value.trim();
+        if(!objectName) return alert("Object name cannot be empty.");
+
+        if(!streetObjects[streetName]) streetObjects[streetName] = [];
+
+        streetObjects[streetName].push({
+            name: objectName,
+            number: objectNumber,
+            status: editExisting.value,
+            yearBuilt: editYearBuilt.value.trim(),
+            yearDemolished: editYearDemolished.value.trim(),
+            description: objectDescription,
+            gradeListed: editGradeListed.checked,
+            grade: editGradeListed.checked ? editGrade.value : '',
+            listEntryNumber: editGradeListed.checked ? editListEntryNumber.value.trim() : '',
+            dateListed: editGradeListed.checked ? editDateListed.value : ''
+        });
+
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        window.location.reload();
+    }
+
+    // ... existing edit street logic remains unchanged
+};
 
 /* LOAD DATA */
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
