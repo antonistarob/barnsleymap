@@ -22,6 +22,7 @@ header h1 { margin:0; font-size:24px; }
 .main-content { margin-left:230px; padding:20px; }
 h1 { margin-top:0; }
 .info-line { margin:5px 0; }
+.info-small { font-size:0.9em; margin-left:15px; display:block; color:#ccc; }
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
 .action-button:hover { background:#444; }
 /* POPUPS */
@@ -36,7 +37,6 @@ h1 { margin-top:0; }
 #gradeOptions { display:none; margin-top:10px; }
 </style>
 
-<!-- Flatpickr Dark Calendar -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
@@ -62,9 +62,9 @@ h1 { margin-top:0; }
         <span id="objectStreet" class="object-link"></span>
         <span id="objectNumber" style="font-weight:bold; margin-left:5px;"></span>
     </p>
-    <p id="statusWrapper" class="info-line"><strong>Status:</strong> <span id="objectStatus"></span></p>
-    <p id="existingWrapper" class="info-line"><strong>Existing:</strong> <span id="objectExisting"></span></p>
-    <p id="descriptionWrapper" class="info-line"><strong>Description:</strong> <span id="objectDescription"></span></p>
+
+    <!-- Additional info -->
+    <div id="additionalInfo"></div>
 
     <div style="margin:15px 0;">
         <button id="editBtn" class="action-button">Edit</button>
@@ -142,10 +142,7 @@ const objectName = qp('object');
 const objectTitle = document.getElementById('objectTitle');
 const objectStreet = document.getElementById('objectStreet');
 const objectNumber = document.getElementById('objectNumber');
-const objectStatusEl = document.getElementById('objectStatus');
-const objectExistingEl = document.getElementById('objectExisting');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
-const objectDescription = document.getElementById('objectDescription');
+const additionalInfo = document.getElementById('additionalInfo');
 const objectsTableBody = document.getElementById('objectsTableBody');
 
 const editBtn = document.getElementById('editBtn');
@@ -168,81 +165,84 @@ const editDescription = document.getElementById('editDescription');
 
 /* LOAD DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 
-const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
-if(!obj){ objectTitle.textContent = 'Object not found'; throw new Error('Object missing'); }
+const obj = (streetObjects[streetName] || []).find(o=>o.name===objectName);
+if(!obj){ objectTitle.textContent='Object not found'; throw new Error('Object missing'); }
 
 /* DISPLAY OBJECT */
 objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
-objectStreet.onclick = () => window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+objectStreet.onclick = ()=> window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 objectNumber.textContent = obj.number || '';
-objectStatusEl.textContent = obj.status && obj.status !== 'Exists' ? obj.status : '';
-objectExistingEl.textContent = obj.status === 'Exists' ? 'Yes' : '';
-if(obj.description){ objectDescription.textContent = obj.description; } else { descriptionWrapper.style.display='none'; }
+
+// Conditionally show additional info
+additionalInfo.innerHTML = '';
+if(obj.status && obj.status!=='Exists') additionalInfo.innerHTML += `<span class="info-small"><strong>Status:</strong> ${obj.status}</span>`;
+if(obj.yearBuilt) additionalInfo.innerHTML += `<span class="info-small"><strong>Year Built:</strong> ${obj.yearBuilt}</span>`;
+if(obj.yearDemolished) additionalInfo.innerHTML += `<span class="info-small"><strong>Year Demolished:</strong> ${obj.yearDemolished}</span>`;
+if(obj.gradeListed){
+    additionalInfo.innerHTML += `<span class="info-small"><strong>Grade Listed:</strong> ${obj.grade}</span>`;
+    if(obj.listEntryNumber) additionalInfo.innerHTML += `<span class="info-small"><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span>`;
+    if(obj.dateListed) additionalInfo.innerHTML += `<span class="info-small"><strong>Date first listed:</strong> ${obj.dateListed}</span>`;
+}
 
 /* LEFT COLUMN */
-objectsTableBody.innerHTML = '';
-(streetObjects[streetName] || []).forEach(o=>{
-    objectsTableBody.insertAdjacentHTML(
-        'beforeend',
-        `<tr>
-            <td>${o.number}</td>
-            <td class="object-link" onclick="goToObject('${o.name}')">${o.name}</td>
-        </tr>`
+objectsTableBody.innerHTML='';
+(streetObjects[streetName]||[]).forEach(o=>{
+    objectsTableBody.insertAdjacentHTML('beforeend',
+        `<tr><td>${o.number}</td><td class="object-link" onclick="goToObject('${o.name}')">${o.name}</td></tr>`
     );
 });
 function goToObject(name){ window.location.href=`object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`; }
 
 /* EDIT OBJECT */
-editBtn.onclick = ()=>{
+editBtn.onclick=()=>{
     editPopup.style.display='flex';
-    editObjectName.value = obj.name;
-    editObjectNumber.value = obj.number || '';
-    editStatus.value = obj.status || 'Exists';
-    editYearBuilt.value = obj.yearBuilt || '';
-    editYearDemolished.value = obj.yearDemolished || '';
-    editGradeListed.checked = obj.gradeListed || false;
-    gradeOptions.style.display = editGradeListed.checked ? 'block':'none';
-    editGrade.value = obj.grade || 'Grade I';
-    editListEntryNumber.value = obj.listEntryNumber || '';
-    editDateListed.value = obj.dateListed || '';
-    editDescription.value = obj.description || '';
+    editObjectName.value=obj.name;
+    editObjectNumber.value=obj.number||'';
+    editStatus.value=obj.status||'Exists';
+    editYearBuilt.value=obj.yearBuilt||'';
+    editYearDemolished.value=obj.yearDemolished||'';
+    editGradeListed.checked=obj.gradeListed||false;
+    gradeOptions.style.display=editGradeListed.checked?'block':'none';
+    editGrade.value=obj.grade||'Grade I';
+    editListEntryNumber.value=obj.listEntryNumber||'';
+    editDateListed.value=obj.dateListed||'';
+    editDescription.value=obj.description||'';
 };
 
 /* GRADE LISTED TOGGLE */
-editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block':'none';
+editGradeListed.onchange = ()=> gradeOptions.style.display=editGradeListed.checked?'block':'none';
 
 /* FLATPICKR */
-flatpickr(editDateListed, {altInput:true, altFormat:"d/m/Y", dateFormat:"Y-m-d", theme:"dark"});
+flatpickr(editDateListed,{altInput:true,altFormat:"d/m/Y",dateFormat:"Y-m-d",theme:"dark"});
 
 /* SAVE EDIT OBJECT */
-document.getElementById('saveEditObject').onclick = ()=>{
-    obj.name = editObjectName.value.trim() || obj.name;
-    obj.number = editObjectNumber.value.trim();
-    obj.status = editStatus.value;
-    obj.yearBuilt = editYearBuilt.value.trim();
-    obj.yearDemolished = editYearDemolished.value.trim();
-    obj.gradeListed = editGradeListed.checked;
-    obj.grade = editGrade.value;
-    obj.listEntryNumber = editListEntryNumber.value.trim();
-    obj.dateListed = editDateListed.value.trim();
-    obj.description = editDescription.value.trim();
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+document.getElementById('saveEditObject').onclick=()=>{
+    obj.name=editObjectName.value.trim()||obj.name;
+    obj.number=editObjectNumber.value.trim();
+    obj.status=editStatus.value;
+    obj.yearBuilt=editYearBuilt.value.trim();
+    obj.yearDemolished=editYearDemolished.value.trim();
+    obj.gradeListed=editGradeListed.checked;
+    obj.grade=editGrade.value;
+    obj.listEntryNumber=editListEntryNumber.value.trim();
+    obj.dateListed=editDateListed.value.trim();
+    obj.description=editDescription.value.trim();
+    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
     location.reload();
 };
 function closeEdit(){ editPopup.style.display='none'; }
 
 /* DELETE OBJECT */
-deleteBtn.onclick = ()=>{
+deleteBtn.onclick=()=>{
     deleteMessage.innerHTML=`Are you sure you want to delete <b>${obj.name}</b>?`;
     deletePopup.style.display='flex';
 };
-document.getElementById('cancelDelete').onclick = ()=>{ deletePopup.style.display='none'; };
-document.getElementById('confirmDelete').onclick = ()=>{
-    streetObjects[streetName] = (streetObjects[streetName] || []).filter(o=>o.name!==obj.name);
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+document.getElementById('cancelDelete').onclick=()=>{ deletePopup.style.display='none'; };
+document.getElementById('confirmDelete').onclick=()=>{
+    streetObjects[streetName] = (streetObjects[streetName]||[]).filter(o=>o.name!==obj.name);
+    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
     window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 };
 </script>
