@@ -98,6 +98,15 @@ h1 { margin-top: 0; }
     color: #ccc;
 }
 
+.object-directory a {
+    color: #ccc;
+    text-decoration: none;
+}
+
+.object-directory a:hover {
+    text-decoration: underline;
+}
+
 a.object-link {
     cursor: pointer;
     text-decoration: none;
@@ -224,8 +233,9 @@ if(!data){
 objectTitle.textContent = data.name;
 objectDescription.textContent = data.description || 'N/A';
 
-/* Directory line: "Street Name **Number**" */
-objectDirectory.innerHTML = `${streetName} <strong>${data.number || ''}</strong>`;
+/* Directory line: "Street Name **Number**" with clickable street */
+const streetParam = encodeURIComponent(streetName);
+objectDirectory.innerHTML = `<a href="street.html?name=${streetParam}">${streetName}</a> <strong>${data.number || ''}</strong>`;
 
 /* LOAD OBJECTS IN LEFT COLUMN */
 objectsList.forEach(o => {
