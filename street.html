@@ -55,6 +55,27 @@
     .action-button:hover { background-color:#444; }
     table { width:100%; border-collapse: collapse; margin-top:10px; }
     th, td { padding:5px; border-bottom:1px solid #555; text-align:left; }
+
+    
+    /* --- New Objects Table Styles --- */
+    .objects-table {
+        width: 300px;          /* Small width */
+        border-collapse: collapse;
+        margin-top: 10px;
+        margin-left: 0;        /* Align to left */
+    }
+
+    .objects-table th,
+    .objects-table td {
+        padding: 5px 10px;
+        border-bottom: 1px solid #555;
+        text-align: left;
+    }
+
+    .objects-table th {
+        background-color: #1f1f1f;
+        color: #fff;
+    }
 </style>
 </head>
 <body>
@@ -74,8 +95,16 @@
 
 <!-- Objects Table -->
 <h2>Objects on this street</h2>
-<table id="objectsTable" style="width:100%; border-collapse: collapse; margin-top:10px;">
-    ...
+<table id="objectsTable" class="objects-table">
+    <thead>
+        <tr>
+            <th>Street Number</th>
+            <th>Building Name</th>
+        </tr>
+    </thead>
+    <tbody>
+        <!-- Dynamically filled -->
+    </tbody>
 </table>
 
 <!-- Edit Popup -->
