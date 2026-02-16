@@ -6,28 +6,42 @@
 <title>Object Info</title>
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; }
-header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
+header {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:15px 20px;
+    background:#1f1f1f;
+    position:fixed;   /* make header fixed so it stays on top */
+    top:0;
+    left:0;
+    right:0;
+    z-index:10;       /* higher than left column */
+}
 header h1 { margin:0; font-size:24px; }
 .header-link { color:#fff; text-decoration:none; }
 .header-link:hover { text-decoration:underline; }
 .left-column {
     width:200px;
     position:fixed;
-    top:0;             /* flush with top */
+    top:0;
     left:0;
     bottom:0;
-    padding:70px 10px 10px 10px; /* top padding equals header height */
+    padding:70px 10px 10px 10px; /* space for header */
     border-right:1px solid #333;
     overflow-y:auto;
-    background:#121212; /* optional: match body so it looks clean */
-    z-index:5; /* ensure it’s below the header which usually is z-index higher */
+    background:#121212;
+    z-index:5;
 }
 .objects-table { width:100%; border-collapse:collapse; }
 .objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
 .objects-table th { background:#1f1f1f; }
 .object-link { cursor:pointer; text-decoration:none; color:inherit; }
 .object-link:hover { text-decoration:underline; }
-.main-content { margin-left:230px; padding:20px; }
+.main-content {
+    margin-left:230px;
+    padding:90px 20px 20px 20px; /* top padding to clear header */
+}
 h1 { margin-top:0; }
 #objectStreetLine { font-size:22px; }
 .info-line { margin:5px 0; }
