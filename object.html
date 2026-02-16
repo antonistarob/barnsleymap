@@ -211,6 +211,38 @@ editBtn.onclick = () => {
     editPopup.dataset.mode = 'editObject';
 };
 
+// DELETE OBJECT
+const deleteBtn = document.getElementById('deleteBtn');
+const deletePopup = document.getElementById('deletePopup');
+const confirmDelete = document.getElementById('confirmDelete');
+const cancelDelete = document.getElementById('cancelDelete');
+const deleteMessage = document.getElementById('deleteMessage');
+
+deleteBtn.onclick = () => {
+    deleteMessage.textContent = `Are you sure you want to delete "${obj.name}"?`;
+    deletePopup.style.display = 'flex';
+};
+
+cancelDelete.onclick = () => {
+    deletePopup.style.display = 'none';
+};
+
+confirmDelete.onclick = () => {
+    // Find object index
+    const idx = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
+    if(idx > -1){
+        // Remove object from array
+        streetObjects[streetName].splice(idx, 1);
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+        // Close popup
+        deletePopup.style.display = 'none';
+
+        // Redirect back to street page after delete
+        window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+    }
+};
+    
 /* CLOSE POPUP */
 function closeEdit(){ 
     editPopup.style.display = 'none'; 
