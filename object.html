@@ -321,28 +321,54 @@ savePhotoBtn.onclick = () => {
 /* DISPLAY PHOTOS */
 function displayPhotos(){
     const photosDiv = document.getElementById('photosDiv');
-    photosDiv.innerHTML='';
-    if(!obj.photos || obj.photos.length===0) return;
-    obj.photos.sort((a,b)=>new Date(a.date)-new Date(b.date));
-    obj.photos.forEach(photo=>{
+    photosDiv.innerHTML = '';
+
+    if(!obj.photos || obj.photos.length === 0){
+        photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
+        return;
+    }
+
+    // Sort by date
+    obj.photos.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+    obj.photos.forEach(photo => {
         const photoBox = document.createElement('div');
-        photoBox.style.display='inline-block';
-        photoBox.style.margin='5px';
-        photoBox.style.textAlign='center';
+        photoBox.style.display = 'flex';
+        photoBox.style.flexDirection = 'column';
+        photoBox.style.alignItems = 'center';
+        photoBox.style.margin = '5px';
+        photoBox.style.width = '120px'; // consistent size
+        photoBox.style.border = '1px solid #555';
+        photoBox.style.padding = '5px';
+        photoBox.style.borderRadius = '5px';
+        photoBox.style.background = '#1f1f1f';
+        photoBox.style.boxSizing = 'border-box';
+
         const img = document.createElement('img');
-        img.src=photo.dataUrl;
-        img.style.width='100px';
-        img.style.height='100px';
-        img.style.objectFit='cover';
-        img.style.border='1px solid #555';
+        img.src = photo.dataUrl;
+        img.style.width = '100%';
+        img.style.height = 'auto';
+        img.style.objectFit = 'cover';
+        img.style.borderRadius = '3px';
         photoBox.appendChild(img);
+
         if(photo.date){
             const dateText = document.createElement('div');
-            dateText.style.fontSize='12px';
-            dateText.style.color='#aaa';
-            dateText.textContent=photo.date;
+            dateText.style.fontSize = '11px';
+            dateText.style.color = '#aaa';
+            dateText.style.marginTop = '3px';
+            dateText.textContent = photo.date;
             photoBox.appendChild(dateText);
         }
+
+        if(photo.description){
+            const descText = document.createElement('div');
+            descText.style.fontSize = '12px';
+            descText.style.marginTop = '2px';
+            descText.textContent = photo.description;
+            photoBox.appendChild(descText);
+        }
+
         photosDiv.appendChild(photoBox);
     });
 }
