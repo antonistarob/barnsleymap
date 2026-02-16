@@ -15,12 +15,12 @@ body {
 
 /* LEFT COLUMN */
 .left-column {
-    width: 200px;
+    width: 300px;
     position: fixed;
     top: 0;
     left: 0;
     bottom: 0;
-    padding: 10px;
+    padding: 20px;
     border-right: 1px solid #333;
     overflow-y: auto;
 }
@@ -32,8 +32,9 @@ body {
 
 .objects-table th,
 .objects-table td {
-    padding: 5px 10px;
+    padding: 6px 8px;
     border-bottom: 1px solid #555;
+    text-align: left;
 }
 
 .objects-table th {
@@ -42,7 +43,7 @@ body {
 
 /* MAIN CONTENT */
 .main-content {
-    margin-left: 220px;
+    margin-left: 320px;
     padding: 20px;
 }
 
@@ -69,10 +70,10 @@ a {
 
 /* POPUPS */
 .popup-overlay {
+    display: none;
     position: fixed;
     inset: 0;
     background: rgba(0,0,0,0.7);
-    display: none;
     justify-content: center;
     align-items: center;
     z-index: 1000;
@@ -83,7 +84,13 @@ a {
     padding: 25px;
     border-radius: 10px;
     width: 400px;
+    max-width: 90%;
     border: 1px solid #444;
+}
+
+.popup h3 {
+    text-align: center;
+    margin-top: 0;
 }
 
 .popup label {
@@ -91,22 +98,27 @@ a {
     margin-top: 10px;
 }
 
-.popup input,
-.popup textarea {
+.popup input[type="text"],
+.popup textarea,
+.popup select {
     width: 100%;
     padding: 5px;
     margin-top: 5px;
-    background: #2b2b2b;
+    background-color: #2b2b2b;
     color: #eee;
     border: 1px solid #555;
     border-radius: 5px;
 }
 
+.popup input[type="checkbox"] {
+    margin-left: 6px;
+    transform: scale(1.1);
+}
+
 .popup-buttons {
     margin-top: 20px;
     display: flex;
-    justify-content: flex-end;
-    gap: 10px;
+    justify-content: space-between;
 }
 </style>
 </head>
@@ -127,8 +139,8 @@ a {
 <!-- MAIN CONTENT -->
 <div class="main-content">
     <a href="index.html">Back to Map</a>
-    <h1 id="streetTitle"></h1>
 
+    <h1 id="streetTitle"></h1>
     <p><strong>District:</strong> <span id="streetDistrict"></span></p>
     <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
@@ -136,20 +148,33 @@ a {
     <div style="margin:15px 0;">
         <button id="addObjectBtn" class="action-button">Add Object</button>
         <button id="editBtn" class="action-button">Edit</button>
-        <button id="deleteStreet" class="action-button">Delete</button>
+        <button id="deleteBtn" class="action-button">Delete</button>
     </div>
 </div>
 
-<!-- EDIT POPUP -->
+<!-- EDIT STREET POPUP (MATCHES index.html FORM) -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
         <h3>Edit Street</h3>
-        <label>District <input id="editDistrict"></label>
-        <label><input type="checkbox" id="editExisting"> Existing</label>
-        <label>Description <textarea id="editDescription"></textarea></label>
+
+        <label>Street Name:</label>
+        <input type="text" id="editStreetName">
+
+        <label>District:</label>
+        <select id="editDistrict">
+            <option value="Town Centre">Town Centre</option>
+        </select>
+
+        <label>
+            Existing
+            <input type="checkbox" id="editExisting">
+        </label>
+
+        <label>Description:</label>
+        <textarea id="editDescription" rows="3"></textarea>
 
         <div class="popup-buttons">
-            <button class="action-button" onclick="closeEdit()">Cancel</button>
+            <button onclick="closeEdit()" class="action-button">Cancel</button>
             <button id="saveEditStreet" class="action-button">Save</button>
         </div>
     </div>
@@ -159,23 +184,16 @@ a {
 <div class="popup-overlay" id="deletePopup">
     <div class="popup">
         <p id="deleteMessage"></p>
-
         <div class="popup-buttons">
-            <button class="action-button" onclick="closeDelete()">Cancel</button>
             <button id="confirmDelete" class="action-button">Yes</button>
+            <button id="cancelDelete" class="action-button">No</button>
         </div>
     </div>
 </div>
 
 <script>
-/* HELPERS */
 const qp = p => new URLSearchParams(location.search).get(p);
-
-/* DATA */
 const streetName = qp('name');
-const streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
-const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const data = streetsData[streetName];
 
 /* ELEMENTS */
 const streetTitle = document.getElementById('streetTitle');
@@ -186,28 +204,32 @@ const streetDescription = document.getElementById('streetDescription');
 const descriptionWrapper = document.getElementById('descriptionWrapper');
 const objectsTableBody = document.getElementById('objectsTableBody');
 
+/* BUTTONS */
+const addObjectBtn = document.getElementById('addObjectBtn');
+const editBtn = document.getElementById('editBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+
 /* POPUPS */
 const editPopup = document.getElementById('editPopup');
 const deletePopup = document.getElementById('deletePopup');
 const deleteMessage = document.getElementById('deleteMessage');
 
-/* BUTTONS */
-const addObjectBtn = document.getElementById('addObjectBtn');
-const editBtn = document.getElementById('editBtn');
-const deleteStreet = document.getElementById('deleteStreet');
-const saveEditStreet = document.getElementById('saveEditStreet');
-const confirmDelete = document.getElementById('confirmDelete');
-
 /* EDIT FIELDS */
+const editStreetName = document.getElementById('editStreetName');
 const editDistrict = document.getElementById('editDistrict');
 const editExisting = document.getElementById('editExisting');
 const editDescription = document.getElementById('editDescription');
 
-/* VALIDATION */
-if(!data){
+/* DATA */
+let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+
+if(!streetsData[streetName]){
     streetTitle.textContent = 'Street not found';
     throw new Error('Street missing');
 }
+
+const data = streetsData[streetName];
 
 /* DISPLAY */
 streetTitle.textContent = streetName;
@@ -225,7 +247,7 @@ if(data.description){
     descriptionWrapper.style.display = 'none';
 }
 
-/* OBJECTS */
+/* LOAD OBJECTS */
 (streetObjects[streetName] || []).forEach(o=>{
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
@@ -245,15 +267,16 @@ addObjectBtn.onclick = () => {
     location.reload();
 };
 
-/* EDIT */
+/* EDIT STREET */
 editBtn.onclick = () => {
-    editDistrict.value = data.district || '';
+    editStreetName.value = streetName;
+    editDistrict.value = data.district || 'Town Centre';
     editExisting.checked = data.existing !== false;
     editDescription.value = data.description || '';
     editPopup.style.display = 'flex';
 };
 
-saveEditStreet.onclick = () => {
+document.getElementById('saveEditStreet').onclick = () => {
     streetsData[streetName] = {
         district: editDistrict.value,
         existing: editExisting.checked,
@@ -263,23 +286,30 @@ saveEditStreet.onclick = () => {
     location.reload();
 };
 
-/* DELETE */
-deleteStreet.onclick = () => {
+function closeEdit(){
+    editPopup.style.display = 'none';
+}
+
+/* DELETE STREET */
+deleteBtn.onclick = () => {
     deleteMessage.innerHTML = `Delete <b>${streetName}</b>?`;
     deletePopup.style.display = 'flex';
 };
 
-confirmDelete.onclick = () => {
-    delete streetsData[streetName];
-    delete streetObjects[streetName];
-    localStorage.setItem('streetsData', JSON.stringify(streetsData));
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    location.href = 'index.html';
+document.getElementById('cancelDelete').onclick = () => {
+    deletePopup.style.display = 'none';
 };
 
-/* CLOSE */
-function closeEdit(){ editPopup.style.display = 'none'; }
-function closeDelete(){ deletePopup.style.display = 'none'; }
+document.getElementById('confirmDelete').onclick = () => {
+    delete streetsData[streetName];
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
+
+    let streets = JSON.parse(localStorage.getItem('streets')) || [];
+    streets = streets.filter(s => s !== streetName);
+    localStorage.setItem('streets', JSON.stringify(streets));
+
+    window.location.href = 'index.html';
+};
 </script>
 
 </body>
