@@ -240,25 +240,6 @@ objectDescription.textContent = data.description || 'N/A';
 /* Directory line: "Street Name **Number**" */
 objectDirectory.innerHTML = `${streetName} <strong>${data.number || ''}</strong>`;
 
-/* LOAD OBJECTS IN LEFT COLUMN */
-objectsList.forEach(o => {
-    objectsTableBody.insertAdjacentHTML(
-        'beforeend',
-        `<tr>
-            <td>${o.number}</td>
-            <td>
-                <a class="object-link" onclick="goToObject('${o.name}')">${o.name}</a>
-            </td>
-        </tr>`
-    );
-});
-
-/* Function to navigate to object page */
-function goToObject(name){
-    const streetParam = encodeURIComponent(streetName);
-    const objectParam = encodeURIComponent(name);
-    window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
-}
 </script>
 
 </body>
