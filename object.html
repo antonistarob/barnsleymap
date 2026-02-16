@@ -447,41 +447,6 @@ function displayPhotos(){
     });
 }
 
-    // --- MAP SETUP ---
-function initObjectMap() {
-    // Use Leaflet.js like in index.html
-    // Include Leaflet CSS & JS in the head if not already:
-    // <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
-    // <script src="https://unpkg.com/leaflet/dist/leaflet.js">
-
-    const mapDiv = document.getElementById('objectMap');
-    if(!mapDiv) return;
-
-    // Default coordinates if none are stored
-    const streetData = JSON.parse(localStorage.getItem('streetsData')) || {};
-    const streetInfo = streetData[streetName] || {};
-    const lat = streetInfo.lat || 53.552;  // example default
-    const lng = streetInfo.lng || -1.478;
-
-    const map = L.map('objectMap').setView([lat, lng], 16);
-
-    // OpenStreetMap tiles
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    // Marker at street location
-    if(streetInfo.lat && streetInfo.lng){
-        L.marker([lat,lng]).addTo(map)
-            .bindPopup(`${streetName}`)
-            .openPopup();
-    }
-}
-
-// Call map init after page load
-initObjectMap();
-
-    
 displayPhotos();
 </script>
 
