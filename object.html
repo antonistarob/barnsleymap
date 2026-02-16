@@ -128,7 +128,7 @@ if(objIndex === -1){
     throw new Error('Object missing');
 }
 
-// Use reference to object
+// Reference to object
 let obj = streetObjects[streetName][objIndex];
 
 // Ensure photos array exists
@@ -139,7 +139,6 @@ const objectStreet = document.getElementById('objectStreet');
 const objectNumber = document.getElementById('objectNumber');
 const additionalInfo = document.getElementById('additionalInfo');
 const objectDescription = document.getElementById('objectDescription');
-
 const objectsTableBody = document.getElementById('objectsTableBody');
 const addPhotoBtn = document.getElementById('addPhotoBtn');
 const addPhotoPopup = document.getElementById('addPhotoPopup');
@@ -150,23 +149,28 @@ const photoDescription = document.getElementById('photoDescription');
 const savePhotoBtn = document.getElementById('savePhotoBtn');
 const photosContainer = document.getElementById('photosContainer');
 
-/* Display object info */
+// --- Display object info ---
 objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
-objectStreet.onclick = ()=> window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
+objectStreet.onclick = () => window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 objectNumber.textContent = obj.number || '';
 objectDescription.textContent = obj.description || '';
 additionalInfo.innerHTML='';
 
-/* LEFT COLUMN */
+// --- Left column objects table ---
 objectsTableBody.innerHTML='';
 (streetObjects[streetName]||[]).forEach((o)=>{
     objectsTableBody.insertAdjacentHTML('beforeend',
-        `<tr><td>${o.number||''}</td><td class="object-link" onclick="window.location.href='object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}'">${o.name}</td></tr>`
+        `<tr>
+            <td>${o.number||''}</td>
+            <td class="object-link" onclick="window.location.href='object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}'">
+                ${o.name}
+            </td>
+        </tr>`
     );
 });
 
-/* Add Photo */
+// --- Add Photo popup ---
 addPhotoBtn.onclick = () => {
     addPhotoSubTitle.textContent = `${streetName} ${obj.number || ''}, ${obj.name}`;
     photoFile.value=''; photoDate.value=''; photoDescription.value='';
@@ -174,24 +178,32 @@ addPhotoBtn.onclick = () => {
 };
 function closeAddPhoto(){ addPhotoPopup.style.display='none'; }
 
-savePhotoBtn.onclick = ()=>{
+savePhotoBtn.onclick = () => {
     const file = photoFile.files[0];
     if(!file) return alert("Select a file!");
+
     const reader = new FileReader();
     reader.onload = function(e){
         const dataURL = e.target.result;
-if(!obj.photos) obj.photos = [];
-obj.photos.push({ dataURL, date: photoDate.value, description: photoDescription.value });
-localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        const idx = streetObjects[streetName].findIndex(o=>o.name===obj.name);
-        if(idx!==-1){ streetObjects[streetName][idx]=obj; localStorage.setItem('streetObjects',JSON.stringify(streetObjects)); }
+
+        if(!obj.photos) obj.photos = [];
+        obj.photos.push({
+            dataURL,
+            date: photoDate.value,
+            description: photoDescription.value
+        });
+
+        // Update localStorage
+        streetObjects[streetName][objIndex] = obj;
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
         closeAddPhoto();
         renderPhotos();
     };
     reader.readAsDataURL(file);
 };
 
-/* Render Photos */
+// --- Render photos ---
 function renderPhotos(){
     photosContainer.innerHTML = '';
 
@@ -201,7 +213,7 @@ function renderPhotos(){
     }
 
     // Sort photos by date
-    const sorted = obj.photos.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
+    const sorted = obj.photos.slice().sort((a,b) => new Date(a.date || 0) - new Date(b.date || 0));
 
     sorted.forEach(p => {
         const div = document.createElement('div');
@@ -214,6 +226,8 @@ function renderPhotos(){
         photosContainer.appendChild(div);
     });
 }
+
+// --- Initial render ---
 renderPhotos();
 </script>
 </body>
