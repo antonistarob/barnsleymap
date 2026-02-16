@@ -13,14 +13,46 @@ body {
     margin: 0;
 }
 
+/* --- HEADER --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #1f1f1f;
+    color: #eee;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+    color: #fff;
+}
+
+.auth-buttons button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #333;
+    color: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
+.auth-buttons button:hover {
+    background-color: #444;
+}
+
 /* LEFT COLUMN */
 .left-column {
-    width: 200px;
+    width: 300px;
     position: fixed;
-    top: 0;
+    top: 70px; /* below header */
     left: 0;
     bottom: 0;
-    padding: 10px;
+    padding: 20px;
     border-right: 1px solid #333;
     overflow-y: auto;
 }
@@ -43,7 +75,8 @@ body {
 
 /* MAIN CONTENT */
 .main-content {
-    margin-left: 220px;
+    margin-left: 320px;
+    margin-top: 70px; /* below header */
     padding: 20px;
 }
 
@@ -125,39 +158,14 @@ a {
 
 <body>
 
- /* --- Header --- */
-    header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 15px 20px;
-        background-color: #1f1f1f; /* Dark gray header */
-        color: #eee;
-        width: 100%;
-        box-sizing: border-box;
-    }
-
-    header h1 {
-        margin: 0;
-        font-size: 24px;
-        color: #fff;
-    }
-
-    .auth-buttons button {
-        margin-left: 10px;
-        padding: 5px 10px;
-        cursor: pointer;
-        background-color: #333;
-        color: #eee;
-        border: 1px solid #555;
-        border-radius: 5px;
-    }
-
-    .auth-buttons button:hover {
-        background-color: #444;
-    }
-
-
+<!-- HEADER -->
+<header>
+    <h1>Historical Interactive Map of Barnsley</h1>
+    <div class="auth-buttons">
+        <button>Sign Up</button>
+        <button>Log In</button>
+    </div>
+</header>
 
 <!-- LEFT COLUMN -->
 <div class="left-column">
@@ -186,7 +194,7 @@ a {
     </div>
 </div>
 
-<!-- EDIT STREET POPUP (MATCHES index.html FORM) -->
+<!-- EDIT STREET POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
         <h3>Edit Street</h3>
@@ -207,10 +215,10 @@ a {
         <label>Description:</label>
         <textarea id="editDescription" rows="3"></textarea>
 
-<div class="popup-buttons">
-    <button id="saveEditStreet" class="action-button">Save</button>
-    <button onclick="closeEdit()" class="action-button">Cancel</button>
-</div>
+        <div class="popup-buttons">
+            <button id="saveEditStreet" class="action-button">Save</button>
+            <button onclick="closeEdit()" class="action-button">Cancel</button>
+        </div>
     </div>
 </div>
 
