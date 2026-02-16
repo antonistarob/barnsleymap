@@ -210,8 +210,6 @@ objectStreet.textContent = streetName;
 objectStreet.onclick = ()=> window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 objectNumber.textContent = obj.number || '';
 
-    document.getElementById('objectsHeader').textContent = `Objects on ${streetName}`;
-const data = streetsData[streetName];
 
 // Additional info
 additionalInfo.innerHTML='';
@@ -316,6 +314,7 @@ document.getElementById('saveEditObject').onclick=()=>{
     location.reload();
 };
 function closeEdit(){ editPopup.style.display='none'; }
+    
 
 /* DELETE OBJECT */
 deleteBtn.onclick=()=>{
