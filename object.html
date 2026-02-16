@@ -103,7 +103,6 @@ h1 { margin-top:0; }
         <div class="popup-buttons">
             <button id="saveEditStreet" class="action-button">Save</button>
             <button onclick="closeEdit()" class="action-button">Cancel</button>
-            <button onClick={() => saveObjectName(object.id, newName)}>Save</button>
         </div>
     </div>
 </div>
@@ -248,6 +247,52 @@ document.getElementById('saveEditStreet').onclick = () => {
 function goToObject(name){
     window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
 }
+
+    // Example: object data (replace with your actual object reference)
+    let currentObject = {
+        id: 123,           // Object internal ID
+        name: "Old Name",
+        number: "1",
+        status: "Exists",
+        description: "Some description"
+    };
+
+    const saveButton = document.getElementById("saveEditStreet");
+
+    saveButton.addEventListener("click", function() {
+        // Get values from inputs
+        const newName = document.getElementById("editStreetName").value;
+        const newNumber = document.getElementById("editDistrict").value;
+        const newStatus = document.getElementById("editExisting").value;
+        const newDescription = document.getElementById("editDescription").value;
+
+        // Update the object locally
+        currentObject.name = newName;
+        currentObject.number = newNumber;
+        currentObject.status = newStatus;
+        currentObject.description = newDescription;
+
+        // OPTIONAL: Send update to backend (replace with your API call)
+        // fetch(`/api/objects/${currentObject.id}`, {
+        //     method: "PATCH",
+        //     headers: { "Content-Type": "application/json" },
+        //     body: JSON.stringify(currentObject)
+        // }).then(() => console.log("Saved to backend"));
+
+        // Update the UI immediately
+        document.getElementById("popupTitle").textContent = "Edit Object: " + newName;
+
+        // Close popup
+        closeEdit();
+
+        console.log("Updated object:", currentObject);
+    });
+
+    // Example close function
+    function closeEdit() {
+        document.getElementById("editPopup").style.display = "none";
+    }
+    
 </script>
 
 </body>
