@@ -33,6 +33,15 @@ header h1 {
     color: #fff;
 }
 
+    .header-link {
+    color: #fff;
+    text-decoration: none;
+}
+
+.header-link:hover {
+    text-decoration: underline;
+}
+
 .auth-buttons button {
     margin-left: 10px;
     padding: 5px 10px;
@@ -162,7 +171,11 @@ a {
 
 <!-- HEADER -->
 <header>
-    <h1>Historical Interactive Map of Barnsley</h1>
+    <h1>
+    <a href="index.html" class="header-link">
+        Historical Interactive Map of Barnsley
+    </a>
+</h1>
     <div class="auth-buttons">
         <button>Sign Up</button>
         <button>Log In</button>
