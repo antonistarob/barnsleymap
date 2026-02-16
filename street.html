@@ -263,94 +263,101 @@ a.object-link:hover {
 </div>
 
 <script>
-// Decode and trim URL parameter for street
-const qp = p => decodeURIComponent(new URLSearchParams(location.search).get(p) || '').trim();
+const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('name');
 
 /* ELEMENTS */
-const objectsTableBody = document.getElementById('objectsTableBody');
-const objectTitle = document.getElementById('objectTitle');
-const objectDirectory = document.getElementById('objectDirectory');
-const objectDescription = document.getElementById('objectDescription');
-const objectExisting = document.getElementById('objectExisting');
+const streetTitle = document.getElementById('streetTitle');
+const streetDistrict = document.getElementById('streetDistrict');
+const streetExisting = document.getElementById('streetExisting');
 const existingWrapper = document.getElementById('existingWrapper');
+const streetDescription = document.getElementById('streetDescription');
 const descriptionWrapper = document.getElementById('descriptionWrapper');
+const objectsTableBody = document.getElementById('objectsTableBody');
 
-/* BUTTONS */
-const editObjectBtn = document.getElementById('editObjectBtn');
-const deleteObjectBtn = document.getElementById('deleteObjectBtn');
+const addObjectBtn = document.getElementById('addObjectBtn');
+const editBtn = document.getElementById('editBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+
 const editPopup = document.getElementById('editPopup');
 const deletePopup = document.getElementById('deletePopup');
 const deleteMessage = document.getElementById('deleteMessage');
 
-/* EDIT FIELDS */
-const editObjectName = document.getElementById('editObjectName');
-const editObjectNumber = document.getElementById('editObjectNumber');
-const editObjectExisting = document.getElementById('editObjectExisting');
-const editObjectDescription = document.getElementById('editObjectDescription');
+const editStreetName = document.getElementById('editStreetName');
+const editDistrict = document.getElementById('editDistrict');
+const editExisting = document.getElementById('editExisting');
+const editDescription = document.getElementById('editDescription');
 
-/* DATA */
+/* LOAD DATA */
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+let streets = JSON.parse(localStorage.getItem('streets')) || [];
 
-const objectsList = streetObjects[streetName] || [];
-let data = objectsList.find(o => o.name === objectName);
-
-if(!data){
-    objectTitle.textContent = 'Object not found';
-    throw new Error('Object missing');
+if(!streetsData[streetName]){
+    streetTitle.textContent = 'Street not found';
+    throw new Error('Street missing');
 }
 
-/* DISPLAY */
+const data = streetsData[streetName];
+
+/* DISPLAY STREET INFO */
 streetTitle.textContent = streetName;
 streetDistrict.textContent = data.district || 'N/A';
-
 if(data.existing === false){
     streetExisting.textContent = 'No';
 } else {
     existingWrapper.style.display = 'none';
 }
-
 if(data.description){
     streetDescription.textContent = data.description;
 } else {
     descriptionWrapper.style.display = 'none';
 }
 
-/* LOAD OBJECTS IN LEFT COLUMN */
-objectsList.forEach(o => {
+/* LOAD OBJECTS */
+(objectsList = streetObjects[streetName] || []).forEach(o => {
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
         `<tr>
             <td>${o.number}</td>
-            <td>
-                <a class="object-link" onclick="goToObject('${o.name}')">${o.name}</a>
-            </td>
+            <td style="cursor:pointer;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='';" onclick="goToObject('${o.name}')">${o.name}</td>
         </tr>`
     );
 });
 
-function goToObject(name){
+function goToObject(objectName){
     const streetParam = encodeURIComponent(streetName);
-    const objectParam = encodeURIComponent(name);
+    const objectParam = encodeURIComponent(objectName);
     window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
 }
 
-/* EDIT OBJECT */
-editObjectBtn.onclick = () => {
-    editObjectName.value = data.name;
-    editObjectNumber.value = data.number || '';
-    editObjectExisting.checked = data.existing !== false;
-    editObjectDescription.value = data.description || '';
+/* ADD OBJECT POPUP */
+addObjectBtn.onclick = () => {
+    editObjectName.value = '';
+    editObjectNumber.value = '';
+    editObjectExisting.checked = true;
+    editObjectDescription.value = '';
     editPopup.style.display = 'flex';
+    editPopup.dataset.mode = 'add';
 };
 
-document.getElementById('saveEditObject').onclick = () => {
-    data.name = editObjectName.value;
-    data.number = editObjectNumber.value;
-    data.existing = editObjectExisting.checked;
-    data.description = editObjectDescription.value;
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+/* EDIT STREET */
+editBtn.onclick = () => {
+    editStreetName.value = streetName;
+    editDistrict.value = data.district || 'Town Centre';
+    editExisting.checked = data.existing !== false;
+    editDescription.value = data.description || '';
+    editPopup.style.display = 'flex';
+    editPopup.dataset.mode = 'edit';
+};
+
+document.getElementById('saveEditStreet').onclick = () => {
+    streetsData[streetName] = {
+        district: editDistrict.value,
+        existing: editExisting.checked,
+        description: editDescription.value
+    };
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
     location.reload();
 };
 
@@ -358,23 +365,27 @@ function closeEdit(){
     editPopup.style.display = 'none';
 }
 
-/* DELETE OBJECT */
-deleteObjectBtn.onclick = () => {
-    deleteMessage.innerHTML = `Delete <b>${data.name}</b>?`;
+/* DELETE STREET */
+deleteBtn.onclick = () => {
+    deleteMessage.innerHTML = `Delete <b>${streetName}</b>?`;
     deletePopup.style.display = 'flex';
 };
 
-document.getElementById('cancelDeleteObject').onclick = () => {
+document.getElementById('cancelDelete').onclick = () => {
     deletePopup.style.display = 'none';
 };
 
-document.getElementById('confirmDeleteObject').onclick = () => {
-    const idx = objectsList.findIndex(o => o.name === data.name);
-    if(idx !== -1) objectsList.splice(idx, 1);
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.href = `street.html?name=${streetParam}`;
+document.getElementById('confirmDelete').onclick = () => {
+    delete streetsData[streetName];
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
+
+    streets = streets.filter(s => s !== streetName);
+    localStorage.setItem('streets', JSON.stringify(streets));
+
+    window.location.href = 'index.html';
 };
 </script>
+
 
 </body>
 </html>
