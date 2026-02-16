@@ -259,7 +259,15 @@ objectsTableBody.innerHTML='';
         `<tr><td>${o.number}</td><td class="object-link" onclick="goToObject('${o.name}')">${o.name}</td></tr>`
     );
 });
-function goToObject(name){ window.location.href=`object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`; }
+function goToObject(name){
+    const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
+    if(window.location.href === url){
+        // force reload if same URL
+        window.location.reload();
+    } else {
+        window.location.href = url;
+    }
+}
 
 /* EDIT OBJECT */
 editBtn.onclick=()=>{
