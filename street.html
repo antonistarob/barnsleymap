@@ -78,21 +78,20 @@
     }
 
 body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #eee;
+    padding: 20px;
     display: flex;
-    flex-direction: row; /* side by side layout */
+    flex-direction: row;
     align-items: flex-start;
 }
 
-.main-content {
-    flex: 1;
-    margin-left: 340px; /* space for left column table */
-}
-
 .left-column {
-    width: 300px;         /* Table width */
-    margin-right: 20px;   /* spacing to main content */
-    position: fixed;      /* sticks on left side when scrolling */
-    top: 100px;           /* adjust vertical position */
+    width: 250px;       /* Tiny table width */
+    margin-right: 20px; /* spacing between table and main content */
+    position: fixed;    /* stick on left */
+    top: 100px;         /* adjust vertical alignment */
     left: 20px;
 }
 
@@ -112,6 +111,12 @@ body {
     background-color: #1f1f1f;
     color: #fff;
 }
+
+.main-content {
+    flex: 1;           /* takes remaining width */
+    margin-left: 300px; /* space to accommodate left column */
+}
+
 
 </style>
 </head>
@@ -161,6 +166,7 @@ body {
         <button id="deleteStreet" class="action-button">Delete</button>
     </div>
 </div>
+
     
 <!-- Edit Popup -->
 <div class="popup-overlay" id="editPopupOverlay">
