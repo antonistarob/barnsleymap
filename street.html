@@ -4,26 +4,25 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Street Info</title>
+
 <style>
 body {
     font-family: Arial, sans-serif;
     background-color: #121212;
     color: #eee;
-    padding: 0;   /* ← CHANGE THIS */
     margin: 0;
 }
 
-/* Left column: Objects Table */
+/* LEFT COLUMN */
 .left-column {
-    width: 300px;           /* Fixed width */
-    position: fixed;        /* Stick to far left */
+    width: 300px;
+    position: fixed;
     top: 0;
     left: 0;
-    bottom: 0;              /* full height */
+    bottom: 0;
     padding: 20px;
-    background-color: #121212;
     border-right: 1px solid #333;
-    overflow-y: auto;       /* scroll if many objects */
+    overflow-y: auto;
 }
 
 .objects-table {
@@ -40,263 +39,205 @@ body {
 
 .objects-table th {
     background-color: #1f1f1f;
-    color: #fff;
 }
 
-/* Main content area (right of left column) */
+/* MAIN CONTENT */
 .main-content {
-    margin-left: 0px;   /* space for left column */
-    padding: 20px;        /* normal padding */
+    margin-left: 320px;
+    padding: 20px;
 }
+
 h1 {
     margin-top: 0;
-    margin-bottom: 10px;
 }
-    .popup-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.7);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
-    }
-    .popup {
-        background: #1f1f1f;
-        padding: 25px;
-        border-radius: 10px;
-        width: 400px;
-        max-width: 90%;
-        box-sizing: border-box;
-        color: #eee;
-        border: 1px solid #444;
-    }
-    .popup h3 { text-align:center; margin-top:0; color:#fff; }
-    .popup label { display:block; margin-top:10px; }
-    .popup input[type="text"],
-    .popup textarea,
-    .popup select {
-        width:100%; padding:5px; margin-top:5px;
-        background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;
-    }
-    .popup input[type="checkbox"] { transform:scale(1.2); margin-right:5px; }
-    .popup-buttons { margin-top:15px; display:flex; justify-content:space-between; }
-    .action-button {
-        cursor:pointer; background-color:#333; color:#eee;
-        border:1px solid #555; border-radius:5px; padding:5px 10px; font-size:14px;
-    }
-    .action-button:hover { background-color:#444; }
-    table { width:100%; border-collapse: collapse; margin-top:10px; }
-    th, td { padding:5px; border-bottom:1px solid #555; text-align:left; }
 
+a {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+.action-button {
+    cursor: pointer;
+    background-color: #333;
+    color: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 5px 10px;
+    font-size: 14px;
+}
+
+.action-button:hover {
+    background-color: #444;
+}
+
+/* POPUPS */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup {
+    background: #1f1f1f;
+    padding: 25px;
+    border-radius: 10px;
+    width: 400px;
+    border: 1px solid #444;
+}
+
+.popup label {
+    display: block;
+    margin-top: 10px;
+}
+
+.popup input,
+.popup textarea,
+.popup select {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+    background: #2b2b2b;
+    color: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
 </style>
 </head>
+
 <body>
 
-<a href="index.html">Back to Map</a>
-
-<h1 id="streetTitle"></h1>
-<p><strong>District:</strong> <span id="streetDistrict"></span></p>
-<p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
-<p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
-
-<div id="streetButtons" style="margin:15px 0;">
-    <button id="addObjectBtn" class="action-button">Add Object</button>
-    <button id="editBtn" class="action-button">Edit</button>
-    <button id="deleteStreet" class="action-button">Delete</button>
-</div>
-
-<!-- Left column table -->
+<!-- LEFT COLUMN -->
 <div class="left-column">
     <h2>Objects on this street</h2>
-    <table id="objectsTable" class="objects-table">
+    <table class="objects-table">
         <thead>
             <tr>
-                <th>Street Number</th>
-                <th>Building Name</th>
+                <th>No.</th>
+                <th>Name</th>
             </tr>
         </thead>
-        <tbody>
-            <!-- Dynamically filled -->
-        </tbody>
+        <tbody id="objectsTableBody"></tbody>
     </table>
 </div>
 
+<!-- MAIN CONTENT -->
 <div class="main-content">
     <a href="index.html">Back to Map</a>
 
     <h1 id="streetTitle"></h1>
+
     <p><strong>District:</strong> <span id="streetDistrict"></span></p>
     <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
 
-    <div id="streetButtons" style="margin:15px 0;">
+    <div style="margin:15px 0;">
         <button id="addObjectBtn" class="action-button">Add Object</button>
         <button id="editBtn" class="action-button">Edit</button>
         <button id="deleteStreet" class="action-button">Delete</button>
     </div>
 </div>
 
-    
-<!-- Edit Popup -->
-<div class="popup-overlay" id="editPopupOverlay">
-  <div class="popup">
-    <h3>Edit Street</h3>
-    <label>Street Name:<input type="text" id="editStreetName"></label>
-    <label>District:
-      <select id="editDistrict"><option value="Town Centre">Town Centre</option></select>
-    </label>
-    <label><input type="checkbox" id="editExisting"> Existing</label>
-    <label>Description:<textarea id="editDescription" rows="3"></textarea></label>
-    <div class="popup-buttons">
-      <button id="saveEditStreet">Save</button>
-      <button id="cancelEditStreet">Cancel</button>
+<!-- EDIT POPUP -->
+<div class="popup-overlay" id="editPopup">
+    <div class="popup">
+        <h3>Edit Street</h3>
+        <label>Street Name <input type="text" id="editStreetName"></label>
+        <label>District <input type="text" id="editDistrict"></label>
+        <label><input type="checkbox" id="editExisting"> Existing</label>
+        <label>Description <textarea id="editDescription"></textarea></label>
+        <br>
+        <button id="saveEditStreet" class="action-button">Save</button>
+        <button onclick="closeEdit()" class="action-button">Cancel</button>
     </div>
-  </div>
 </div>
 
-<!-- Delete Popup -->
-<div class="popup-overlay" id="deletePopupOverlay">
-  <div class="popup">
-    <h3>Delete Street</h3>
-    <p id="deleteMessage"></p>
-    <div class="popup-buttons">
-      <button id="confirmDelete" class="action-button">Yes</button>
-      <button id="cancelDelete" class="action-button">Cancel</button>
+<!-- DELETE POPUP -->
+<div class="popup-overlay" id="deletePopup">
+    <div class="popup">
+        <p id="deleteMessage"></p>
+        <button id="confirmDelete" class="action-button">Yes</button>
+        <button onclick="closeDelete()" class="action-button">Cancel</button>
     </div>
-  </div>
 </div>
 
 <script>
-function getQueryParam(param){
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
+function qp(p){return new URLSearchParams(location.search).get(p);}
+const streetName = qp('name');
+
+const streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+
+const data = streetsData[streetName];
+if(!data){
+    document.getElementById('streetTitle').textContent = 'Street not found';
+    throw new Error();
 }
 
-const streetName = getQueryParam('name');
-const streetTitle = document.getElementById('streetTitle');
-const streetDistrict = document.getElementById('streetDistrict');
-const existingWrapper = document.getElementById('existingWrapper');
-const streetExisting = document.getElementById('streetExisting');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
-const streetDescription = document.getElementById('streetDescription');
-const objectsTableBody = document.querySelector('#objectsTable tbody');
+streetTitle.textContent = streetName;
+streetDistrict.textContent = data.district || 'N/A';
 
-let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
-
-if(!streetName || !streetsData[streetName]){
-    streetTitle.textContent = 'Street not found';
-} else {
-    const data = streetsData[streetName];
-    streetTitle.textContent = streetName;
-    streetDistrict.textContent = data.district || 'N/A';
-
-  // Existing: show only if false
 if(data.existing === false){
-    existingWrapper.style.display='block';
-    streetExisting.textContent='No';
+    streetExisting.textContent = 'No';
 } else {
-    existingWrapper.style.display='none';
+    existingWrapper.style.display = 'none';
 }
 
-    // Description
-    if(data.description && data.description.trim() !== ''){
-        descriptionWrapper.style.display='block';
-        streetDescription.textContent = data.description;
-    } else {
-        descriptionWrapper.style.display='none';
-    }
-
-    // Load objects
-    let objects = streetObjects[streetName] || [];
-    objects.forEach(obj => addObjectRow(obj.number,obj.name));
+if(data.description){
+    streetDescription.textContent = data.description;
+} else {
+    descriptionWrapper.style.display = 'none';
 }
 
-// Add object
-document.getElementById('addObjectBtn').addEventListener('click',()=>{
-    const number = prompt('Enter Street Number:');
-    if(!number) return;
-    const name = prompt('Enter Building Name:');
-    if(!name) return;
-
-    let objects = streetObjects[streetName] || [];
-    objects.push({number,name});
-    streetObjects[streetName] = objects;
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    addObjectRow(number,name);
+const tbody = document.getElementById('objectsTableBody');
+(streetObjects[streetName] || []).forEach(o=>{
+    tbody.insertAdjacentHTML('beforeend', `<tr><td>${o.number}</td><td>${o.name}</td></tr>`);
 });
 
-function addObjectRow(number,name){
-    const tr = document.createElement('tr');
-    tr.innerHTML=`<td>${number}</td><td>${name}</td>`;
-    objectsTableBody.appendChild(tr);
-}
+addObjectBtn.onclick = ()=>{
+    const n = prompt('Street Number');
+    const name = prompt('Building Name');
+    if(!n||!name) return;
+    streetObjects[streetName] ||= [];
+    streetObjects[streetName].push({number:n,name});
+    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
+    location.reload();
+};
 
-// Edit Street
-const editBtn = document.getElementById('editBtn');
-const editOverlay = document.getElementById('editPopupOverlay');
-const editName = document.getElementById('editStreetName');
-const editDistrict = document.getElementById('editDistrict');
-const editExisting = document.getElementById('editExisting');
-const editDescription = document.getElementById('editDescription');
+editBtn.onclick = ()=>{
+    editStreetName.value = streetName;
+    editDistrict.value = data.district||'';
+    editExisting.checked = data.existing !== false;
+    editDescription.value = data.description||'';
+    editPopup.style.display='flex';
+};
 
-editBtn.addEventListener('click',()=>{
-    const data = streetsData[streetName];
-    editName.value = streetName;
-    editDistrict.value = data.district || 'Town Centre';
-    editExisting.checked = data.existing !== undefined ? data.existing : true;
-    editDescription.value = data.description || '';
-    editOverlay.style.display='flex';
-});
-
-document.getElementById('cancelEditStreet').addEventListener('click',()=>{editOverlay.style.display='none';});
-
-document.getElementById('saveEditStreet').addEventListener('click',()=>{
-    const newName = editName.value.trim();
-    if(!newName) return;
-
-    const newData = {
-        district: editDistrict.value.trim(),
-        existing: editExisting.checked,
-        description: editDescription.value.trim()
+saveEditStreet.onclick = ()=>{
+    streetsData[streetName]={
+        district:editDistrict.value,
+        existing:editExisting.checked,
+        description:editDescription.value
     };
+    localStorage.setItem('streetsData',JSON.stringify(streetsData));
+    location.reload();
+};
 
-    if(newName !== streetName){
-        streetsData[newName] = newData;
-        delete streetsData[streetName];
-        // update streets list
-        let streetsList = JSON.parse(localStorage.getItem('streets')) || [];
-        streetsList = streetsList.map(s=>s===streetName?newName:s);
-        localStorage.setItem('streets', JSON.stringify(streetsList));
-        localStorage.setItem('streetsData', JSON.stringify(streetsData));
-        editOverlay.style.display='none';
-        window.location.href='street.html?name='+encodeURIComponent(newName);
-    } else {
-        streetsData[newName] = newData;
-        localStorage.setItem('streetsData', JSON.stringify(streetsData));
-        editOverlay.style.display='none';
-        window.location.reload();
-    }
-});
+deleteStreet.onclick = ()=>{
+    deleteMessage.innerHTML = `Delete <b>${streetName}</b>?`;
+    deletePopup.style.display='flex';
+};
 
-// Delete Street
-const deleteOverlay = document.getElementById('deletePopupOverlay');
-document.getElementById('deleteStreet').addEventListener('click',()=>{
-    document.getElementById('deleteMessage').innerHTML=`Are you sure you want to delete <b>${streetName}</b>?`;
-    deleteOverlay.style.display='flex';
-});
-document.getElementById('cancelDelete').addEventListener('click',()=>{deleteOverlay.style.display='none';});
-document.getElementById('confirmDelete').addEventListener('click',()=>{
+confirmDelete.onclick = ()=>{
     delete streetsData[streetName];
-    localStorage.setItem('streetsData', JSON.stringify(streetsData));
-    let streetsList = JSON.parse(localStorage.getItem('streets')) || [];
-    streetsList = streetsList.filter(s=>s!==streetName);
-    localStorage.setItem('streets', JSON.stringify(streetsList));
-    deleteOverlay.style.display='none';
-    window.location.href='index.html';
-});
+    localStorage.setItem('streetsData',JSON.stringify(streetsData));
+    location.href='index.html';
+};
+
+function closeEdit(){editPopup.style.display='none';}
+function closeDelete(){deletePopup.style.display='none';}
 </script>
 
 </body>
