@@ -110,8 +110,21 @@ const streetName = qp('street');
 const objectName = qp('object');
 
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const obj = (streetObjects[streetName] || []).find(o=>o.name===objectName);
-if(!obj){ alert('Object not found'); throw new Error('Object missing'); }
+// Ensure streetObjects[streetName] exists
+streetObjects[streetName] = streetObjects[streetName] || [];
+
+// Find the object by name
+let objIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
+if(objIndex === -1) {
+    alert('Object not found');
+    throw new Error('Object missing');
+}
+
+// Always use reference to object in array
+let obj = streetObjects[streetName][objIndex];
+
+// Ensure photos array exists
+if(!obj.photos) obj.photos = [];
 
 const objectTitle = document.getElementById('objectTitle');
 const objectStreet = document.getElementById('objectStreet');
