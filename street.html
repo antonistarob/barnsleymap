@@ -6,7 +6,6 @@
 <title>Street Info</title>
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; }
-
 /* HEADER */
 header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
 header h1 { margin:0; font-size:24px; }
@@ -14,23 +13,18 @@ header h1 { margin:0; font-size:24px; }
 .header-link:hover { text-decoration:underline; }
 .auth-buttons button { margin-left:10px; padding:5px 10px; cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; }
 .auth-buttons button:hover { background:#444; }
-
 /* LEFT COLUMN */
 .left-column { width:200px; position:fixed; top:40px; left:0; bottom:0; padding:10px; border-right:1px solid #333; overflow-y:auto; }
 .objects-table { width:100%; border-collapse:collapse; }
 .objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
 .objects-table th { background:#1f1f1f; }
-
 /* MAIN CONTENT */
 .main-content { margin-left:230px; padding:20px; }
 h1 { margin-top:0; }
-
 .object-link { cursor:pointer; text-decoration:none; color:inherit; }
 .object-link:hover { text-decoration:underline; }
-
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
 .action-button:hover { background:#444; }
-
 /* POPUPS */
 .popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
 .popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%; border:1px solid #444; }
@@ -39,7 +33,15 @@ h1 { margin-top:0; }
 .popup input[type="text"], .popup textarea, .popup select { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
 .popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
 .popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
+/* GRADE LISTED HIDDEN */
+#gradeOptions { display:none; margin-top:10px; }
 </style>
+
+<!-- Flatpickr Dark Calendar -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 </head>
 <body>
 
@@ -61,7 +63,6 @@ h1 { margin-top:0; }
     <p><strong>District:</strong> <span id="streetDistrict"></span></p>
     <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
-
     <div style="margin:15px 0;">
         <button id="addObjectBtn" class="action-button">Add Object</button>
         <button id="editBtn" class="action-button">Edit</button>
@@ -72,41 +73,20 @@ h1 { margin-top:0; }
 <!-- ADD / EDIT STREET / OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
-        <h3 id="popupTitle">Edit Street</h3> <!-- dynamically changed in JS -->
-        
-        <!-- Name -->
+        <h3 id="popupTitle">Edit Street</h3>
+
         <label id="popupNameLabel">Street Name:</label>
         <input type="text" id="editStreetName">
-        
-        <!-- Number / District -->
+
         <label id="popupNumberLabel">District:</label>
-        <input type="text" id="editDistrict"> <!-- now a text input for object number -->
+        <input type="text" id="editDistrict">
 
         <label>Year Built:</label>
-<input type="text" id="editYearBuilt" placeholder="e.g. 1890">
+        <input type="text" id="editYearBuilt" placeholder="e.g. 1890">
 
-<label>Year Demolished:</label>
-<input type="text" id="editYearDemolished" placeholder="e.g. 1975">
+        <label>Year Demolished:</label>
+        <input type="text" id="editYearDemolished" placeholder="e.g. 1975">
 
-        <!-- Inside your popup -->
-<label><input type="checkbox" id="editGradeListed"> Grade Listed</label>
-
-<div id="gradeDetails" style="display:none; margin-left:15px;">
-    <label>Grade:</label>
-    <select id="editGrade">
-        <option value="Grade I">Grade I</option>
-        <option value="Grade II*">Grade II*</option>
-        <option value="Grade II">Grade II</option>
-    </select>
-    <label>List Entry Number:</label>
-    <input type="text" id="editListEntryNumber">
-    <label>Date First Listed:</label>
-    <input type="date" id="editDateListed">
-</div>
-
-
-        
-        <!-- Status -->
         <label>Status:</label>
         <select id="editExisting">
             <option value="Exists" selected>Exists</option>
@@ -115,11 +95,25 @@ h1 { margin-top:0; }
             <option value="Exists partially">Exists partially</option>
             <option value="In construction">In construction</option>
         </select>
-        
-        <!-- Description -->
+
+        <label>Grade Listed:</label>
+        <input type="checkbox" id="editGradeListed">
+        <div id="gradeOptions">
+            <label>Grade:</label>
+            <select id="editGrade">
+                <option value="Grade I">Grade I</option>
+                <option value="Grade II*">Grade II*</option>
+                <option value="Grade II">Grade II</option>
+            </select>
+            <label>List Entry Number:</label>
+            <input type="text" id="editListEntryNumber">
+            <label>Date first listed:</label>
+            <input type="text" id="editDateListed">
+        </div>
+
         <label>Description:</label>
         <textarea id="editDescription" rows="3"></textarea>
-        
+
         <div class="popup-buttons">
             <button id="saveEditStreet" class="action-button">Save</button>
             <button onclick="closeEdit()" class="action-button">Cancel</button>
@@ -162,84 +156,15 @@ const editDistrict = document.getElementById('editDistrict');
 const editExisting = document.getElementById('editExisting');
 const editDescription = document.getElementById('editDescription');
 const editYearBuilt = document.getElementById('editYearBuilt');
-const editYearDemolished = document.getElementById('editYearDemolished');    
-
-    const editGradeListed = document.getElementById('editGradeListed');
-const gradeDetails = document.getElementById('gradeDetails');
+const editYearDemolished = document.getElementById('editYearDemolished');
+const editGradeListed = document.getElementById('editGradeListed');
+const gradeOptions = document.getElementById('gradeOptions');
 const editGrade = document.getElementById('editGrade');
 const editListEntryNumber = document.getElementById('editListEntryNumber');
 const editDateListed = document.getElementById('editDateListed');
-
-    // Initialize dark-themed flatpickr
-flatpickr(editDateListed, {
-    altInput: true,
-    altFormat: "d/m/Y",
-    dateFormat: "Y-m-d",
-    theme: "dark"
-});
-
-// Show/hide grade fields based on checkbox
-editGradeListed.onchange = () => {
-    gradeDetails.style.display = editGradeListed.checked ? 'block' : 'none';
-};
-
-// When opening Add Object popup, reset grade fields
-addObjectBtn.onclick = () => {
-    document.getElementById('popupTitle').textContent = 'Add Object';
-    document.getElementById('popupNameLabel').textContent = 'Object Name:';
-    document.getElementById('popupNumberLabel').textContent = 'Number:';
-
-    editStreetName.value = '';
-    editDistrict.value = '';
-    editYearBuilt.value = '';
-    editYearDemolished.value = '';
-    editExisting.value = 'Exists';
-    editDescription.value = '';
-
-    // Grade Listed reset
-    editGradeListed.checked = false;
-    gradeDetails.style.display = 'none';
-    editGrade.value = 'Grade I';
-    editListEntryNumber.value = '';
-    editDateListed.value = '';
-
-    editPopup.style.display = 'flex';
-    editPopup.dataset.mode = 'addObject';
-};
-
-// When saving object
-document.getElementById('saveEditStreet').onclick = () => {
-    const mode = editPopup.dataset.mode;
-
-else if(mode === 'addObject') {
-    const objectName = editStreetName.value.trim();
-    const objectNumber = editDistrict.value.trim();
-    const objectDescription = editDescription.value.trim();
-    const objectStatus = editExisting.value;
-
-    if(!objectName) return alert("Object name cannot be empty.");
-
-    if(!streetObjects[streetName]) streetObjects[streetName] = [];
-
-    streetObjects[streetName].push({
-        name: objectName,
-        number: objectNumber,
-        status: objectStatus,
-        yearBuilt: editYearBuilt.value.trim(),
-        yearDemolished: editYearDemolished.value.trim(),
-        description: objectDescription,
-        gradeListed: editGradeListed.checked,
-        grade: editGradeListed.checked ? editGrade.value : '',
-        listEntryNumber: editGradeListed.checked ? editListEntryNumber.value.trim() : '',
-        dateListed: editGradeListed.checked ? editDateListed.value : ''
-    });
-
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.reload();
-}
-
-    // ... existing edit street logic remains unchanged
-};
+const popupTitle = document.getElementById('popupTitle');
+const popupNameLabel = document.getElementById('popupNameLabel');
+const popupNumberLabel = document.getElementById('popupNumberLabel');
 
 /* LOAD DATA */
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
@@ -250,8 +175,8 @@ if(!streetsData[streetName]){
     streetTitle.textContent = 'Street not found';
     throw new Error('Street missing');
 }
-    document.getElementById('objectsHeader').textContent = `Objects on ${streetName}`;
 
+document.getElementById('objectsHeader').textContent = `Objects on ${streetName}`;
 const data = streetsData[streetName];
 
 /* DISPLAY STREET INFO */
@@ -269,7 +194,8 @@ if(data.description){
 }
 
 /* LOAD OBJECTS */
-(objectsTableBody.innerHTML = '', (streetObjects[streetName] || []).forEach(o => {
+objectsTableBody.innerHTML = '';
+(streetObjects[streetName] || []).forEach(o => {
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
         `<tr>
@@ -277,7 +203,7 @@ if(data.description){
             <td style="cursor:pointer;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='';" onclick="goToObject('${o.name}')">${o.name}</td>
         </tr>`
     );
-}));
+});
 
 function goToObject(name){
     const streetParam = encodeURIComponent(streetName);
@@ -287,34 +213,53 @@ function goToObject(name){
 
 /* ADD OBJECT POPUP */
 addObjectBtn.onclick = () => {
-    // change title & labels for object mode
-    document.getElementById('popupTitle').textContent = 'Add Object';
-    document.getElementById('popupNameLabel').textContent = 'Object Name:';
-    document.getElementById('popupNumberLabel').textContent = 'Number:';
-
+    popupTitle.textContent = 'Add Object';
+    popupNameLabel.textContent = 'Object Name:';
+    popupNumberLabel.textContent = 'Number:';
     editStreetName.value = '';
-    editDistrict.value = '';          // open-ended number
+    editDistrict.value = '';
     editYearBuilt.value = '';
     editYearDemolished.value = '';
-    editExisting.value = 'Exists';    // default status
+    editExisting.value = 'Exists';
+    editGradeListed.checked = false;
+    gradeOptions.style.display = 'none';
+    editGrade.value = 'Grade I';
+    editListEntryNumber.value = '';
+    editDateListed.value = '';
     editDescription.value = '';
-
     editPopup.style.display = 'flex';
     editPopup.dataset.mode = 'addObject';
 };
 
+/* GRADE LISTED TOGGLE */
+editGradeListed.onchange = () => {
+    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
+};
+
+/* FLATPICKR CALENDAR */
+flatpickr(editDateListed, {
+    altInput: true,
+    altFormat: "d/m/Y",
+    dateFormat: "Y-m-d",
+    theme: "dark"
+});
+
 /* EDIT STREET */
 editBtn.onclick = () => {
+    popupTitle.textContent = 'Edit Street';
+    popupNameLabel.textContent = 'Street Name:';
+    popupNumberLabel.textContent = 'District:';
     editStreetName.value = streetName;
     editDistrict.value = data.district || 'Town Centre';
-    editExisting.checked = data.existing !== false;
+    editExisting.value = data.existing !== false ? 'Exists' : 'Doesn\'t exist';
+    editYearBuilt.value = data.yearBuilt || '';
+    editYearDemolished.value = data.yearDemolished || '';
+    editGradeListed.checked = data.gradeListed || false;
+    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
+    editGrade.value = data.grade || 'Grade I';
+    editListEntryNumber.value = data.listEntryNumber || '';
+    editDateListed.value = data.dateListed || '';
     editDescription.value = data.description || '';
-
-    // Reset labels for street
-    const labels = editPopup.querySelectorAll('label');
-    labels[0].textContent = 'Street Name:';
-    labels[1].textContent = 'District:';
-
     editPopup.style.display = 'flex';
     editPopup.dataset.mode = 'edit';
 };
@@ -322,60 +267,54 @@ editBtn.onclick = () => {
 /* SAVE EDIT / ADD OBJECT */
 document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
-
-    if(mode === 'edit') {
+    if(mode === 'edit'){
         const newName = editStreetName.value.trim();
-        if (!newName) return alert("Street name cannot be empty.");
-
+        if(!newName) return alert("Street name cannot be empty.");
         const updatedData = {
             district: editDistrict.value,
-            existing: editExisting.checked,
-            description: editDescription.value
+            existing: editExisting.value === 'Exists',
+            description: editDescription.value,
+            yearBuilt: editYearBuilt.value.trim(),
+            yearDemolished: editYearDemolished.value.trim(),
+            gradeListed: editGradeListed.checked,
+            grade: editGrade.value,
+            listEntryNumber: editListEntryNumber.value.trim(),
+            dateListed: editDateListed.value.trim()
         };
-
-        if (newName !== streetName) {
-            // Rename street
+        if(newName !== streetName){
             streetsData[newName] = updatedData;
             delete streetsData[streetName];
-
             streets = streets.map(s => s === streetName ? newName : s);
             localStorage.setItem('streets', JSON.stringify(streets));
-
             if(streetObjects[streetName]){
                 streetObjects[newName] = streetObjects[streetName];
                 delete streetObjects[streetName];
                 localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
             }
-
-            streetName = newName; // update current streetName
+            streetName = newName;
         } else {
             streetsData[streetName] = updatedData;
         }
-
         localStorage.setItem('streetsData', JSON.stringify(streetsData));
-        window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-    }
-    else if(mode === 'addObject') {
+        location.reload();
+    } else if(mode === 'addObject'){
         const objectName = editStreetName.value.trim();
-        const objectNumber = editDistrict.value.trim();
-        const objectExisting = editExisting.checked;
-        const objectDescription = editDescription.value.trim();
-
         if(!objectName) return alert("Object name cannot be empty.");
-
         if(!streetObjects[streetName]) streetObjects[streetName] = [];
-
-    streetObjects[streetName].push({
-        name: objectName,
-        number: objectNumber,
-        existing: objectStatus,
-        yearBuilt: editYearBuilt.value.trim(),
-        yearDemolished: editYearDemolished.value.trim(),
-        description: objectDescription
-    });
-
+        streetObjects[streetName].push({
+            name: objectName,
+            number: editDistrict.value.trim(),
+            status: editExisting.value,
+            yearBuilt: editYearBuilt.value.trim(),
+            yearDemolished: editYearDemolished.value.trim(),
+            gradeListed: editGradeListed.checked,
+            grade: editGrade.value,
+            listEntryNumber: editListEntryNumber.value.trim(),
+            dateListed: editDateListed.value.trim(),
+            description: editDescription.value.trim()
+        });
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        window.location.reload();
+        location.reload();
     }
 };
 
@@ -386,20 +325,16 @@ deleteBtn.onclick = () => {
     deleteMessage.innerHTML = `Are you sure you want to delete <b>${streetName}</b>?`;
     deletePopup.style.display = 'flex';
 };
-
 document.getElementById('cancelDelete').onclick = () => { deletePopup.style.display = 'none'; };
 document.getElementById('confirmDelete').onclick = () => {
     delete streetsData[streetName];
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
-
     streets = streets.filter(s => s !== streetName);
     localStorage.setItem('streets', JSON.stringify(streets));
-
     if(streetObjects[streetName]){
         delete streetObjects[streetName];
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
     }
-
     window.location.href = 'index.html';
 };
 </script>
