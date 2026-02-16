@@ -105,39 +105,31 @@ h1 { margin-top:0; }
 </div>
 
 <script>
-// --- URL parameters ---
+// --- URL params ---
 const qp = p => decodeURIComponent(new URLSearchParams(location.search).get(p) || '');
 
-// Get street and object name from URL
 const streetName = qp('street');
 const objectName = qp('object');
 
-// --- Load data from localStorage ---
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 
-// Ensure the street exists
 if(!streetObjects[streetName]){
-    alert('Street not found in localStorage');
+    alert('Street not found');
     throw new Error('Street missing');
 }
 
-// Find the object by name (exact match)
 let objIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
 if(objIndex === -1){
-    alert('Object not found in this street');
+    alert('Object not found');
     throw new Error('Object missing');
 }
 
-// Reference to object
 let obj = streetObjects[streetName][objIndex];
-
-// Ensure photos array exists
 if(!obj.photos) obj.photos = [];
 
 const objectTitle = document.getElementById('objectTitle');
 const objectStreet = document.getElementById('objectStreet');
 const objectNumber = document.getElementById('objectNumber');
-const additionalInfo = document.getElementById('additionalInfo');
 const objectDescription = document.getElementById('objectDescription');
 const objectsTableBody = document.getElementById('objectsTableBody');
 const addPhotoBtn = document.getElementById('addPhotoBtn');
@@ -155,22 +147,18 @@ objectStreet.textContent = streetName;
 objectStreet.onclick = () => window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 objectNumber.textContent = obj.number || '';
 objectDescription.textContent = obj.description || '';
-additionalInfo.innerHTML='';
 
-// --- Left column objects table ---
+// --- Left column ---
 objectsTableBody.innerHTML='';
-(streetObjects[streetName]||[]).forEach((o)=>{
+(streetObjects[streetName]||[]).forEach(o=>{
     objectsTableBody.insertAdjacentHTML('beforeend',
-        `<tr>
-            <td>${o.number||''}</td>
-            <td class="object-link" onclick="window.location.href='object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}'">
-                ${o.name}
-            </td>
-        </tr>`
+        `<tr><td>${o.number||''}</td>
+         <td class="object-link" onclick="window.location.href='object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}'">
+         ${o.name}</td></tr>`
     );
 });
 
-// --- Add Photo popup ---
+// --- Add photo popup ---
 addPhotoBtn.onclick = () => {
     addPhotoSubTitle.textContent = `${streetName} ${obj.number || ''}, ${obj.name}`;
     photoFile.value=''; photoDate.value=''; photoDescription.value='';
@@ -186,14 +174,13 @@ savePhotoBtn.onclick = () => {
     reader.onload = function(e){
         const dataURL = e.target.result;
 
-        if(!obj.photos) obj.photos = [];
         obj.photos.push({
-            dataURL,
+            dataURL: dataURL,
             date: photoDate.value,
             description: photoDescription.value
         });
 
-        // Update localStorage
+        // Save back to localStorage
         streetObjects[streetName][objIndex] = obj;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
@@ -206,18 +193,14 @@ savePhotoBtn.onclick = () => {
 // --- Render photos ---
 function renderPhotos(){
     photosContainer.innerHTML = '';
-
-    if(!obj.photos || obj.photos.length === 0){
-        photosContainer.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
+    if(!obj.photos || obj.photos.length===0){
+        photosContainer.innerHTML='<p style="color:#aaa;">No photos yet</p>';
         return;
     }
 
-    // Sort photos by date
-    const sorted = obj.photos.slice().sort((a,b) => new Date(a.date || 0) - new Date(b.date || 0));
-
-    sorted.forEach(p => {
+    obj.photos.forEach(p=>{
         const div = document.createElement('div');
-        div.className = 'photo-box';
+        div.className='photo-box';
         div.innerHTML = `
             <img src="${p.dataURL}" alt="${p.description || 'Photo'}">
             <div style="color:#aaa; font-size:11px;">${p.date || ''}</div>
@@ -227,8 +210,9 @@ function renderPhotos(){
     });
 }
 
-// --- Initial render ---
+// Initial render
 renderPhotos();
 </script>
+
 </body>
 </html>
