@@ -184,70 +184,14 @@ editBtn.onclick = () => {
     editPopup.dataset.mode = 'edit';
 };
 
-so, the “Add Object” popup is reusing the street edit inputs, which is fine, but you were clearing fields incorrectly: editDistrict.value = '' for the object number works, but the labels and IDs are confusing since they still say “Street Name” and “District”.
-
-✅ Fixed saveEditStreet handler
-
-Replace the entire document.getElementById('saveEditStreet').onclick = ... block with this clean version:
-
 document.getElementById('saveEditStreet').onclick = () => {
-    const mode = editPopup.dataset.mode;
-
-    if(mode === 'edit') {
-        const newName = editStreetName.value.trim();
-        if (!newName) return alert("Street name cannot be empty.");
-
-        const updatedData = {
-            district: editDistrict.value,
-            existing: editExisting.checked,
-            description: editDescription.value
-        };
-
-        if (newName !== streetName) {
-            // Rename street
-            streetsData[newName] = updatedData;
-            delete streetsData[streetName];
-
-            // Update streets array
-            streets = streets.map(s => s === streetName ? newName : s);
-            localStorage.setItem('streets', JSON.stringify(streets));
-
-            // Move objects
-            if(streetObjects[streetName]){
-                streetObjects[newName] = streetObjects[streetName];
-                delete streetObjects[streetName];
-                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-            }
-        } else {
-            // Just update data
-            streetsData[streetName] = updatedData;
-        }
-
-        localStorage.setItem('streetsData', JSON.stringify(streetsData));
-        window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
-    }
-    else if(mode === 'addObject') {
-        const objectName = editStreetName.value.trim();
-        const objectNumber = editDistrict.value.trim();
-        const objectExisting = editExisting.checked;
-        const objectDescription = editDescription.value.trim();
-
-        if(!objectName) return alert("Object name cannot be empty.");
-
-        if(!streetObjects[streetName]) streetObjects[streetName] = [];
-
-        streetObjects[streetName].push({
-            name: objectName,
-            number: objectNumber,
-            existing: objectExisting,
-            description: objectDescription
-        });
-
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        // Reload street to show the new object
-        window.location.reload();
-    }
+    streetsData[streetName] = {
+        district: editDistrict.value,
+        existing: editExisting.checked,
+        description: editDescription.value
+    };
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
+    location.reload();
 };
 
 function closeEdit(){ editPopup.style.display = 'none'; }
