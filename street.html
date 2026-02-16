@@ -3,284 +3,307 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Street Info</title>
-
+<title>Historical Interactive Map of Barnsley</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #eee;
-    margin: 0;
-}
+    /* --- Body --- */
+    body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        background-color: #121212; /* Dark background */
+        color: #eee; /* Light text */
+        padding: 0;
+    }
 
-/* LEFT COLUMN */
-.left-column {
-    width: 200px;
-    position: fixed;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    padding: 10px;
-    border-right: 1px solid #333;
-    overflow-y: auto;
-}
+    /* --- Header --- */
+    header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 15px 20px;
+        background-color: #1f1f1f; /* Dark gray header */
+        color: #eee;
+        width: 100%;
+        box-sizing: border-box;
+    }
 
-.objects-table {
-    width: 100%;
-    border-collapse: collapse;
-}
+    header h1 {
+        margin: 0;
+        font-size: 24px;
+        color: #fff;
+    }
 
-.objects-table th,
-.objects-table td {
-    padding: 5px 10px;
-    border-bottom: 1px solid #555;
-}
+    .auth-buttons button {
+        margin-left: 10px;
+        padding: 5px 10px;
+        cursor: pointer;
+        background-color: #333;
+        color: #eee;
+        border: 1px solid #555;
+        border-radius: 5px;
+    }
 
-.objects-table th {
-    background-color: #1f1f1f;
-}
+    .auth-buttons button:hover {
+        background-color: #444;
+    }
 
-/* MAIN CONTENT */
-.main-content {
-    margin-left: 220px;
-    padding: 20px;
-}
+    /* --- Sections --- */
+    section {
+        padding: 0 20px;
+    }
 
-h1 { margin-top: 0; }
+    h2 {
+        margin-top: 30px;
+        font-size: 20px;
+        color: #fff;
+    }
 
-a {
-    color: #4a90e2;
-    text-decoration: none;
-}
+    button {
+        cursor: pointer;
+        background-color: #333;
+        color: #eee;
+        border: 1px solid #555;
+        border-radius: 5px;
+        padding: 5px 10px;
+    }
 
-.action-button {
-    cursor: pointer;
-    background-color: #333;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-    padding: 6px 12px;
-    font-size: 14px;
-}
+    button:hover {
+        background-color: #444;
+    }
 
-.action-button:hover {
-    background-color: #444;
-}
+    #addStreetBtn {
+        margin-left: 15px;
+    }
 
-/* POPUPS */
-.popup-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
+    ul#streetList {
+        list-style: none;
+        padding: 0;
+        margin-top: 10px;
+    }
 
-.popup {
-    background: #1f1f1f;
-    padding: 25px;
-    border-radius: 10px;
-    width: 400px;
-    border: 1px solid #444;
-}
+    ul#streetList li {
+        background: #1f1f1f;
+        margin-bottom: 5px;
+        padding: 10px;
+        border-radius: 5px;
+        color: #eee;
+        border: 1px solid #333;
+    }
 
-.popup label {
-    display: block;
-    margin-top: 10px;
-}
+    /* --- Popup Styles --- */
+    .popup-overlay {
+        display: none;
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100%;
+        background: rgba(0,0,0,0.7);
+        justify-content: center;
+        align-items: center;
+        z-index: 1000;
+    }
 
-.popup input,
-.popup textarea {
-    width: 100%;
-    padding: 5px;
-    margin-top: 5px;
-    background: #2b2b2b;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-}
+    .popup {
+        background: #1f1f1f;
+        padding: 25px;
+        border-radius: 10px;
+        width: 400px; 
+        max-width: 90%;
+        box-sizing: border-box;
+        color: #eee;
+        border: 1px solid #444;
+    }
 
-.popup-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: flex-end;
-    gap: 10px;
-}
+    .popup h3 {
+        text-align: center;
+        font-weight: bold;
+        margin-top: 0;
+        color: #fff;
+    }
+
+    .popup label {
+        display: block;
+        margin-top: 10px;
+    }
+
+    .popup input[type="text"], .popup textarea {
+        width: 100%;
+        padding: 5px;
+        margin-top: 5px;
+        box-sizing: border-box;
+        background-color: #2b2b2b;
+        color: #eee;
+        border: 1px solid #555;
+        border-radius: 5px;
+    }
+
+    .popup input[type="checkbox"] {
+        transform: scale(1.2);
+        margin-right: 5px;
+    }
+
+    .popup-buttons {
+        margin-top: 15px;
+        display: flex;
+        justify-content: space-between;
+    }
+
+    /* --- Map --- */
+    #map {
+        height: 600px;
+        margin-top: 20px;
+        border-radius: 10px;
+        border: 1px solid #333;
+    }
+
 </style>
 </head>
-
 <body>
 
-<!-- LEFT COLUMN -->
-<div class="left-column">
-    <h2>Objects on this street</h2>
-    <table class="objects-table">
-        <thead>
-            <tr><th>No.</th><th>Name</th></tr>
-        </thead>
-        <tbody id="objectsTableBody"></tbody>
-    </table>
-</div>
-
-<!-- MAIN CONTENT -->
-<div class="main-content">
-    <a href="index.html">Back to Map</a>
-    <h1 id="streetTitle"></h1>
-
-    <p><strong>District:</strong> <span id="streetDistrict"></span></p>
-    <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
-    <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
-
-    <div style="margin:15px 0;">
-        <button id="addObjectBtn" class="action-button">Add Object</button>
-        <button id="editBtn" class="action-button">Edit</button>
-        <button id="deleteStreet" class="action-button">Delete</button>
+<header>
+    <h1>Historical Interactive Map of Barnsley</h1>
+    <div class="auth-buttons">
+        <button>Sign Up</button>
+        <button>Log In</button>
     </div>
-</div>
+</header>
 
-<!-- EDIT POPUP -->
-<div class="popup-overlay" id="editPopup">
+<section>
+<h2 style="display: flex; align-items: center; gap: 10px;">
+    <span>Streets</span>
+    <button id="addStreetBtn">Add Street</button>
+    <input type="text" id="streetSearch" placeholder="Search streets..." style="flex:1; padding:5px; border-radius:5px; border:1px solid #555; background-color:#2b2b2b; color:#eee;">
+</h2>
+    <ul id="streetList"></ul>
+</section>
+
+<!-- Popup -->
+<div class="popup-overlay" id="popupOverlay">
     <div class="popup">
-        <h3>Edit Street</h3>
-        <label>District <input id="editDistrict"></label>
-        <label><input type="checkbox" id="editExisting"> Existing</label>
-        <label>Description <textarea id="editDescription"></textarea></label>
+        <h3>Add Street</h3>
+        <label for="streetName">Street Name:</label>
+        <input type="text" id="streetName">
+
+        <label for="district">District:</label>
+<select id="district">
+    <option value="Town Centre">Town Centre</option>
+    <!-- You can add more districts later -->
+</select>
+        
+        <label>
+            <input type="checkbox" id="existing" checked> Existing
+        </label>
+
+        <label for="description">Description:</label>
+        <textarea id="description" rows="3"></textarea>
 
         <div class="popup-buttons">
-            <button class="action-button" onclick="closeEdit()">Cancel</button>
-            <button id="saveEditStreet" class="action-button">Save</button>
+            <button id="saveStreet">Save</button>
+            <button id="cancelStreet">Cancel</button>
         </div>
     </div>
 </div>
 
-<!-- DELETE POPUP -->
-<div class="popup-overlay" id="deletePopup">
-    <div class="popup">
-        <p id="deleteMessage"></p>
+<section>
+    <h2>Map</h2>
+    <div id="map"></div>
+</section>
 
-        <div class="popup-buttons" style="justify-content: space-between;">
-            <button id="confirmDelete" class="action-button">Yes</button>
-            <button onclick="closeDelete()" class="action-button">No</button>
-        </div>
-    </div>
-</div>
-
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-/* HELPERS */
-const qp = p => new URLSearchParams(location.search).get(p);
+    // --- Popup Script ---
+    const addStreetBtn = document.getElementById('addStreetBtn');
+    const popupOverlay = document.getElementById('popupOverlay');
+    const cancelStreet = document.getElementById('cancelStreet');
 
-/* DATA */
-const streetName = qp('name');
-const streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
-const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const data = streetsData[streetName];
+    addStreetBtn.addEventListener('click', () => {
+        popupOverlay.style.display = 'flex';
+    });
+    cancelStreet.addEventListener('click', () => {
+        popupOverlay.style.display = 'none';
+    });
 
-/* ELEMENTS */
-const streetTitle = document.getElementById('streetTitle');
-const streetDistrict = document.getElementById('streetDistrict');
-const streetExisting = document.getElementById('streetExisting');
-const existingWrapper = document.getElementById('existingWrapper');
-const streetDescription = document.getElementById('streetDescription');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
-const objectsTableBody = document.getElementById('objectsTableBody');
+    // --- Street List with localStorage ---
+    const saveStreet = document.getElementById('saveStreet');
+    const streetList = document.getElementById('streetList');
 
-/* POPUPS */
-const editPopup = document.getElementById('editPopup');
-const deletePopup = document.getElementById('deletePopup');
-const deleteMessage = document.getElementById('deleteMessage');
+    // Load streets and streetsData
+    let streets = JSON.parse(localStorage.getItem('streets')) || [];
+    let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 
-/* BUTTONS */
-const addObjectBtn = document.getElementById('addObjectBtn');
-const editBtn = document.getElementById('editBtn');
-const deleteStreet = document.getElementById('deleteStreet');
-const saveEditStreet = document.getElementById('saveEditStreet');
-const confirmDelete = document.getElementById('confirmDelete');
+    // --- CLEANUP ORPHAN STREETS ---
+    // Remove streets from the list that don't have data
+    streets = streets.filter(name => streetsData[name]);
+    localStorage.setItem('streets', JSON.stringify(streets));
 
-/* EDIT FIELDS */
-const editDistrict = document.getElementById('editDistrict');
-const editExisting = document.getElementById('editExisting');
-const editDescription = document.getElementById('editDescription');
+    // Function to refresh the street list alphabetically
+    function refreshStreetList() {
+        streetList.innerHTML = '';
+        streets.sort((a, b) => a.localeCompare(b));
+        streets.forEach(street => {
+            const li = document.createElement('li');
+            li.textContent = street;
+            li.style.cursor = 'pointer';
+            li.addEventListener('click', () => {
+                const streetParam = encodeURIComponent(street);
+                window.location.href = 'street.html?name=' + streetParam;
+            });
+            streetList.appendChild(li);
+        });
+    }
 
-/* VALIDATION */
-if(!data){
-    streetTitle.textContent = 'Street not found';
-    throw new Error('Street missing');
-}
+    refreshStreetList();
 
-/* DISPLAY */
-streetTitle.textContent = streetName;
-streetDistrict.textContent = data.district || 'N/A';
+    // Save new street with full data
+    saveStreet.addEventListener('click', () => {
+        const name = document.getElementById('streetName').value.trim();
+        const district = document.getElementById('district').value.trim();
+        const existing = document.getElementById('existing').checked;
+        const description = document.getElementById('description').value.trim();
 
-if(data.existing === false){
-    streetExisting.textContent = 'No';
-} else {
-    existingWrapper.style.display = 'none';
-}
+        if(name !== '') {
+            // Add to streets list
+            streets.push(name);
+            localStorage.setItem('streets', JSON.stringify(streets));
+            // Save full street data
+            streetsData[name] = { district, existing, description };
+            localStorage.setItem('streetsData', JSON.stringify(streetsData));
+            refreshStreetList();
+        }
 
-if(data.description){
-    streetDescription.textContent = data.description;
-} else {
-    descriptionWrapper.style.display = 'none';
-}
+        // Clear inputs and close popup
+        document.getElementById('streetName').value = '';
+        document.getElementById('district').value = '';
+        document.getElementById('existing').checked = true;
+        document.getElementById('description').value = '';
+        popupOverlay.style.display = 'none';
+    });
 
-/* OBJECTS */
-(streetObjects[streetName] || []).forEach(o=>{
-    objectsTableBody.insertAdjacentHTML(
-        'beforeend',
-        `<tr><td>${o.number}</td><td>${o.name}</td></tr>`
-    );
-});
+    // --- LIVE SEARCH ---
+    const streetSearch = document.getElementById('streetSearch');
+    streetSearch.addEventListener('input', () => {
+        const query = streetSearch.value.trim().toLowerCase();
+        const filteredStreets = streets.filter(name => name.toLowerCase().includes(query)).sort((a,b) => a.localeCompare(b));
+        streetList.innerHTML = '';
+        filteredStreets.forEach(street => {
+            const li = document.createElement('li');
+            li.textContent = street;
+            li.style.cursor = 'pointer';
+            li.addEventListener('click', () => {
+                const streetParam = encodeURIComponent(street);
+                window.location.href = 'street.html?name=' + streetParam;
+            });
+            streetList.appendChild(li);
+        });
+    });
 
-/* ADD OBJECT */
-addObjectBtn.onclick = () => {
-    const number = prompt('Street Number');
-    const name = prompt('Building Name');
-    if(!number || !name) return;
-
-    streetObjects[streetName] ||= [];
-    streetObjects[streetName].push({ number, name });
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    location.reload();
-};
-
-/* EDIT */
-editBtn.onclick = () => {
-    editDistrict.value = data.district || '';
-    editExisting.checked = data.existing !== false;
-    editDescription.value = data.description || '';
-    editPopup.style.display = 'flex';
-};
-
-saveEditStreet.onclick = () => {
-    streetsData[streetName] = {
-        district: editDistrict.value,
-        existing: editExisting.checked,
-        description: editDescription.value
-    };
-    localStorage.setItem('streetsData', JSON.stringify(streetsData));
-    location.reload();
-};
-
-/* DELETE */
-deleteStreet.onclick = () => {
-    deleteMessage.innerHTML = `Are you sure you want to delete <b>${streetName}</b>?`;
-    deletePopup.style.display = 'flex';
-};
-
-confirmDelete.onclick = () => {
-    delete streetsData[streetName];
-    delete streetObjects[streetName];
-    localStorage.setItem('streetsData', JSON.stringify(streetsData));
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    location.href = 'index.html';
-};
-
-/* CLOSE */
-function closeEdit(){ editPopup.style.display = 'none'; }
-function closeDelete(){ deletePopup.style.display = 'none'; }
+    // --- Map ---
+    const map = L.map('map').setView([53.5526, -1.4787], 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors',
+        maxZoom: 20
+    }).addTo(map);
 </script>
+
 
 </body>
 </html>
