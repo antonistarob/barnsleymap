@@ -193,16 +193,31 @@ if(data.description){
     descriptionWrapper.style.display = 'none';
 }
 
-/* LOAD OBJECTS */
+/* LEFT COLUMN */
 objectsTableBody.innerHTML = '';
 (streetObjects[streetName] || []).forEach(o => {
-    objectsTableBody.insertAdjacentHTML(
-        'beforeend',
-        `<tr>
-            <td>${o.number}</td>
-            <td style="cursor:pointer;" onmouseover="this.style.textDecoration='underline';" onmouseout="this.style.textDecoration='';" onclick="goToObject('${o.name}')">${o.name}</td>
-        </tr>`
-    );
+    const row = document.createElement('tr');
+    
+    const numberCell = document.createElement('td');
+    numberCell.textContent = o.number || '';
+    row.appendChild(numberCell);
+    
+    const nameCell = document.createElement('td');
+    nameCell.textContent = o.name;
+    nameCell.classList.add('object-link');
+    
+    // Add click listener safely
+    nameCell.addEventListener('click', () => {
+        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+        if (window.location.href === url) {
+            window.location.reload(); // force reload if same object
+        } else {
+            window.location.href = url;
+        }
+    });
+    
+    row.appendChild(nameCell);
+    objectsTableBody.appendChild(row);
 });
 
 function goToObject(name){
