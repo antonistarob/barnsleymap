@@ -74,10 +74,11 @@ a {
 .popup-overlay {
     display: none;
     position: fixed;
-    inset: 0;
+    inset: 0;                     /* shorthand for top/right/bottom/left */
     background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center;
     align-items: center;
-    padding-right: 60px;         /* ← space from right edge */
     z-index: 1000;
 }
 
