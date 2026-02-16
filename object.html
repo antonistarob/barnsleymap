@@ -70,7 +70,7 @@ h1 { margin-top:0; }
 </header>
 
 <div class="left-column">
-    <h2>Objects on this street</h2>
+    <h2 id="objectsHeader">Objects on this street</h2>
     <table class="objects-table">
         <thead><tr><th>No.</th><th>Name</th></tr></thead>
         <tbody id="objectsTableBody"></tbody>
@@ -319,6 +319,8 @@ document.getElementById('saveEditObject').onclick = () => {
 };
     
 function closeEdit(){ editPopup.style.display='none'; }
+
+    document.getElementById('objectsHeader').textContent = `Objects in ${streetName}`;
 
 /* DELETE OBJECT */
 deleteBtn.onclick=()=>{
