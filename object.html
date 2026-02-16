@@ -253,21 +253,31 @@ objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
 /* LEFT COLUMN */
-objectsTableBody.innerHTML='';
-(streetObjects[streetName]||[]).forEach(o=>{
-    objectsTableBody.insertAdjacentHTML('beforeend',
-        `<tr><td>${o.number}</td><td class="object-link" onclick="goToObject('${o.name}')">${o.name}</td></tr>`
-    );
+objectsTableBody.innerHTML = '';
+(streetObjects[streetName] || []).forEach(o => {
+    const row = document.createElement('tr');
+    
+    const numberCell = document.createElement('td');
+    numberCell.textContent = o.number || '';
+    row.appendChild(numberCell);
+    
+    const nameCell = document.createElement('td');
+    nameCell.textContent = o.name;
+    nameCell.classList.add('object-link');
+    
+    // Add click listener safely
+    nameCell.addEventListener('click', () => {
+        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+        if (window.location.href === url) {
+            window.location.reload(); // force reload if same object
+        } else {
+            window.location.href = url;
+        }
+    });
+    
+    row.appendChild(nameCell);
+    objectsTableBody.appendChild(row);
 });
-function goToObject(name){
-    const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
-    if(window.location.href === url){
-        // force reload if same URL
-        window.location.reload();
-    } else {
-        window.location.href = url;
-    }
-}
 
 /* EDIT OBJECT */
 editBtn.onclick=()=>{
