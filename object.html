@@ -121,7 +121,7 @@ h1 { margin-top:0; }
 <script>
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
-const objectName = qp('object');
+let objectName = qp('object'); // use let so we can update it on rename
 
 /* LOAD DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
@@ -141,35 +141,44 @@ document.getElementById('objectTitle').textContent = obj.name;
 /* street clickable + number bold */
 const streetEl = document.getElementById('objectStreet');
 streetEl.textContent = streetName;
-streetEl.classList.add('object-link');  // OK, just for hover effect
+streetEl.classList.add('object-link');
 streetEl.onclick = () => {
     window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
 
-    const numberEl = document.getElementById('objectNumber');
-numberEl.textContent = objectNumber;     // bold number
-
 document.getElementById('objectNumber').textContent = obj.number || 'N/A';
 
 /* EXISTING AND DESCRIPTION LOGIC */
-if(obj.existing === false){
-    document.getElementById('objectExisting').textContent = 'No';
-} else {
-    document.getElementById('existingWrapper').style.display = 'none';
-}
-if(obj.description){
-    document.getElementById('objectDescription').textContent = obj.description;
-} else {
-    document.getElementById('descriptionWrapper').style.display = 'none';
+const existingWrapper = document.getElementById('existingWrapper');
+const descriptionWrapper = document.getElementById('descriptionWrapper');
+
+function updateStatusAndDescription() {
+    // Status
+    if(obj.existing && obj.existing !== 'Exists'){
+        document.getElementById('objectExisting').textContent = obj.existing;
+        existingWrapper.style.display = 'block';
+    } else if(obj.existing === false || obj.existing === "Doesn't exist"){
+        document.getElementById('objectExisting').textContent = obj.existing === false ? "Doesn't exist" : obj.existing;
+        existingWrapper.style.display = 'block';
+    } else {
+        existingWrapper.style.display = 'none';
+    }
+
+    // Description
+    if(obj.description){
+        document.getElementById('objectDescription').textContent = obj.description;
+        descriptionWrapper.style.display = 'block';
+    } else {
+        descriptionWrapper.style.display = 'none';
+    }
 }
 
-/* MAKE STREET NAME CLICKABLE */
-document.getElementById('objectStreet').onclick = () => {
-    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-};
+// Initial update
+updateStatusAndDescription();
 
 /* LOAD LEFT COLUMN OBJECTS */
 const objectsTableBody = document.getElementById('objectsTableBody');
+(objectsTableBody.innerHTML = ''); // clear previous
 (streetObjects[streetName] || []).forEach((o, index) => {
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
@@ -180,32 +189,14 @@ const objectsTableBody = document.getElementById('objectsTableBody');
     );
 });
 
-function closeEdit(){ 
-    editPopup.style.display = 'none'; 
-}
+/* EDIT POPUP */
+const editPopup = document.getElementById('editPopup');
+const editBtn = document.getElementById('editBtn');
+const editStreetName = document.getElementById('editStreetName');
+const editDistrict = document.getElementById('editDistrict');
+const editExisting = document.getElementById('editExisting');
+const editDescription = document.getElementById('editDescription');
 
-/* DISPLAY EXISTING/STATUS AND DESCRIPTION */
-const existingWrapper = document.getElementById('existingWrapper');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
-
-if(obj.existing && obj.existing !== 'Exists'){
-    document.getElementById('objectExisting').textContent = obj.existing;
-    existingWrapper.style.display = 'block';
-} else if(obj.existing === false || obj.existing === "Doesn't exist"){
-    document.getElementById('objectExisting').textContent = obj.existing === false ? "Doesn't exist" : obj.existing;
-    existingWrapper.style.display = 'block';
-} else {
-    existingWrapper.style.display = 'none';
-}
-
-if(obj.description){
-    document.getElementById('objectDescription').textContent = obj.description;
-    descriptionWrapper.style.display = 'block';
-} else {
-    descriptionWrapper.style.display = 'none';
-}
-
-/* EDIT OBJECT */
 editBtn.onclick = () => {
     document.getElementById('popupTitle').textContent = 'Edit Object';
     document.getElementById('popupNameLabel').textContent = 'Object Name:';
@@ -220,15 +211,16 @@ editBtn.onclick = () => {
     editPopup.dataset.mode = 'editObject';
 };
 
-/* CANCEL BUTTON */
+/* CLOSE POPUP */
+function closeEdit(){ 
+    editPopup.style.display = 'none'; 
+}
 document.querySelector('#editPopup button[onclick="closeEdit()"]').onclick = closeEdit;
 
 /* SAVE EDIT OBJECT — updates immediately without reload */
 document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
-
-    if(mode === 'editObject') {
-        // Trim input values
+    if(mode === 'editObject'){
         const newName = editStreetName.value.trim();
         const newNumber = editDistrict.value.trim();
         const newExisting = editExisting.value;
@@ -254,26 +246,9 @@ document.getElementById('saveEditStreet').onclick = () => {
             document.getElementById('objectTitle').textContent = obj.name;
             document.getElementById('objectNumber').textContent = obj.number || 'N/A';
 
-            // Status logic
-            if(obj.existing && obj.existing !== 'Exists'){
-                document.getElementById('objectExisting').textContent = obj.existing;
-                existingWrapper.style.display = 'block';
-            } else if(obj.existing === false || obj.existing === "Doesn't exist"){
-                document.getElementById('objectExisting').textContent = obj.existing === false ? "Doesn't exist" : obj.existing;
-                existingWrapper.style.display = 'block';
-            } else {
-                existingWrapper.style.display = 'none';
-            }
+            updateStatusAndDescription();
 
-            // Description logic
-            if(obj.description){
-                document.getElementById('objectDescription').textContent = obj.description;
-                descriptionWrapper.style.display = 'block';
-            } else {
-                descriptionWrapper.style.display = 'none';
-            }
-
-            // Update left column
+            // Update left column table
             const tableRows = document.querySelectorAll('#objectsTableBody tr');
             tableRows.forEach(row => {
                 const cell = row.cells[1];
@@ -282,15 +257,21 @@ document.getElementById('saveEditStreet').onclick = () => {
                 }
             });
 
-            // Update objectName so future edits work
+            // Update objectName and URL so future edits and refresh work
             objectName = newName;
+            const newUrl = `${location.pathname}?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(newName)}`;
+            window.history.replaceState(null, '', newUrl);
 
             // Close popup
-            editPopup.style.display = 'none';
+            closeEdit();
         }
     }
 };
-    
+
+/* GO TO OBJECT */
+function goToObject(name){
+    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
+}
 </script>
 
 </body>
