@@ -159,8 +159,9 @@ savePhotoBtn.onclick = ()=>{
     const reader = new FileReader();
     reader.onload = function(e){
         const dataURL = e.target.result;
-        if(!obj.photos) obj.photos=[];
-        obj.photos.push({ dataURL, date:photoDate.value, description:photoDescription.value });
+if(!obj.photos) obj.photos = [];
+obj.photos.push({ dataURL, date: photoDate.value, description: photoDescription.value });
+localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
         const idx = streetObjects[streetName].findIndex(o=>o.name===obj.name);
         if(idx!==-1){ streetObjects[streetName][idx]=obj; localStorage.setItem('streetObjects',JSON.stringify(streetObjects)); }
         closeAddPhoto();
@@ -171,17 +172,26 @@ savePhotoBtn.onclick = ()=>{
 
 /* Render Photos */
 function renderPhotos(){
-    photosContainer.innerHTML='';
-    if(!obj.photos) return;
-    const sorted = obj.photos.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
-    sorted.forEach(p=>{
+    photosContainer.innerHTML = '';
+
+    // Ensure obj.photos is always an array
+    if(!obj.photos) obj.photos = [];
+
+    // Sort by date
+    const sorted = obj.photos.slice().sort((a,b)=>new Date(a.date) - new Date(b.date));
+
+    // Render each photo
+    sorted.forEach(p => {
         const div = document.createElement('div');
-        div.className='photo-box';
-        div.innerHTML = `<img src="${p.dataURL}" alt="${p.description||'Photo'}"><div style="color:#aaa;">${p.date||''}</div>`;
+        div.className = 'photo-box';
+        div.innerHTML = `
+            <img src="${p.dataURL}" alt="${p.description || 'Photo'}">
+            <div style="color:#aaa; font-size:11px;">${p.date || ''}</div>
+            <div style="font-size:12px;">${p.description || ''}</div>
+        `;
         photosContainer.appendChild(div);
     });
 }
-
 renderPhotos();
 </script>
 </body>
