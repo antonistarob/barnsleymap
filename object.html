@@ -7,20 +7,38 @@
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; }
 
+/* HEADER */
 header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
 header h1 { margin:0; font-size:24px; }
 .header-link { color:#fff; text-decoration:none; }
 .header-link:hover { text-decoration:underline; }
+.auth-buttons button { margin-left:10px; padding:5px 10px; cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; }
+.auth-buttons button:hover { background:#444; }
 
-.main-content { margin:20px; }
+/* LEFT COLUMN */
+.left-column { width:200px; position:fixed; top:40px; left:0; bottom:0; padding:10px; border-right:1px solid #333; overflow-y:auto; }
+.objects-table { width:100%; border-collapse:collapse; }
+.objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
+.objects-table th { background:#1f1f1f; }
+.object-link { cursor:pointer; text-decoration:none; color:inherit; }
+.object-link:hover { text-decoration:underline; }
+
+/* MAIN CONTENT */
+.main-content { margin-left:230px; padding:20px; }
 h1 { margin-top:0; }
+.info-line { margin:5px 0; }
 
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
 .action-button:hover { background:#444; }
 
-.info-line { margin:5px 0; font-size:14px; color:#aaa; }
-
-.rules { margin-top:15px; padding:10px; background:#1f1f1f; border-radius:8px; border:1px solid #444; }
+/* POPUPS */
+.popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
+.popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%; border:1px solid #444; }
+.popup h3 { text-align:center; margin-top:0; }
+.popup label { display:block; margin-top:10px; }
+.popup input[type="text"], .popup textarea, .popup select { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
+.popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
+.popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
 </style>
 </head>
 <body>
@@ -29,17 +47,20 @@ h1 { margin-top:0; }
     <h1><a href="index.html" class="header-link">Historical Interactive Map of Barnsley</a></h1>
 </header>
 
+<div class="left-column">
+    <h2>Objects on this street</h2>
+    <table class="objects-table">
+        <thead><tr><th>No.</th><th>Name</th></tr></thead>
+        <tbody id="objectsTableBody"></tbody>
+    </table>
+</div>
+
 <div class="main-content">
     <h1 id="objectTitle"></h1>
-    <div class="info-line"><strong>Street:</strong> <span id="objectStreet"></span></div>
-    <div class="info-line"><strong>Number:</strong> <span id="objectNumber"></span></div>
-    <div class="info-line"><strong>Existing:</strong> <span id="objectExisting"></span></div>
-
-    <div class="rules" id="objectDescription"></div>
-
-    <div style="margin-top:20px;">
-        <button onclick="window.history.back()" class="action-button">Back</button>
-    </div>
+    <p class="info-line"><strong>Street:</strong> <span id="objectStreet"></span></p>
+    <p class="info-line"><strong>Number:</strong> <span id="objectNumber"></span></p>
+    <p id="existingWrapper" class="info-line"><strong>Existing:</strong> <span id="objectExisting"></span></p>
+    <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
 </div>
 
 <script>
@@ -50,6 +71,7 @@ const objectName = qp('object');
 /* LOAD DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+let streets = JSON.parse(localStorage.getItem('streets')) || [];
 
 /* FIND OBJECT */
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
@@ -58,19 +80,43 @@ if(!obj){
     throw new Error('Object missing');
 }
 
-/* DISPLAY INFO */
+/* DISPLAY OBJECT INFO */
 document.getElementById('objectTitle').textContent = obj.name;
 document.getElementById('objectStreet').textContent = streetName;
 document.getElementById('objectNumber').textContent = obj.number || 'N/A';
-document.getElementById('objectExisting').textContent = obj.existing ? 'Yes' : 'No';
-document.getElementById('objectDescription').textContent = obj.description || 'No description available';
+if(obj.existing === false){
+    document.getElementById('objectExisting').textContent = 'No';
+} else {
+    document.getElementById('existingWrapper').style.display = 'none';
+}
+if(obj.description){
+    document.getElementById('objectDescription').textContent = obj.description;
+} else {
+    document.getElementById('descriptionWrapper').style.display = 'none';
+}
 
-/* Optional: highlight street link */
+/* MAKE STREET NAME CLICKABLE */
 document.getElementById('objectStreet').style.cursor = 'pointer';
 document.getElementById('objectStreet').style.textDecoration = 'underline';
 document.getElementById('objectStreet').onclick = () => {
     window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
+
+/* LOAD LEFT COLUMN OBJECTS */
+const objectsTableBody = document.getElementById('objectsTableBody');
+(streetObjects[streetName] || []).forEach((o, index) => {
+    objectsTableBody.insertAdjacentHTML(
+        'beforeend',
+        `<tr>
+            <td>${o.number}</td>
+            <td class="object-link" onclick="goToObject('${o.name}')">${o.name}</td>
+        </tr>`
+    );
+});
+
+function goToObject(name){
+    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
+}
 </script>
 
 </body>
