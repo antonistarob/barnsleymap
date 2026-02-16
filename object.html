@@ -6,26 +6,25 @@
 <title>Object Info</title>
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; }
-/* HEADER */
 header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
 header h1 { margin:0; font-size:24px; }
 .header-link { color:#fff; text-decoration:none; }
 .header-link:hover { text-decoration:underline; }
-/* LEFT COLUMN */
+
 .left-column { width:200px; position:fixed; top:40px; left:0; bottom:0; padding:10px; border-right:1px solid #333; overflow-y:auto; }
 .objects-table { width:100%; border-collapse:collapse; }
 .objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
 .objects-table th { background:#1f1f1f; }
 .object-link { cursor:pointer; text-decoration:none; color:inherit; }
 .object-link:hover { text-decoration:underline; }
-/* MAIN CONTENT */
+
 .main-content { margin-left:230px; padding:20px; }
 h1 { margin-top:0; }
 #objectStreetLine { font-size:22px; } 
 .info-line { margin:5px 0; }
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
 .action-button:hover { background:#444; }
-/* POPUPS */
+
 .popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
 .popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%; border:1px solid #444; }
 .popup h3 { text-align:center; margin-top:0; }
@@ -33,12 +32,13 @@ h1 { margin-top:0; }
 .popup input[type="text"], .popup textarea, .popup select, .popup input[type="date"] { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
 .popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
 .popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
-/* GRADE LISTED HIDDEN */
+
 #gradeOptions { display:none; margin-top:10px; }
-/* PHOTO BOXES */
-.photo-box { width:120px; border:1px solid #555; padding:5px; background:#1f1f1f; text-align:center; font-size:12px; border-radius:5px; }
+
 #photosContainer { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+.photo-box { width:120px; border:1px solid #555; padding:5px; background:#1f1f1f; text-align:center; font-size:12px; border-radius:5px; }
 .photo-box img { width:100%; height:auto; display:block; margin-bottom:5px; border-radius:3px; }
+
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -104,220 +104,85 @@ h1 { margin-top:0; }
     </div>
 </div>
 
-<!-- EDIT OBJECT POPUP -->
-<div class="popup-overlay" id="editPopup">
-    <div class="popup">
-        <h3>Edit Object</h3>
-        <label>Object Name:</label>
-        <input type="text" id="editObjectName">
-        <label>Number:</label>
-        <input type="text" id="editObjectNumber">
-        <label>Status:</label>
-        <select id="editStatus">
-            <option value="Exists" selected>Exists</option>
-            <option value="Doesn't exist">Doesn't exist</option>
-            <option value="To be demolished">To be demolished</option>
-            <option value="Exists partially">Exists partially</option>
-            <option value="In construction">In construction</option>
-        </select>
-        <label>Year Built:</label>
-        <input type="text" id="editYearBuilt">
-        <label>Year Demolished:</label>
-        <input type="text" id="editYearDemolished">
-        <label>Grade Listed:</label>
-        <input type="checkbox" id="editGradeListed">
-        <div id="gradeOptions">
-            <label>Grade:</label>
-            <select id="editGrade">
-                <option value="Grade I">Grade I</option>
-                <option value="Grade II*">Grade II*</option>
-                <option value="Grade II">Grade II</option>
-            </select>
-            <label>List Entry Number:</label>
-            <input type="text" id="editListEntryNumber">
-            <label>Date first listed:</label>
-            <input type="text" id="editDateListed">
-        </div>
-        <label>Description:</label>
-        <textarea id="editDescription" rows="3"></textarea>
-
-        <div class="popup-buttons">
-            <button id="saveEditObject" class="action-button">Save</button>
-            <button onclick="closeEdit()" class="action-button">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<div class="popup-overlay" id="deletePopup">
-    <div class="popup">
-        <p id="deleteMessage"></p>
-        <div class="popup-buttons">
-            <button id="confirmDelete" class="action-button" style="background:#c0392b;border-color:#922b21;">Yes</button>
-            <button id="cancelDelete" class="action-button">No</button>
-        </div>
-    </div>
-</div>
-
 <script>
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
 const objectName = qp('object');
+
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o=>o.name===objectName);
-if(!obj){ document.getElementById('objectTitle').textContent='Object not found'; throw new Error('Object missing'); }
+if(!obj){ alert('Object not found'); throw new Error('Object missing'); }
 
-/* ELEMENTS */
 const objectTitle = document.getElementById('objectTitle');
 const objectStreet = document.getElementById('objectStreet');
 const objectNumber = document.getElementById('objectNumber');
 const additionalInfo = document.getElementById('additionalInfo');
 const objectDescription = document.getElementById('objectDescription');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
+
 const objectsTableBody = document.getElementById('objectsTableBody');
-
-const editBtn = document.getElementById('editBtn');
-const deleteBtn = document.getElementById('deleteBtn');
-const editPopup = document.getElementById('editPopup');
-const deletePopup = document.getElementById('deletePopup');
-const deleteMessage = document.getElementById('deleteMessage');
-
-const editObjectName = document.getElementById('editObjectName');
-const editObjectNumber = document.getElementById('editObjectNumber');
-const editStatus = document.getElementById('editStatus');
-const editYearBuilt = document.getElementById('editYearBuilt');
-const editYearDemolished = document.getElementById('editYearDemolished');
-const editGradeListed = document.getElementById('editGradeListed');
-const gradeOptions = document.getElementById('gradeOptions');
-const editGrade = document.getElementById('editGrade');
-const editListEntryNumber = document.getElementById('editListEntryNumber');
-const editDateListed = document.getElementById('editDateListed');
-const editDescription = document.getElementById('editDescription');
-
 const addPhotoBtn = document.getElementById('addPhotoBtn');
 const addPhotoPopup = document.getElementById('addPhotoPopup');
-const addPhotoTitle = document.getElementById('addPhotoTitle');
 const addPhotoSubTitle = document.getElementById('addPhotoSubTitle');
 const photoFile = document.getElementById('photoFile');
 const photoDate = document.getElementById('photoDate');
 const photoDescription = document.getElementById('photoDescription');
 const savePhotoBtn = document.getElementById('savePhotoBtn');
+const photosContainer = document.getElementById('photosContainer');
 
-/* DISPLAY OBJECT INFO */
+/* Display object info */
 objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
 objectStreet.onclick = ()=> window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 objectNumber.textContent = obj.number || '';
-additionalInfo.innerHTML='';
-if(obj.status && obj.status!=='Exists') additionalInfo.innerHTML+=`<span><strong>Status:</strong> ${obj.status}</span><br>`;
-if(obj.yearBuilt) additionalInfo.innerHTML+=`<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
-if(obj.yearDemolished) additionalInfo.innerHTML+=`<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
-if(obj.gradeListed){
-    additionalInfo.innerHTML+=`<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
-    if(obj.listEntryNumber) additionalInfo.innerHTML+=`<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
-    if(obj.dateListed) additionalInfo.innerHTML+=`<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
-}
 objectDescription.textContent = obj.description || '';
-descriptionWrapper.style.display = obj.description ? 'block' : 'none';
+additionalInfo.innerHTML='';
 
 /* LEFT COLUMN */
 objectsTableBody.innerHTML='';
-(streetObjects[streetName]||[]).forEach(o=>{
+(streetObjects[streetName]||[]).forEach((o)=>{
     objectsTableBody.insertAdjacentHTML('beforeend',
-        `<tr><td>${o.number}</td><td class="object-link" onclick="goToObject('${o.name}')">${o.name}</td></tr>`
+        `<tr><td>${o.number||''}</td><td class="object-link" onclick="window.location.href='object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}'">${o.name}</td></tr>`
     );
 });
-function goToObject(name){ window.location.href=`object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`; }
 
-/* ADD PHOTO */
+/* Add Photo */
 addPhotoBtn.onclick = () => {
-    addPhotoTitle.textContent = `Adding photo(s) to:`;
     addPhotoSubTitle.textContent = `${streetName} ${obj.number || ''}, ${obj.name}`;
-    photoFile.value='';
-    photoDate.value='';
-    photoDescription.value='';
+    photoFile.value=''; photoDate.value=''; photoDescription.value='';
     addPhotoPopup.style.display='flex';
 };
 function closeAddPhoto(){ addPhotoPopup.style.display='none'; }
 
-savePhotoBtn.onclick = () => {
-    const fileInput = photoFile.files[0];
-    if(!fileInput) return alert("Please select a photo file.");
+savePhotoBtn.onclick = ()=>{
+    const file = photoFile.files[0];
+    if(!file) return alert("Select a file!");
     const reader = new FileReader();
     reader.onload = function(e){
         const dataURL = e.target.result;
         if(!obj.photos) obj.photos=[];
-        obj.photos.push({ dataURL, date: photoDate.value, description: photoDescription.value });
+        obj.photos.push({ dataURL, date:photoDate.value, description:photoDescription.value });
         const idx = streetObjects[streetName].findIndex(o=>o.name===obj.name);
-        if(idx!==-1){ streetObjects[streetName][idx]=obj; localStorage.setItem('streetObjects', JSON.stringify(streetObjects)); }
+        if(idx!==-1){ streetObjects[streetName][idx]=obj; localStorage.setItem('streetObjects',JSON.stringify(streetObjects)); }
         closeAddPhoto();
         renderPhotos();
     };
-    reader.readAsDataURL(fileInput);
+    reader.readAsDataURL(file);
 };
 
-/* RENDER PHOTOS */
+/* Render Photos */
 function renderPhotos(){
-    const container=document.getElementById('photosContainer');
-    container.innerHTML='';
-    if(obj.photos && obj.photos.length>0){
-        const sorted=obj.photos.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
-        sorted.forEach(p=>{
-            const box=document.createElement('div');
-            box.className='photo-box';
-            box.innerHTML = `
-                <img src="${p.dataURL}" alt="${p.description||'Photo'}">
-                <div style="color:#aaa;">${p.date||''}</div>
-            `;
-            container.appendChild(box);
-        });
-    }
+    photosContainer.innerHTML='';
+    if(!obj.photos) return;
+    const sorted = obj.photos.slice().sort((a,b)=>new Date(a.date)-new Date(b.date));
+    sorted.forEach(p=>{
+        const div = document.createElement('div');
+        div.className='photo-box';
+        div.innerHTML = `<img src="${p.dataURL}" alt="${p.description||'Photo'}"><div style="color:#aaa;">${p.date||''}</div>`;
+        photosContainer.appendChild(div);
+    });
 }
+
 renderPhotos();
-
-/* EDIT OBJECT */
-editBtn.onclick=()=>{
-    editPopup.style.display='flex';
-    editObjectName.value=obj.name;
-    editObjectNumber.value=obj.number||'';
-    editStatus.value=obj.status||'Exists';
-    editYearBuilt.value=obj.yearBuilt||'';
-    editYearDemolished.value=obj.yearDemolished||'';
-    editGradeListed.checked=obj.gradeListed||false;
-    gradeOptions.style.display=editGradeListed.checked?'block':'none';
-    editGrade.value=obj.grade||'Grade I';
-    editListEntryNumber.value=obj.listEntryNumber||'';
-    editDateListed.value=obj.dateListed||'';
-    editDescription.value=obj.description||'';
-};
-editGradeListed.onchange = ()=> gradeOptions.style.display=editGradeListed.checked?'block':'none';
-flatpickr(editDateListed,{altInput:true,altFormat:"d/m/Y",dateFormat:"Y-m-d",theme:"dark"});
-document.getElementById('saveEditObject').onclick=()=>{
-    obj.name=editObjectName.value.trim()||obj.name;
-    obj.number=editObjectNumber.value.trim();
-    obj.status=editStatus.value;
-    obj.yearBuilt=editYearBuilt.value.trim();
-    obj.yearDemolished=editYearDemolished.value.trim();
-    obj.gradeListed=editGradeListed.checked;
-    obj.grade=editGrade.value;
-    obj.listEntryNumber=editListEntryNumber.value.trim();
-    obj.dateListed=editDateListed.value.trim();
-    obj.description=editDescription.value.trim();
-    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
-    location.reload();
-};
-function closeEdit(){ editPopup.style.display='none'; }
-
-/* DELETE OBJECT */
-deleteBtn.onclick=()=>{
-    deleteMessage.innerHTML=`Are you sure you want to delete <b>${obj.name}</b>?`;
-    deletePopup.style.display='flex';
-};
-document.getElementById('cancelDelete').onclick=()=>{ deletePopup.style.display='none'; };
-document.getElementById('confirmDelete').onclick=()=>{
-    streetObjects[streetName]=(streetObjects[streetName]||[]).filter(o=>o.name!==obj.name);
-    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
-    window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
-};
 </script>
 </body>
 </html>
