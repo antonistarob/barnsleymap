@@ -263,9 +263,23 @@ a.object-link:hover {
 </div>
 
 <script>
-const qp = p => new URLSearchParams(location.search).get(p);
+const qp = p => decodeURIComponent(new URLSearchParams(location.search).get(p) || '').trim();
 const streetName = qp('street');
 const objectName = qp('object');
+
+/* DATA */
+let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+
+const objectsList = streetObjects[streetName] || [];
+
+// Match object by trimming and case-insensitive comparison
+let data = objectsList.find(o => o.name.trim().toLowerCase() === objectName.toLowerCase());
+
+if(!data){
+    objectTitle.textContent = 'Object not found';
+    throw new Error('Object missing');
+}
 
 /* ELEMENTS */
 const objectsTableBody = document.getElementById('objectsTableBody');
