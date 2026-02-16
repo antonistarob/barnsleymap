@@ -81,6 +81,13 @@ h1 { margin-top:0; }
         <!-- Number / District -->
         <label id="popupNumberLabel">District:</label>
         <input type="text" id="editDistrict"> <!-- now a text input for object number -->
+
+        <label>Year Built:</label>
+<input type="text" id="editYearBuilt" placeholder="e.g. 1890">
+
+<label>Year Demolished:</label>
+<input type="text" id="editYearDemolished" placeholder="e.g. 1975">
+
         
         <!-- Status -->
         <label>Status:</label>
@@ -137,6 +144,8 @@ const editStreetName = document.getElementById('editStreetName');
 const editDistrict = document.getElementById('editDistrict');
 const editExisting = document.getElementById('editExisting');
 const editDescription = document.getElementById('editDescription');
+const editYearBuilt = document.getElementById('editYearBuilt');
+const editYearDemolished = document.getElementById('editYearDemolished');    
 
 /* LOAD DATA */
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
@@ -191,6 +200,8 @@ addObjectBtn.onclick = () => {
 
     editStreetName.value = '';
     editDistrict.value = '';          // open-ended number
+    editYearBuilt.value = '';
+    editYearDemolished.value = '';
     editExisting.value = 'Exists';    // default status
     editDescription.value = '';
 
@@ -260,12 +271,14 @@ document.getElementById('saveEditStreet').onclick = () => {
 
         if(!streetObjects[streetName]) streetObjects[streetName] = [];
 
-        streetObjects[streetName].push({
-            name: objectName,
-            number: objectNumber,
-            existing: objectExisting,
-            description: objectDescription
-        });
+    streetObjects[streetName].push({
+        name: objectName,
+        number: objectNumber,
+        existing: objectStatus,
+        yearBuilt: editYearBuilt.value.trim(),
+        yearDemolished: editYearDemolished.value.trim(),
+        description: objectDescription
+    });
 
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
         window.location.reload();
