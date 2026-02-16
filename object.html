@@ -21,7 +21,7 @@ header h1 { margin:0; font-size:24px; }
 /* MAIN CONTENT */
 .main-content { margin-left:230px; padding:20px; }
 h1 { margin-top:0; }
-#objectStreetLine { font-size:22px; } /* slightly bigger */
+#objectStreetLine { font-size:22px; } 
 .info-line { margin:5px 0; }
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
 .action-button:hover { background:#444; }
@@ -35,14 +35,15 @@ h1 { margin-top:0; }
 .popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
 /* GRADE LISTED HIDDEN */
 #gradeOptions { display:none; margin-top:10px; }
-.photo-box { width:120px; border:1px solid #555; padding:5px; background:#1f1f1f; text-align:center; font-size:12px; }
+/* PHOTO BOXES */
+.photo-box { width:120px; border:1px solid #555; padding:5px; background:#1f1f1f; text-align:center; font-size:12px; border-radius:5px; }
 #photosContainer { display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; }
+.photo-box img { width:100%; height:auto; display:block; margin-bottom:5px; border-radius:3px; }
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
 </head>
 <body>
 
@@ -51,7 +52,7 @@ h1 { margin-top:0; }
 </header>
 
 <div class="left-column">
-    <h2 id="objectsHeader">Objects on this street</h2>
+    <h2>Objects on this street</h2>
     <table class="objects-table">
         <thead><tr><th>No.</th><th>Name</th></tr></thead>
         <tbody id="objectsTableBody"></tbody>
@@ -66,13 +67,18 @@ h1 { margin-top:0; }
     </p>
 
     <div id="additionalInfo"></div>
-
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
 
     <div style="margin:15px 0;">
         <button id="addPhotoBtn" class="action-button">Add Photo</button>
         <button id="editBtn" class="action-button">Edit</button>
         <button id="deleteBtn" class="action-button">Delete</button>
+    </div>
+
+    <!-- PHOTOS SECTION -->
+    <div id="photosSection" style="margin-top:20px;">
+        <h3>Photos:</h3>
+        <div id="photosContainer"></div>
     </div>
 </div>
 
@@ -81,7 +87,7 @@ h1 { margin-top:0; }
     <div class="popup" style="width:450px; max-width:95%;">
         <h3 id="addPhotoTitle" style="text-align:center;">Adding photo(s) to:</h3>
         <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
-        
+
         <label for="photoFile">File:</label>
         <input type="file" id="photoFile" accept="image/*">
 
@@ -101,14 +107,12 @@ h1 { margin-top:0; }
 <!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
-        <h3 id="popupTitle">Edit Object</h3>
+        <h3>Edit Object</h3>
 
-        <label id="popupNameLabel">Object Name:</label>
+        <label>Object Name:</label>
         <input type="text" id="editObjectName">
-
-        <label id="popupNumberLabel">Number:</label>
+        <label>Number:</label>
         <input type="text" id="editObjectNumber">
-
         <label>Status:</label>
         <select id="editStatus">
             <option value="Exists" selected>Exists</option>
@@ -117,13 +121,10 @@ h1 { margin-top:0; }
             <option value="Exists partially">Exists partially</option>
             <option value="In construction">In construction</option>
         </select>
-
         <label>Year Built:</label>
-        <input type="text" id="editYearBuilt" placeholder="e.g. 1890">
-
+        <input type="text" id="editYearBuilt">
         <label>Year Demolished:</label>
-        <input type="text" id="editYearDemolished" placeholder="e.g. 1975">
-
+        <input type="text" id="editYearDemolished">
         <label>Grade Listed:</label>
         <input type="checkbox" id="editGradeListed">
         <div id="gradeOptions">
@@ -138,7 +139,6 @@ h1 { margin-top:0; }
             <label>Date first listed:</label>
             <input type="text" id="editDateListed">
         </div>
-
         <label>Description:</label>
         <textarea id="editDescription" rows="3"></textarea>
 
@@ -153,7 +153,7 @@ h1 { margin-top:0; }
     <div class="popup">
         <p id="deleteMessage"></p>
         <div class="popup-buttons">
-            <button id="confirmDelete" class="action-button" style="background: #c0392b; border-color: #922b21;">Yes</button>
+            <button id="confirmDelete" class="action-button" style="background:#c0392b;border-color:#922b21;">Yes</button>
             <button id="cancelDelete" class="action-button">No</button>
         </div>
     </div>
@@ -163,7 +163,6 @@ h1 { margin-top:0; }
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
 const objectName = qp('object');
-
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o=>o.name===objectName);
 if(!obj){ document.getElementById('objectTitle').textContent='Object not found'; throw new Error('Object missing'); }
@@ -209,9 +208,6 @@ objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
 objectStreet.onclick = ()=> window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 objectNumber.textContent = obj.number || '';
-
-
-// Additional info
 additionalInfo.innerHTML='';
 if(obj.status && obj.status!=='Exists') additionalInfo.innerHTML+=`<span><strong>Status:</strong> ${obj.status}</span><br>`;
 if(obj.yearBuilt) additionalInfo.innerHTML+=`<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
@@ -221,8 +217,6 @@ if(obj.gradeListed){
     if(obj.listEntryNumber) additionalInfo.innerHTML+=`<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
     if(obj.dateListed) additionalInfo.innerHTML+=`<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
-
-// Description
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
@@ -245,6 +239,7 @@ addPhotoBtn.onclick = () => {
     addPhotoPopup.style.display='flex';
 };
 function closeAddPhoto(){ addPhotoPopup.style.display='none'; }
+
 savePhotoBtn.onclick = () => {
     const fileInput = photoFile.files[0];
     if(!fileInput) return alert("Please select a photo file.");
@@ -262,17 +257,9 @@ savePhotoBtn.onclick = () => {
     };
     reader.readAsDataURL(fileInput);
 };
-    
+
 /* RENDER PHOTOS */
 function renderPhotos(){
-    let photosSection = document.getElementById('photosSection');
-    if(!photosSection){
-        photosSection=document.createElement('div');
-        photosSection.id='photosSection';
-        photosSection.style.marginTop='20px';
-        photosSection.innerHTML='<h3>Photos:</h3><div id="photosContainer"></div>';
-        document.querySelector('.main-content').appendChild(photosSection);
-    }
     const container=document.getElementById('photosContainer');
     container.innerHTML='';
     if(obj.photos && obj.photos.length>0){
@@ -280,12 +267,10 @@ function renderPhotos(){
         sorted.forEach(p=>{
             const box=document.createElement('div');
             box.className='photo-box';
-// create object URL for the image
-const url = p.dataURL || '';
-box.innerHTML = `
-    ${url ? `<img src="${url}" style="width:100%; height:auto; display:block; margin-bottom:5px; border-radius:3px;">` : `<div style="margin-bottom:3px;">${p.name}</div>`}
-    <div style="color:#aaa;">${p.date||''}</div>
-`;
+            box.innerHTML = `
+                <img src="${p.dataURL}" alt="${p.description||p.name}">
+                <div style="color:#aaa;">${p.date||''}</div>
+            `;
             container.appendChild(box);
         });
     }
@@ -324,7 +309,6 @@ document.getElementById('saveEditObject').onclick=()=>{
     location.reload();
 };
 function closeEdit(){ editPopup.style.display='none'; }
-    
 
 /* DELETE OBJECT */
 deleteBtn.onclick=()=>{
@@ -338,6 +322,5 @@ document.getElementById('confirmDelete').onclick=()=>{
     window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 };
 </script>
-
 </body>
 </html>
