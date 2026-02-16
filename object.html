@@ -20,8 +20,14 @@ header h1 { margin:0; font-size:24px; }
 .objects-table { width:100%; border-collapse:collapse; }
 .objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
 .objects-table th { background:#1f1f1f; }
-.object-link { cursor:pointer; text-decoration:none; color:inherit; }
-.object-link:hover { text-decoration:underline; }
+.object-link {
+    cursor: pointer;
+    color: inherit;
+    text-decoration: none;
+}
+.object-link:hover {
+    text-decoration: underline;
+}
 
 /* MAIN CONTENT */
 .main-content { margin-left:230px; padding:20px; }
@@ -88,6 +94,7 @@ document.getElementById('objectTitle').textContent = obj.name;
 /* street clickable + number bold */
 const streetEl = document.getElementById('objectStreet');
 streetEl.textContent = streetName;
+streetEl.classList.add('object-link');  // make it use hover underline
 streetEl.onclick = () => {
     window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
