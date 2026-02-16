@@ -173,15 +173,44 @@ a {
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('name');
 
+/* ELEMENTS */
+const streetTitle = document.getElementById('streetTitle');
+const streetDistrict = document.getElementById('streetDistrict');
+const streetExisting = document.getElementById('streetExisting');
+const existingWrapper = document.getElementById('existingWrapper');
+const streetDescription = document.getElementById('streetDescription');
+const descriptionWrapper = document.getElementById('descriptionWrapper');
+const objectsTableBody = document.getElementById('objectsTableBody');
+
+/* BUTTONS */
+const addObjectBtn = document.getElementById('addObjectBtn');
+const editBtn = document.getElementById('editBtn');
+const deleteStreet = document.getElementById('deleteStreet');
+const saveEditStreet = document.getElementById('saveEditStreet');
+const confirmDelete = document.getElementById('confirmDelete');
+
+/* POPUPS */
+const editPopup = document.getElementById('editPopup');
+const deletePopup = document.getElementById('deletePopup');
+const deleteMessage = document.getElementById('deleteMessage');
+
+/* EDIT FIELDS */
+const editStreetName = document.getElementById('editStreetName');
+const editDistrict = document.getElementById('editDistrict');
+const editExisting = document.getElementById('editExisting');
+const editDescription = document.getElementById('editDescription');
+
+/* DATA */
 const streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const data = streetsData[streetName];
 
 if(!data){
     streetTitle.textContent = 'Street not found';
-    throw new Error();
+    throw new Error('Street missing');
 }
 
+/* DISPLAY DATA */
 streetTitle.textContent = streetName;
 streetDistrict.textContent = data.district || 'N/A';
 
@@ -197,6 +226,7 @@ if(data.description){
     descriptionWrapper.style.display = 'none';
 }
 
+/* LOAD OBJECTS */
 (streetObjects[streetName] || []).forEach(o=>{
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
@@ -204,48 +234,54 @@ if(data.description){
     );
 });
 
-addObjectBtn.onclick = ()=>{
-    const n = prompt('Street Number');
+/* ADD OBJECT */
+addObjectBtn.addEventListener('click', () => {
+    const number = prompt('Street Number');
     const name = prompt('Building Name');
-    if(!n || !name) return;
-    streetObjects[streetName] ||= [];
-    streetObjects[streetName].push({number:n,name});
-    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
-    location.reload();
-};
+    if(!number || !name) return;
 
-editBtn.onclick = ()=>{
+    streetObjects[streetName] ||= [];
+    streetObjects[streetName].push({ number, name });
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    location.reload();
+});
+
+/* EDIT STREET */
+editBtn.addEventListener('click', () => {
     editStreetName.value = streetName;
     editDistrict.value = data.district || '';
     editExisting.checked = data.existing !== false;
     editDescription.value = data.description || '';
     editPopup.style.display = 'flex';
-};
+});
 
-saveEditStreet.onclick = ()=>{
+saveEditStreet.addEventListener('click', () => {
     streetsData[streetName] = {
         district: editDistrict.value,
         existing: editExisting.checked,
         description: editDescription.value
     };
-    localStorage.setItem('streetsData',JSON.stringify(streetsData));
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
     location.reload();
-};
+});
 
-deleteStreet.onclick = ()=>{
+/* DELETE STREET */
+deleteStreet.addEventListener('click', () => {
     deleteMessage.innerHTML = `Delete <b>${streetName}</b>?`;
     deletePopup.style.display = 'flex';
-};
+});
 
-confirmDelete.onclick = ()=>{
+confirmDelete.addEventListener('click', () => {
     delete streetsData[streetName];
-    localStorage.setItem('streetsData',JSON.stringify(streetsData));
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
     location.href = 'index.html';
-};
+});
 
-function closeEdit(){ editPopup.style.display='none'; }
-function closeDelete(){ deletePopup.style.display='none'; }
+/* CLOSE FUNCTIONS */
+function closeEdit(){ editPopup.style.display = 'none'; }
+function closeDelete(){ deletePopup.style.display = 'none'; }
 </script>
+
 
 </body>
 </html>
