@@ -77,16 +77,27 @@
         color: #fff;
     }
 
+body {
+    display: flex;
+    flex-direction: row; /* side by side layout */
+    align-items: flex-start;
+}
+
+.main-content {
+    flex: 1;
+    margin-left: 340px; /* space for left column table */
+}
+
 .left-column {
-    width: 300px;         /* Keep table small */
-    margin-top: 20px;
-    position: absolute;   /* Stick to the left */
-    left: 20px;           /* Some padding from screen edge */
-    top: 200px;           /* Adjust to align vertically if needed */
+    width: 300px;         /* Table width */
+    margin-right: 20px;   /* spacing to main content */
+    position: fixed;      /* sticks on left side when scrolling */
+    top: 100px;           /* adjust vertical position */
+    left: 20px;
 }
 
 .objects-table {
-    width: 100%;          /* Small table fits left-column */
+    width: 100%;
     border-collapse: collapse;
 }
 
@@ -133,6 +144,22 @@
             <!-- Dynamically filled -->
         </tbody>
     </table>
+</div>
+
+<!-- Main content -->
+<div class="main-content">
+    <a href="index.html">Back to Map</a>
+
+    <h1 id="streetTitle"></h1>
+    <p><strong>District:</strong> <span id="streetDistrict"></span></p>
+    <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
+    <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
+
+    <div id="streetButtons" style="margin:15px 0;">
+        <button id="addObjectBtn" class="action-button">Add Object</button>
+        <button id="editBtn" class="action-button">Edit</button>
+        <button id="deleteStreet" class="action-button">Delete</button>
+    </div>
 </div>
     
 <!-- Edit Popup -->
