@@ -72,12 +72,30 @@ h1 { margin-top:0; }
 <!-- ADD / EDIT STREET / OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
-        <h3>Edit Street</h3>
-        <label>Street Name:</label><input type="text" id="editStreetName">
-        <label>District:</label>
-        <select id="editDistrict"><option value="Town Centre">Town Centre</option></select>
-        <label>Existing <input type="checkbox" id="editExisting"></label>
-        <label>Description:</label><textarea id="editDescription" rows="3"></textarea>
+        <h3 id="popupTitle">Edit Street</h3> <!-- dynamically changed in JS -->
+        
+        <!-- Name -->
+        <label id="popupNameLabel">Street Name:</label>
+        <input type="text" id="editStreetName">
+        
+        <!-- Number / District -->
+        <label id="popupNumberLabel">District:</label>
+        <input type="text" id="editDistrict"> <!-- now a text input for object number -->
+        
+        <!-- Status -->
+        <label>Status:</label>
+        <select id="editExisting">
+            <option value="Exists" selected>Exists</option>
+            <option value="Doesn't exist">Doesn't exist</option>
+            <option value="To be demolished">To be demolished</option>
+            <option value="Exists partially">Exists partially</option>
+            <option value="In construction">In construction</option>
+        </select>
+        
+        <!-- Description -->
+        <label>Description:</label>
+        <textarea id="editDescription" rows="3"></textarea>
+        
         <div class="popup-buttons">
             <button id="saveEditStreet" class="action-button">Save</button>
             <button onclick="closeEdit()" class="action-button">Cancel</button>
@@ -165,15 +183,15 @@ function goToObject(name){
 
 /* ADD OBJECT POPUP */
 addObjectBtn.onclick = () => {
-    editStreetName.value = '';
-    editDistrict.value = '';
-    editExisting.checked = true;
-    editDescription.value = '';
+    // change title & labels for object mode
+    document.getElementById('popupTitle').textContent = 'Add Object';
+    document.getElementById('popupNameLabel').textContent = 'Object Name:';
+    document.getElementById('popupNumberLabel').textContent = 'Number:';
 
-    // Fix labels to show Object input
-    const labels = editPopup.querySelectorAll('label');
-    labels[0].textContent = 'Object Name:';
-    labels[1].textContent = 'Number:';
+    editStreetName.value = '';
+    editDistrict.value = '';          // open-ended number
+    editExisting.value = 'Exists';    // default status
+    editDescription.value = '';
 
     editPopup.style.display = 'flex';
     editPopup.dataset.mode = 'addObject';
