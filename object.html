@@ -94,7 +94,7 @@ document.getElementById('objectTitle').textContent = obj.name;
 /* street clickable + number bold */
 const streetEl = document.getElementById('objectStreet');
 streetEl.textContent = streetName;
-streetEl.classList.add('object-link');  // make it use hover underline
+streetEl.classList.add('object-link');  // OK, just for hover effect
 streetEl.onclick = () => {
     window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
@@ -117,8 +117,6 @@ if(obj.description){
 }
 
 /* MAKE STREET NAME CLICKABLE */
-document.getElementById('objectStreet').style.cursor = 'pointer';
-document.getElementById('objectStreet').style.textDecoration = 'underline';
 document.getElementById('objectStreet').onclick = () => {
     window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
