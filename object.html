@@ -6,37 +6,24 @@
 <title>Object Info</title>
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; }
-
 /* HEADER */
 header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
 header h1 { margin:0; font-size:24px; }
 .header-link { color:#fff; text-decoration:none; }
 .header-link:hover { text-decoration:underline; }
-.auth-buttons button { margin-left:10px; padding:5px 10px; cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; }
-.auth-buttons button:hover { background:#444; }
-
 /* LEFT COLUMN */
 .left-column { width:200px; position:fixed; top:40px; left:0; bottom:0; padding:10px; border-right:1px solid #333; overflow-y:auto; }
 .objects-table { width:100%; border-collapse:collapse; }
 .objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
 .objects-table th { background:#1f1f1f; }
-.object-link {
-    cursor: pointer;
-    color: inherit;
-    text-decoration: none;
-}
-.object-link:hover {
-    text-decoration: underline;
-}
-
+.object-link { cursor:pointer; text-decoration:none; color:inherit; }
+.object-link:hover { text-decoration:underline; }
 /* MAIN CONTENT */
 .main-content { margin-left:230px; padding:20px; }
 h1 { margin-top:0; }
 .info-line { margin:5px 0; }
-
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
 .action-button:hover { background:#444; }
-
 /* POPUPS */
 .popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
 .popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%; border:1px solid #444; }
@@ -45,7 +32,15 @@ h1 { margin-top:0; }
 .popup input[type="text"], .popup textarea, .popup select { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
 .popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
 .popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
+/* GRADE LISTED HIDDEN */
+#gradeOptions { display:none; margin-top:10px; }
 </style>
+
+<!-- Flatpickr Dark Calendar -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/dark.css">
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
 </head>
 <body>
 
@@ -54,7 +49,7 @@ h1 { margin-top:0; }
 </header>
 
 <div class="left-column">
-    <h2 id="objectsHeader">Objects on this street</h2>
+    <h2>Objects on this street</h2>
     <table class="objects-table">
         <thead><tr><th>No.</th><th>Name</th></tr></thead>
         <tbody id="objectsTableBody"></tbody>
@@ -67,47 +62,67 @@ h1 { margin-top:0; }
         <span id="objectStreet" class="object-link"></span>
         <span id="objectNumber" style="font-weight:bold; margin-left:5px;"></span>
     </p>
-    <p id="existingWrapper" class="info-line"><strong>Status:</strong> <span id="objectExisting"></span></p>
-    <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
+    <p id="statusWrapper" class="info-line"><strong>Status:</strong> <span id="objectStatus"></span></p>
+    <p id="existingWrapper" class="info-line"><strong>Existing:</strong> <span id="objectExisting"></span></p>
+    <p id="descriptionWrapper" class="info-line"><strong>Description:</strong> <span id="objectDescription"></span></p>
 
-    <!-- Edit & Delete Buttons -->
     <div style="margin:15px 0;">
         <button id="editBtn" class="action-button">Edit</button>
         <button id="deleteBtn" class="action-button">Delete</button>
     </div>
 </div>
 
-<!-- Reuse the same popup as street page for Add/Edit Object -->
+<!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
         <h3 id="popupTitle">Edit Object</h3>
 
         <label id="popupNameLabel">Object Name:</label>
-        <input type="text" id="editStreetName">
+        <input type="text" id="editObjectName">
 
         <label id="popupNumberLabel">Number:</label>
-        <input type="text" id="editDistrict">
+        <input type="text" id="editObjectNumber">
 
         <label>Status:</label>
-        <select id="editExisting">
-            <option value="Exists">Exists</option>
+        <select id="editStatus">
+            <option value="Exists" selected>Exists</option>
             <option value="Doesn't exist">Doesn't exist</option>
             <option value="To be demolished">To be demolished</option>
             <option value="Exists partially">Exists partially</option>
             <option value="In construction">In construction</option>
         </select>
 
+        <label>Year Built:</label>
+        <input type="text" id="editYearBuilt" placeholder="e.g. 1890">
+
+        <label>Year Demolished:</label>
+        <input type="text" id="editYearDemolished" placeholder="e.g. 1975">
+
+        <label>Grade Listed:</label>
+        <input type="checkbox" id="editGradeListed">
+        <div id="gradeOptions">
+            <label>Grade:</label>
+            <select id="editGrade">
+                <option value="Grade I">Grade I</option>
+                <option value="Grade II*">Grade II*</option>
+                <option value="Grade II">Grade II</option>
+            </select>
+            <label>List Entry Number:</label>
+            <input type="text" id="editListEntryNumber">
+            <label>Date first listed:</label>
+            <input type="text" id="editDateListed">
+        </div>
+
         <label>Description:</label>
         <textarea id="editDescription" rows="3"></textarea>
 
         <div class="popup-buttons">
-            <button id="saveEditStreet" class="action-button">Save</button>
+            <button id="saveEditObject" class="action-button">Save</button>
             <button onclick="closeEdit()" class="action-button">Cancel</button>
         </div>
     </div>
 </div>
 
-<!-- Delete Popup -->
 <div class="popup-overlay" id="deletePopup">
     <div class="popup">
         <p id="deleteMessage"></p>
@@ -121,68 +136,55 @@ h1 { margin-top:0; }
 <script>
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
-let objectName = qp('object'); // use let so we can update it on rename
+const objectName = qp('object');
+
+/* ELEMENTS */
+const objectTitle = document.getElementById('objectTitle');
+const objectStreet = document.getElementById('objectStreet');
+const objectNumber = document.getElementById('objectNumber');
+const objectStatusEl = document.getElementById('objectStatus');
+const objectExistingEl = document.getElementById('objectExisting');
+const descriptionWrapper = document.getElementById('descriptionWrapper');
+const objectDescription = document.getElementById('objectDescription');
+const objectsTableBody = document.getElementById('objectsTableBody');
+
+const editBtn = document.getElementById('editBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+const editPopup = document.getElementById('editPopup');
+const deletePopup = document.getElementById('deletePopup');
+const deleteMessage = document.getElementById('deleteMessage');
+
+const editObjectName = document.getElementById('editObjectName');
+const editObjectNumber = document.getElementById('editObjectNumber');
+const editStatus = document.getElementById('editStatus');
+const editYearBuilt = document.getElementById('editYearBuilt');
+const editYearDemolished = document.getElementById('editYearDemolished');
+const editGradeListed = document.getElementById('editGradeListed');
+const gradeOptions = document.getElementById('gradeOptions');
+const editGrade = document.getElementById('editGrade');
+const editListEntryNumber = document.getElementById('editListEntryNumber');
+const editDateListed = document.getElementById('editDateListed');
+const editDescription = document.getElementById('editDescription');
 
 /* LOAD DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
-let streets = JSON.parse(localStorage.getItem('streets')) || [];
 
-/* FIND OBJECT */
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
-if(!obj){
-    document.getElementById('objectTitle').textContent = 'Object not found';
-    throw new Error('Object missing');
-}
+if(!obj){ objectTitle.textContent = 'Object not found'; throw new Error('Object missing'); }
 
-/* DISPLAY OBJECT INFO */
-document.getElementById('objectTitle').textContent = obj.name;
+/* DISPLAY OBJECT */
+objectTitle.textContent = obj.name;
+objectStreet.textContent = streetName;
+objectStreet.onclick = () => window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+objectNumber.textContent = obj.number || '';
+objectStatusEl.textContent = obj.status && obj.status !== 'Exists' ? obj.status : '';
+objectExistingEl.textContent = obj.status === 'Exists' ? 'Yes' : '';
+if(obj.description){ objectDescription.textContent = obj.description; } else { descriptionWrapper.style.display='none'; }
 
-/* street clickable + number bold */
-const streetEl = document.getElementById('objectStreet');
-streetEl.textContent = streetName;
-streetEl.classList.add('object-link');
-streetEl.onclick = () => {
-    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-};
-
-document.getElementById('objectNumber').textContent = obj.number || 'N/A';
-
-    const objectsHeader = document.getElementById('objectsHeader');
-objectsHeader.textContent = `Objects on ${streetName}`;
-
-/* EXISTING AND DESCRIPTION LOGIC */
-const existingWrapper = document.getElementById('existingWrapper');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
-
-function updateStatusAndDescription() {
-    // Status
-    if(obj.existing && obj.existing !== 'Exists'){
-        document.getElementById('objectExisting').textContent = obj.existing;
-        existingWrapper.style.display = 'block';
-    } else if(obj.existing === false || obj.existing === "Doesn't exist"){
-        document.getElementById('objectExisting').textContent = obj.existing === false ? "Doesn't exist" : obj.existing;
-        existingWrapper.style.display = 'block';
-    } else {
-        existingWrapper.style.display = 'none';
-    }
-
-    // Description
-    if(obj.description){
-        document.getElementById('objectDescription').textContent = obj.description;
-        descriptionWrapper.style.display = 'block';
-    } else {
-        descriptionWrapper.style.display = 'none';
-    }
-}
-
-// Initial update
-updateStatusAndDescription();
-
-/* LOAD LEFT COLUMN OBJECTS */
-const objectsTableBody = document.getElementById('objectsTableBody');
-(objectsTableBody.innerHTML = ''); // clear previous
-(streetObjects[streetName] || []).forEach((o, index) => {
+/* LEFT COLUMN */
+objectsTableBody.innerHTML = '';
+(streetObjects[streetName] || []).forEach(o=>{
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
         `<tr>
@@ -191,122 +193,58 @@ const objectsTableBody = document.getElementById('objectsTableBody');
         </tr>`
     );
 });
+function goToObject(name){ window.location.href=`object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`; }
 
-/* EDIT POPUP */
-const editPopup = document.getElementById('editPopup');
-const editBtn = document.getElementById('editBtn');
-const editStreetName = document.getElementById('editStreetName');
-const editDistrict = document.getElementById('editDistrict');
-const editExisting = document.getElementById('editExisting');
-const editDescription = document.getElementById('editDescription');
-
-editBtn.onclick = () => {
-    document.getElementById('popupTitle').textContent = 'Edit Object';
-    document.getElementById('popupNameLabel').textContent = 'Object Name:';
-    document.getElementById('popupNumberLabel').textContent = 'Number:';
-
-    editStreetName.value = obj.name;
-    editDistrict.value = obj.number || '';
-    editExisting.value = obj.existing || 'Exists';
+/* EDIT OBJECT */
+editBtn.onclick = ()=>{
+    editPopup.style.display='flex';
+    editObjectName.value = obj.name;
+    editObjectNumber.value = obj.number || '';
+    editStatus.value = obj.status || 'Exists';
+    editYearBuilt.value = obj.yearBuilt || '';
+    editYearDemolished.value = obj.yearDemolished || '';
+    editGradeListed.checked = obj.gradeListed || false;
+    gradeOptions.style.display = editGradeListed.checked ? 'block':'none';
+    editGrade.value = obj.grade || 'Grade I';
+    editListEntryNumber.value = obj.listEntryNumber || '';
+    editDateListed.value = obj.dateListed || '';
     editDescription.value = obj.description || '';
-
-    editPopup.style.display = 'flex';
-    editPopup.dataset.mode = 'editObject';
 };
 
-// DELETE OBJECT
-const deleteBtn = document.getElementById('deleteBtn');
-const deletePopup = document.getElementById('deletePopup');
-const confirmDelete = document.getElementById('confirmDelete');
-const cancelDelete = document.getElementById('cancelDelete');
-const deleteMessage = document.getElementById('deleteMessage');
+/* GRADE LISTED TOGGLE */
+editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block':'none';
 
-deleteBtn.onclick = () => {
-    deleteMessage.textContent = `Are you sure you want to delete "${obj.name}"?`;
-    deletePopup.style.display = 'flex';
+/* FLATPICKR */
+flatpickr(editDateListed, {altInput:true, altFormat:"d/m/Y", dateFormat:"Y-m-d", theme:"dark"});
+
+/* SAVE EDIT OBJECT */
+document.getElementById('saveEditObject').onclick = ()=>{
+    obj.name = editObjectName.value.trim() || obj.name;
+    obj.number = editObjectNumber.value.trim();
+    obj.status = editStatus.value;
+    obj.yearBuilt = editYearBuilt.value.trim();
+    obj.yearDemolished = editYearDemolished.value.trim();
+    obj.gradeListed = editGradeListed.checked;
+    obj.grade = editGrade.value;
+    obj.listEntryNumber = editListEntryNumber.value.trim();
+    obj.dateListed = editDateListed.value.trim();
+    obj.description = editDescription.value.trim();
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    location.reload();
 };
+function closeEdit(){ editPopup.style.display='none'; }
 
-cancelDelete.onclick = () => {
-    deletePopup.style.display = 'none';
+/* DELETE OBJECT */
+deleteBtn.onclick = ()=>{
+    deleteMessage.innerHTML=`Are you sure you want to delete <b>${obj.name}</b>?`;
+    deletePopup.style.display='flex';
 };
-
-confirmDelete.onclick = () => {
-    // Find object index
-    const idx = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
-    if(idx > -1){
-        // Remove object from array
-        streetObjects[streetName].splice(idx, 1);
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        // Close popup
-        deletePopup.style.display = 'none';
-
-        // Redirect back to street page after delete
-        window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-    }
+document.getElementById('cancelDelete').onclick = ()=>{ deletePopup.style.display='none'; };
+document.getElementById('confirmDelete').onclick = ()=>{
+    streetObjects[streetName] = (streetObjects[streetName] || []).filter(o=>o.name!==obj.name);
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 };
-    
-/* CLOSE POPUP */
-function closeEdit(){ 
-    editPopup.style.display = 'none'; 
-}
-document.querySelector('#editPopup button[onclick="closeEdit()"]').onclick = closeEdit;
-
-/* SAVE EDIT OBJECT — updates immediately without reload */
-document.getElementById('saveEditStreet').onclick = () => {
-    const mode = editPopup.dataset.mode;
-    if(mode === 'editObject'){
-        const newName = editStreetName.value.trim();
-        const newNumber = editDistrict.value.trim();
-        const newExisting = editExisting.value;
-        const newDescription = editDescription.value.trim();
-
-        // Find object index
-        const idx = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
-        if(idx > -1){
-            // Update object in-place
-            const objToUpdate = streetObjects[streetName][idx];
-            objToUpdate.name = newName;
-            objToUpdate.number = newNumber;
-            objToUpdate.existing = newExisting;
-            objToUpdate.description = newDescription;
-
-            // Save updated data
-            localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-            // Update in-memory object
-            Object.assign(obj, objToUpdate);
-
-            // Update DOM
-            document.getElementById('objectTitle').textContent = obj.name;
-            document.getElementById('objectNumber').textContent = obj.number || 'N/A';
-
-            updateStatusAndDescription();
-
-            // Update left column table
-            const tableRows = document.querySelectorAll('#objectsTableBody tr');
-            tableRows.forEach(row => {
-                const cell = row.cells[1];
-                if(cell.textContent === objectName){
-                    cell.textContent = newName;
-                }
-            });
-
-            // Update objectName and URL so future edits and refresh work
-            objectName = newName;
-            const newUrl = `${location.pathname}?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(newName)}`;
-            window.history.replaceState(null, '', newUrl);
-
-            // Close popup
-            closeEdit();
-        }
-    }
-};
-
-/* GO TO OBJECT */
-function goToObject(name){
-    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
-}
 </script>
 
 </body>
