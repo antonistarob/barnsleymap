@@ -78,9 +78,28 @@
     }
 
 .left-column {
-    width: 300px;       /* Table stays small */
-    margin-left: 0;     /* Align to left of screen */
-    float: left;        /* Push to left */
+    width: 300px;         /* Keep table small */
+    margin-top: 20px;
+    position: absolute;   /* Stick to the left */
+    left: 20px;           /* Some padding from screen edge */
+    top: 200px;           /* Adjust to align vertically if needed */
+}
+
+.objects-table {
+    width: 100%;          /* Small table fits left-column */
+    border-collapse: collapse;
+}
+
+.objects-table th,
+.objects-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #555;
+    text-align: left;
+}
+
+.objects-table th {
+    background-color: #1f1f1f;
+    color: #fff;
 }
 
 </style>
@@ -91,26 +110,25 @@
 
 <div class="left-column">
 
-    <h1 id="streetTitle"></h1>
-    <p><strong>District:</strong> <span id="streetDistrict"></span></p>
-    <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
-    <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
+<h1 id="streetTitle"></h1>
+<p><strong>District:</strong> <span id="streetDistrict"></span></p>
+<p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
+<p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
 
-    <!-- Action Buttons -->
-    <div id="streetButtons" style="margin:15px 0;">
-        <button id="addObjectBtn" class="action-button">Add Object</button>
-        <button id="editBtn" class="action-button">Edit</button>
-        <button id="deleteStreet" class="action-button">Delete</button>
-    </div>
+<div id="streetButtons" style="margin:15px 0;">
+    <button id="addObjectBtn" class="action-button">Add Object</button>
+    <button id="editBtn" class="action-button">Edit</button>
+    <button id="deleteStreet" class="action-button">Delete</button>
+</div>
 
-  <!-- Objects Table moved to left -->
+<!-- Left column table -->
 <div class="left-column">
     <h2>Objects on this street</h2>
     <table id="objectsTable" class="objects-table">
         <thead>
             <tr>
-                <th>Number</th>
-                <th>Name</th>
+                <th>Street Number</th>
+                <th>Building Name</th>
             </tr>
         </thead>
         <tbody>
@@ -118,7 +136,7 @@
         </tbody>
     </table>
 </div>
-
+    
 <!-- Edit Popup -->
 <div class="popup-overlay" id="editPopupOverlay">
   <div class="popup">
