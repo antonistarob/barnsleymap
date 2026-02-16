@@ -180,8 +180,32 @@ const objectsTableBody = document.getElementById('objectsTableBody');
     );
 });
 
-    /* EDIT OBJECT */
-const editBtn = document.getElementById('editBtn');
+function closeEdit(){ 
+    editPopup.style.display = 'none'; 
+}
+
+/* DISPLAY EXISTING/STATUS AND DESCRIPTION */
+const existingWrapper = document.getElementById('existingWrapper');
+const descriptionWrapper = document.getElementById('descriptionWrapper');
+
+if(obj.existing && obj.existing !== 'Exists'){
+    document.getElementById('objectExisting').textContent = obj.existing;
+    existingWrapper.style.display = 'block';
+} else if(obj.existing === false || obj.existing === "Doesn't exist"){
+    document.getElementById('objectExisting').textContent = obj.existing === false ? "Doesn't exist" : obj.existing;
+    existingWrapper.style.display = 'block';
+} else {
+    existingWrapper.style.display = 'none';
+}
+
+if(obj.description){
+    document.getElementById('objectDescription').textContent = obj.description;
+    descriptionWrapper.style.display = 'block';
+} else {
+    descriptionWrapper.style.display = 'none';
+}
+
+/* EDIT OBJECT */
 editBtn.onclick = () => {
     document.getElementById('popupTitle').textContent = 'Edit Object';
     document.getElementById('popupNameLabel').textContent = 'Object Name:';
@@ -196,29 +220,14 @@ editBtn.onclick = () => {
     editPopup.dataset.mode = 'editObject';
 };
 
-/* DELETE OBJECT */
-const deleteBtn = document.getElementById('deleteBtn');
-deleteBtn.onclick = () => {
-    deleteMessage.innerHTML = `Delete <b>${obj.name}</b>?`;
-    deletePopup.style.display = 'flex';
-};
-
-document.getElementById('cancelDelete').onclick = () => { deletePopup.style.display = 'none'; };
-document.getElementById('confirmDelete').onclick = () => {
-    const index = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
-    if(index > -1) {
-        streetObjects[streetName].splice(index, 1);
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    }
-    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-};
+/* CANCEL BUTTON */
+document.querySelector('#editPopup button[onclick="closeEdit()"]').onclick = closeEdit;
 
 /* SAVE EDIT OBJECT */
 document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
 
     if(mode === 'editObject') {
-        // update object in streetObjects
         const updatedObj = {
             name: editStreetName.value.trim(),
             number: editDistrict.value.trim(),
@@ -230,7 +239,7 @@ document.getElementById('saveEditStreet').onclick = () => {
         if(idx > -1) {
             streetObjects[streetName][idx] = updatedObj;
             localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-            window.location.reload(); // reload object page
+            window.location.reload(); // reload object page to show updates and description/status logic
         }
     }
 };
