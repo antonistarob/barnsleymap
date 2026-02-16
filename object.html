@@ -301,11 +301,13 @@ deleteBtn.onclick=()=>{
     deleteMessage.innerHTML=`Are you sure you want to delete <b>${obj.name}</b>?`;
     deletePopup.style.display='flex';
 };
-document.getElementById('cancelDelete').onclick=()=>{ deletePopup.style.display='none'; };
-document.getElementById('confirmDelete').onclick=()=>{
-    streetObjects[streetName] = (streetObjects[streetName]||[]).filter(o=>o.name!==obj.name);
-    localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
-    window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
+document.getElementById('cancelDelete').onclick = () => {  //cancel button
+    deletePopup.style.display = 'none'; 
+};
+document.getElementById('confirmDelete').onclick = () => {
+    streetObjects[streetName] = (streetObjects[streetName] || []).filter(o => o.name !== obj.name);
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
 };
 
 /* ADD PHOTO */
