@@ -188,25 +188,38 @@ document.getElementById('saveEditStreet').onclick = () => {
     const newName = editStreetName.value.trim();
     if (!newName) return alert("Street name cannot be empty.");
 
-    // If the street name changed, rename the key in streetsData
+    // Prepare updated street data
+    const updatedData = {
+        district: editDistrict.value,
+        existing: editExisting.checked,
+        description: editDescription.value
+    };
+
     if (newName !== streetName) {
-        streetsData[newName] = {
-            district: editDistrict.value,
-            existing: editExisting.checked,
-            description: editDescription.value
-        };
+        // 1️⃣ Rename key in streetsData
+        streetsData[newName] = updatedData;
         delete streetsData[streetName];
 
-        // Also update the streets array
+        // 2️⃣ Update streets array
         streets = streets.map(s => s === streetName ? newName : s);
         localStorage.setItem('streets', JSON.stringify(streets));
+
+        // 3️⃣ Move objects under new street name
+        if (streetObjects[streetName]) {
+            streetObjects[newName] = streetObjects[streetName];
+            delete streetObjects[streetName];
+            localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        }
     } else {
         // Name didn't change, just update data
-        streetsData[streetName] = {
-            district: editDistrict.value,
-            existing: editExisting.checked,
-            description: editDescription.value
-        };
+        streetsData[streetName] = updatedData;
+    }
+
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
+
+    // Reload street page with new name
+    window.location.href = `street.html?name=${encodeURIComponent(newName)}`;
+};
     }
 
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
