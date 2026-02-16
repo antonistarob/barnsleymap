@@ -303,12 +303,22 @@ if(data.description){
 }
 
 /* LOAD OBJECTS */
-(streetObjects[streetName] || []).forEach(o=>{
+(streetObjects[streetName] || []).forEach(o => {
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
-        `<tr><td>${o.number}</td><td>${o.name}</td></tr>`
+        `<tr>
+            <td>${o.number}</td>
+            <td style="cursor:pointer; color:#4a90e2;" onclick="goToObject('${o.name}')">${o.name}</td>
+        </tr>`
     );
 });
+
+// Function to navigate to object page
+function goToObject(objectName){
+    const streetParam = encodeURIComponent(streetName);
+    const objectParam = encodeURIComponent(objectName);
+    window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
+}
 
 /* ADD OBJECT */
 addObjectBtn.onclick = () => {
