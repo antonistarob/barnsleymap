@@ -6,39 +6,31 @@
 <title>Object Info</title>
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; }
-/* HEADER */
 header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
 header h1 { margin:0; font-size:24px; }
 .header-link { color:#fff; text-decoration:none; }
 .header-link:hover { text-decoration:underline; }
-/* LEFT COLUMN */
 .left-column { width:200px; position:fixed; top:40px; left:0; bottom:0; padding:10px; border-right:1px solid #333; overflow-y:auto; }
 .objects-table { width:100%; border-collapse:collapse; }
 .objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
 .objects-table th { background:#1f1f1f; }
 .object-link { cursor:pointer; text-decoration:none; color:inherit; }
 .object-link:hover { text-decoration:underline; }
-/* MAIN CONTENT */
 .main-content { margin-left:230px; padding:20px; }
 h1 { margin-top:0; }
-.info-line { margin:5px 0; font-size:22px; } /* slightly bigger */
+#objectStreetLine { font-size:22px; }
+.info-line { margin:5px 0; }
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
 .action-button:hover { background:#444; }
-/* PHOTOS */
-#photosContainer { display:flex; flex-wrap:wrap; gap:10px; margin-top:20px; }
-.photo-box { width:120px; background:#1f1f1f; border:1px solid #555; padding:5px; text-align:center; border-radius:5px; }
-.photo-box img { width:100%; height:100px; object-fit:cover; border-radius:3px; }
-.photo-box span { display:block; font-size:12px; margin-top:3px; color:#aaa; }
-/* POPUPS */
 .popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
-.popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:95%; border:1px solid #444; }
+.popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%; border:1px solid #444; }
 .popup h3 { text-align:center; margin-top:0; }
 .popup label { display:block; margin-top:10px; }
 .popup input[type="text"], .popup textarea, .popup select { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
 .popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
 .popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
-/* GRADE LISTED */
 #gradeOptions { display:none; margin-top:10px; }
+#photosDiv img { cursor:pointer; }
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -67,7 +59,6 @@ h1 { margin-top:0; }
         <span id="objectNumber" style="font-weight:bold; margin-left:5px;"></span>
     </p>
 
-    <!-- Additional info -->
     <div id="additionalInfo"></div>
 
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
@@ -78,14 +69,16 @@ h1 { margin-top:0; }
         <button id="deleteBtn" class="action-button">Delete</button>
     </div>
 
-    <!-- PHOTOS -->
-    <div id="photosContainer"></div>
+    <div id="photosSection" style="margin-top:20px;">
+        <h3>Photos</h3>
+        <div id="photosDiv" style="display:flex; flex-wrap:wrap;"></div>
+    </div>
 </div>
 
 <!-- ADD PHOTO POPUP -->
 <div class="popup-overlay" id="addPhotoPopup">
     <div class="popup" style="width:450px; max-width:95%;">
-        <h3 id="addPhotoTitle">Adding photo(s) to:</h3>
+        <h3 id="addPhotoTitle" style="text-align:center;">Adding photo(s) to:</h3>
         <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
         
         <label for="photoFile">File:</label>
@@ -155,6 +148,7 @@ h1 { margin-top:0; }
     </div>
 </div>
 
+<!-- DELETE OBJECT POPUP -->
 <div class="popup-overlay" id="deletePopup">
     <div class="popup">
         <p id="deleteMessage"></p>
@@ -165,6 +159,7 @@ h1 { margin-top:0; }
     </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
 <script>
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
@@ -218,18 +213,15 @@ objectStreet.onclick = ()=> window.location.href=`street.html?name=${encodeURICo
 objectNumber.textContent = obj.number || '';
 
 // Additional info
-function displayAdditionalInfo(){
-    additionalInfo.innerHTML='';
-    if(obj.status && obj.status!=='Exists') additionalInfo.innerHTML+=`<span><strong>Status:</strong> ${obj.status}</span><br>`;
-    if(obj.yearBuilt) additionalInfo.innerHTML+=`<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
-    if(obj.yearDemolished) additionalInfo.innerHTML+=`<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
-    if(obj.gradeListed){
-        additionalInfo.innerHTML+=`<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
-        if(obj.listEntryNumber) additionalInfo.innerHTML+=`<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
-        if(obj.dateListed) additionalInfo.innerHTML+=`<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
-    }
+additionalInfo.innerHTML='';
+if(obj.status && obj.status!=='Exists') additionalInfo.innerHTML+=`<span><strong>Status:</strong> ${obj.status}</span><br>`;
+if(obj.yearBuilt) additionalInfo.innerHTML+=`<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
+if(obj.yearDemolished) additionalInfo.innerHTML+=`<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
+if(obj.gradeListed){
+    additionalInfo.innerHTML+=`<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
+    if(obj.listEntryNumber) additionalInfo.innerHTML+=`<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
+    if(obj.dateListed) additionalInfo.innerHTML+=`<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
-displayAdditionalInfo();
 
 // Description
 objectDescription.textContent = obj.description || '';
@@ -259,11 +251,7 @@ editBtn.onclick=()=>{
     editDateListed.value=obj.dateListed||'';
     editDescription.value=obj.description||'';
 };
-
-/* GRADE LISTED TOGGLE */
 editGradeListed.onchange = ()=> gradeOptions.style.display=editGradeListed.checked?'block':'none';
-
-/* FLATPICKR */
 flatpickr(editDateListed,{altInput:true,altFormat:"d/m/Y",dateFormat:"Y-m-d",theme:"dark"});
 
 /* SAVE EDIT OBJECT */
@@ -279,10 +267,7 @@ document.getElementById('saveEditObject').onclick=()=>{
     obj.dateListed=editDateListed.value.trim();
     obj.description=editDescription.value.trim();
     localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
-    displayAdditionalInfo();
-    objectDescription.textContent=obj.description||'';
-    descriptionWrapper.style.display=obj.description?'block':'none';
-    closeEdit();
+    location.reload();
 };
 function closeEdit(){ editPopup.style.display='none'; }
 
@@ -307,90 +292,61 @@ addPhotoBtn.onclick = () => {
     photoDescription.value = '';
     addPhotoPopup.style.display = 'flex';
 };
-
-function closeAddPhoto(){ addPhotoPopup.style.display='none'; }
+function closeAddPhoto(){ addPhotoPopup.style.display = 'none'; }
 
 savePhotoBtn.onclick = () => {
     const fileInput = photoFile.files[0];
-    if (!fileInput) return alert("Please select a photo file.");
-
-    // Read the file as Data URL
+    if(!fileInput) return alert("Please select a photo file.");
     const reader = new FileReader();
-    reader.onload = function(e) {
-        // Find the object in localStorage
-        const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
-        if (objectIndex === -1) return alert("Object not found.");
-
-        if (!streetObjects[streetName][objectIndex].photos) {
-            streetObjects[streetName][objectIndex].photos = [];
-        }
-
-        // Push new photo with data URL
+    reader.onload = function(e){
+        const objectIndex = streetObjects[streetName].findIndex(o=>o.name===objectName);
+        if(objectIndex===-1) return alert("Object not found.");
+        if(!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos=[];
         streetObjects[streetName][objectIndex].photos.push({
             name: fileInput.name,
             date: photoDate.value,
             description: photoDescription.value,
             dataUrl: e.target.result
         });
-
-        // Save back to localStorage
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        // Update current object
-        const updatedObjects = JSON.parse(localStorage.getItem('streetObjects'));
-        Object.assign(obj, updatedObjects[streetName][objectIndex]);
-
-        // Clear form
-        photoFile.value = '';
-        photoDate.value = '';
-        photoDescription.value = '';
-
-        // Close popup
+        localStorage.setItem('streetObjects',JSON.stringify(streetObjects));
+        Object.assign(obj, streetObjects[streetName][objectIndex]);
+        photoFile.value=''; photoDate.value=''; photoDescription.value='';
         closeAddPhoto();
-
-        // Refresh photo display
         displayPhotos();
-
         alert("Photo added!");
     };
     reader.readAsDataURL(fileInput);
 };
 
 /* DISPLAY PHOTOS */
-function displayPhotos() {
+function displayPhotos(){
     const photosDiv = document.getElementById('photosDiv');
-    photosDiv.innerHTML = '';
-
-    if (!obj.photos || obj.photos.length === 0) return;
-
-    // Sort oldest to newest
-    obj.photos.sort((a,b) => new Date(a.date) - new Date(b.date));
-
-    obj.photos.forEach(photo => {
+    photosDiv.innerHTML='';
+    if(!obj.photos || obj.photos.length===0) return;
+    obj.photos.sort((a,b)=>new Date(a.date)-new Date(b.date));
+    obj.photos.forEach(photo=>{
         const photoBox = document.createElement('div');
-        photoBox.style.display = 'inline-block';
-        photoBox.style.margin = '5px';
-        photoBox.style.textAlign = 'center';
-
+        photoBox.style.display='inline-block';
+        photoBox.style.margin='5px';
+        photoBox.style.textAlign='center';
         const img = document.createElement('img');
-        img.src = photo.dataUrl;
-        img.style.width = '100px';
-        img.style.height = '100px';
-        img.style.objectFit = 'cover';
-        img.style.border = '1px solid #555';
+        img.src=photo.dataUrl;
+        img.style.width='100px';
+        img.style.height='100px';
+        img.style.objectFit='cover';
+        img.style.border='1px solid #555';
         photoBox.appendChild(img);
-
-        if(photo.date) {
+        if(photo.date){
             const dateText = document.createElement('div');
-            dateText.style.fontSize = '12px';
-            dateText.style.color = '#aaa';
-            dateText.textContent = photo.date;
+            dateText.style.fontSize='12px';
+            dateText.style.color='#aaa';
+            dateText.textContent=photo.date;
             photoBox.appendChild(dateText);
         }
-
         photosDiv.appendChild(photoBox);
     });
 }
+displayPhotos();
 </script>
 
 </body>
