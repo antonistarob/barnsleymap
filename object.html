@@ -228,28 +228,33 @@ document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
 
     if(mode === 'editObject') {
-        // Get updated values from inputs
-        const updatedObj = {
-            name: editStreetName.value.trim(),
-            number: editDistrict.value.trim(),
-            existing: editExisting.value,
-            description: editDescription.value.trim()
-        };
+        // Trim input values
+        const newName = editStreetName.value.trim();
+        const newNumber = editDistrict.value.trim();
+        const newExisting = editExisting.value;
+        const newDescription = editDescription.value.trim();
 
-        // Update object in local storage
+        // Find object index
         const idx = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
-        if(idx > -1) {
-            streetObjects[streetName][idx] = updatedObj;
+        if(idx > -1){
+            // Update object in-place
+            const objToUpdate = streetObjects[streetName][idx];
+            objToUpdate.name = newName;
+            objToUpdate.number = newNumber;
+            objToUpdate.existing = newExisting;
+            objToUpdate.description = newDescription;
+
+            // Save updated data
             localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-            // Update current object reference
-            Object.assign(obj, updatedObj);
+            // Update in-memory object
+            Object.assign(obj, objToUpdate);
 
-            // Update page DOM immediately
+            // Update DOM
             document.getElementById('objectTitle').textContent = obj.name;
             document.getElementById('objectNumber').textContent = obj.number || 'N/A';
 
-            // Update status
+            // Status logic
             if(obj.existing && obj.existing !== 'Exists'){
                 document.getElementById('objectExisting').textContent = obj.existing;
                 existingWrapper.style.display = 'block';
@@ -260,7 +265,7 @@ document.getElementById('saveEditStreet').onclick = () => {
                 existingWrapper.style.display = 'none';
             }
 
-            // Update description
+            // Description logic
             if(obj.description){
                 document.getElementById('objectDescription').textContent = obj.description;
                 descriptionWrapper.style.display = 'block';
@@ -268,20 +273,20 @@ document.getElementById('saveEditStreet').onclick = () => {
                 descriptionWrapper.style.display = 'none';
             }
 
-            // Update left-column table row
+            // Update left column
             const tableRows = document.querySelectorAll('#objectsTableBody tr');
             tableRows.forEach(row => {
-                const cell = row.cells[1]; // Name column
+                const cell = row.cells[1];
                 if(cell.textContent === objectName){
-                    cell.textContent = obj.name;
+                    cell.textContent = newName;
                 }
             });
 
-            // Update objectName variable for future edits
-            objectName = obj.name;
+            // Update objectName so future edits work
+            objectName = newName;
 
             // Close popup
-            closeEdit();
+            editPopup.style.display = 'none';
         }
     }
 };
