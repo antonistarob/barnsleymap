@@ -3,261 +3,94 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Object Info</title>
-
+<title>Street Info</title>
 <style>
-body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #eee;
-    margin: 0;
-}
+body { font-family: Arial; background:#121212; color:#eee; margin:0; }
 
-/* --- HEADER --- */
-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 15px 20px;
-    background-color: #1f1f1f;
-    color: #eee;
-    width: 100%;
-    box-sizing: border-box;
-    position: relative;
-    z-index: 10;
-}
-
-header h1 {
-    margin: 0;
-    font-size: 24px;
-    color: #fff;
-}
-
-.header-link {
-    color: #fff;
-    text-decoration: none;
-}
-
-.header-link:hover {
-    text-decoration: underline;
-}
-
-.auth-buttons button {
-    margin-left: 10px;
-    padding: 5px 10px;
-    cursor: pointer;
-    background-color: #333;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-}
-
-.auth-buttons button:hover {
-    background-color: #444;
-}
+/* HEADER */
+header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; }
+header h1 { margin:0; font-size:24px; }
+.header-link { color:#fff; text-decoration:none; }
+.header-link:hover { text-decoration:underline; }
+.auth-buttons button { margin-left:10px; padding:5px 10px; cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; }
+.auth-buttons button:hover { background:#444; }
 
 /* LEFT COLUMN */
-.left-column {
-    width: 200px;
-    position: fixed;
-    top: 40px; /* below header */
-    left: 0;
-    bottom: 0;
-    padding: 10px;
-    border-right: 1px solid #333;
-    overflow-y: auto;
-}
-
-.objects-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.objects-table th,
-.objects-table td {
-    padding: 6px 8px;
-    border-bottom: 1px solid #555;
-    text-align: left;
-}
-
-.objects-table th {
-    background-color: #1f1f1f;
-}
+.left-column { width:200px; position:fixed; top:40px; left:0; bottom:0; padding:10px; border-right:1px solid #333; overflow-y:auto; }
+.objects-table { width:100%; border-collapse:collapse; }
+.objects-table th, .objects-table td { padding:6px 8px; border-bottom:1px solid #555; text-align:left; }
+.objects-table th { background:#1f1f1f; }
 
 /* MAIN CONTENT */
-.main-content {
-    margin-left: 230px;
-    margin-top: 0px; /* below header */
-    padding: 20px;
-}
+.main-content { margin-left:230px; padding:20px; }
+h1 { margin-top:0; }
 
-h1 { margin-top: 0; }
+.object-link { cursor:pointer; text-decoration:none; color:inherit; }
+.object-link:hover { text-decoration:underline; }
 
-.object-directory {
-    margin-top: 5px;
-    color: #ccc;
-}
-
-.object-directory a {
-    color: #ccc;
-    text-decoration: none;
-}
-
-.object-directory a:hover {
-    text-decoration: underline;
-}
-
-a.object-link {
-    cursor: pointer;
-    text-decoration: none;
-    color: inherit;
-}
-
-a.object-link:hover {
-    text-decoration: underline;
-}
-
-.action-button {
-    cursor: pointer;
-    background-color: #333;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-    padding: 6px 12px;
-    font-size: 14px;
-}
-
-.action-button:hover {
-    background-color: #444;
-}
+.action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; }
+.action-button:hover { background:#444; }
 
 /* POPUPS */
-.popup-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    justify-content: center;
-    align-items: center;
-    z-index: 1000;
-}
-
-.popup {
-    background: #1f1f1f;
-    padding: 25px;
-    border-radius: 10px;
-    width: 400px;
-    max-width: 90%;
-    border: 1px solid #444;
-}
-
-.popup h3 {
-    text-align: center;
-    margin-top: 0;
-}
-
-.popup label {
-    display: block;
-    margin-top: 10px;
-}
-
-.popup input[type="text"],
-.popup textarea,
-.popup select {
-    width: 100%;
-    padding: 5px;
-    margin-top: 5px;
-    background-color: #2b2b2b;
-    color: #eee;
-    border: 1px solid #555;
-    border-radius: 5px;
-}
-
-.popup input[type="checkbox"] {
-    margin-left: 6px;
-    transform: scale(1.1);
-}
-
-.popup-buttons {
-    margin-top: 20px;
-    display: flex;
-    justify-content: space-between;
-}
+.popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
+.popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%; border:1px solid #444; }
+.popup h3 { text-align:center; margin-top:0; }
+.popup label { display:block; margin-top:10px; }
+.popup input[type="text"], .popup textarea, .popup select { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
+.popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
+.popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
 </style>
 </head>
-
 <body>
 
-<!-- HEADER -->
 <header>
-    <h1>
-        <a href="index.html" class="header-link">
-            Historical Interactive Map of Barnsley
-        </a>
-    </h1>
-    <div class="auth-buttons">
-        <button>Sign Up</button>
-        <button>Log In</button>
-    </div>
+    <h1><a href="index.html" class="header-link">Historical Interactive Map of Barnsley</a></h1>
+    <div class="auth-buttons"><button>Sign Up</button><button>Log In</button></div>
 </header>
 
-<!-- LEFT COLUMN -->
 <div class="left-column">
     <h2>Objects on this street</h2>
     <table class="objects-table">
-        <thead>
-            <tr><th>No.</th><th>Name</th></tr>
-        </thead>
+        <thead><tr><th>No.</th><th>Name</th></tr></thead>
         <tbody id="objectsTableBody"></tbody>
     </table>
 </div>
 
-<!-- MAIN CONTENT -->
 <div class="main-content">
-    <h1 id="objectTitle"></h1>
-    <p class="object-directory" id="objectDirectory"></p>
-    <p id="existingWrapper"><strong>Existing:</strong> <span id="objectExisting"></span></p>
-    <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
+    <h1 id="streetTitle"></h1>
+    <p><strong>District:</strong> <span id="streetDistrict"></span></p>
+    <p id="existingWrapper"><strong>Existing:</strong> <span id="streetExisting"></span></p>
+    <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
 
     <div style="margin:15px 0;">
-        <button id="editObjectBtn" class="action-button">Edit</button>
-        <button id="deleteObjectBtn" class="action-button">Delete</button>
+        <button id="addObjectBtn" class="action-button">Add Object</button>
+        <button id="editBtn" class="action-button">Edit</button>
+        <button id="deleteBtn" class="action-button">Delete</button>
     </div>
 </div>
 
-<!-- EDIT OBJECT POPUP -->
+<!-- ADD / EDIT STREET / OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
-        <h3>Edit Object</h3>
-
-        <label>Object Name:</label>
-        <input type="text" id="editObjectName">
-
-        <label>Number:</label>
-        <input type="text" id="editObjectNumber">
-
-        <label>
-            Existing
-            <input type="checkbox" id="editObjectExisting">
-        </label>
-
-        <label>Description:</label>
-        <textarea id="editObjectDescription" rows="3"></textarea>
-
+        <h3>Edit Street</h3>
+        <label>Street Name:</label><input type="text" id="editStreetName">
+        <label>District:</label>
+        <select id="editDistrict"><option value="Town Centre">Town Centre</option></select>
+        <label>Existing <input type="checkbox" id="editExisting"></label>
+        <label>Description:</label><textarea id="editDescription" rows="3"></textarea>
         <div class="popup-buttons">
-            <button id="saveEditObject" class="action-button">Save</button>
+            <button id="saveEditStreet" class="action-button">Save</button>
             <button onclick="closeEdit()" class="action-button">Cancel</button>
         </div>
     </div>
 </div>
 
-<!-- DELETE OBJECT POPUP -->
 <div class="popup-overlay" id="deletePopup">
     <div class="popup">
         <p id="deleteMessage"></p>
         <div class="popup-buttons">
-            <button id="confirmDeleteObject" class="action-button">Yes</button>
-            <button id="cancelDeleteObject" class="action-button">No</button>
+            <button id="confirmDelete" class="action-button">Yes</button>
+            <button id="cancelDelete" class="action-button">No</button>
         </div>
     </div>
 </div>
@@ -274,7 +107,6 @@ const existingWrapper = document.getElementById('existingWrapper');
 const streetDescription = document.getElementById('streetDescription');
 const descriptionWrapper = document.getElementById('descriptionWrapper');
 const objectsTableBody = document.getElementById('objectsTableBody');
-
 const addObjectBtn = document.getElementById('addObjectBtn');
 const editBtn = document.getElementById('editBtn');
 const deleteBtn = document.getElementById('deleteBtn');
@@ -315,7 +147,7 @@ if(data.description){
 }
 
 /* LOAD OBJECTS */
-(objectsList = streetObjects[streetName] || []).forEach(o => {
+(streetObjects[streetName] || []).forEach(o => {
     objectsTableBody.insertAdjacentHTML(
         'beforeend',
         `<tr>
@@ -325,20 +157,21 @@ if(data.description){
     );
 });
 
-function goToObject(objectName){
+function goToObject(name){
     const streetParam = encodeURIComponent(streetName);
-    const objectParam = encodeURIComponent(objectName);
+    const objectParam = encodeURIComponent(name);
     window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
 }
 
 /* ADD OBJECT POPUP */
 addObjectBtn.onclick = () => {
-    editObjectName.value = '';
-    editObjectNumber.value = '';
-    editObjectExisting.checked = true;
-    editObjectDescription.value = '';
+    // reuse edit popup as Add Object form
+    editStreetName.value = '';
+    editDistrict.value = '';
+    editExisting.checked = true;
+    editDescription.value = '';
     editPopup.style.display = 'flex';
-    editPopup.dataset.mode = 'add';
+    editPopup.dataset.mode = 'addObject';
 };
 
 /* EDIT STREET */
@@ -361,9 +194,7 @@ document.getElementById('saveEditStreet').onclick = () => {
     location.reload();
 };
 
-function closeEdit(){
-    editPopup.style.display = 'none';
-}
+function closeEdit(){ editPopup.style.display = 'none'; }
 
 /* DELETE STREET */
 deleteBtn.onclick = () => {
@@ -371,21 +202,15 @@ deleteBtn.onclick = () => {
     deletePopup.style.display = 'flex';
 };
 
-document.getElementById('cancelDelete').onclick = () => {
-    deletePopup.style.display = 'none';
-};
-
+document.getElementById('cancelDelete').onclick = () => { deletePopup.style.display = 'none'; };
 document.getElementById('confirmDelete').onclick = () => {
     delete streetsData[streetName];
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
-
     streets = streets.filter(s => s !== streetName);
     localStorage.setItem('streets', JSON.stringify(streets));
-
     window.location.href = 'index.html';
 };
 </script>
-
 
 </body>
 </html>
