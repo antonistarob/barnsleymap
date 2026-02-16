@@ -300,6 +300,31 @@ objectsTableBody.innerHTML='';
 });
 function goToObject(name){ window.location.href=`object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`; }
 
+    function displayPhotos(){
+    const photosContainer = document.getElementById('photosContainer');
+    photosContainer.innerHTML = '';
+
+    if(obj.photos && obj.photos.length){
+        obj.photos
+           .sort((a,b) => new Date(a.date) - new Date(b.date))
+           .forEach(photo => {
+                const photoBox = document.createElement('div');
+                photoBox.className = 'photo-box';
+                photoBox.innerHTML = `
+                    <img src="${photo.dataUrl}" alt="Photo">
+                    <span>${photo.date || ''}</span>
+                `;
+                photosContainer.appendChild(photoBox);
+           });
+    } else {
+        photosContainer.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
+    }
+}
+
+// Call it initially to show photos
+displayPhotos();
+
+
 /* EDIT OBJECT */
 editBtn.onclick=()=>{
     editPopup.style.display='flex';
@@ -351,15 +376,33 @@ document.getElementById('confirmDelete').onclick=()=>{
     window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 };
 
-    savePhotoBtn.onclick = () => {
+savePhotoBtn.onclick = () => {
     const fileInput = photoFile.files[0];
     if(!fileInput) return alert("Please select a photo file.");
 
-    const newPhoto = {
-        name: fileInput.name,
-        date: photoDate.value,
-        description: photoDescription.value
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const newPhoto = {
+            name: fileInput.name,
+            date: photoDate.value,
+            description: photoDescription.value,
+            dataUrl: e.target.result  // <-- store base64 data
+        };
+
+        if(!streetObjects[streetName]) streetObjects[streetName] = [];
+        const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
+        if(objectIndex === -1) return alert("Object not found.");
+
+        if(!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos = [];
+        streetObjects[streetName][objectIndex].photos.push(newPhoto);
+
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        closeAddPhoto();
+        alert("Photo added!");
+        displayPhotos(); // Refresh photos after adding
     };
+    reader.readAsDataURL(fileInput);
+};
 
     // Prepare storage
     if(!streetObjects[streetName]) streetObjects[streetName] = [];
