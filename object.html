@@ -248,16 +248,21 @@ function closeAddPhoto(){ addPhotoPopup.style.display='none'; }
 savePhotoBtn.onclick = () => {
     const fileInput = photoFile.files[0];
     if(!fileInput) return alert("Please select a photo file.");
-    if(!obj.photos) obj.photos=[];
-    const newPhoto = { name:fileInput.name, date:photoDate.value, description:photoDescription.value };
-    obj.photos.push(newPhoto);
-    const idx = streetObjects[streetName].findIndex(o=>o.name===obj.name);
-    if(idx!==-1){ streetObjects[streetName][idx]=obj; localStorage.setItem('streetObjects', JSON.stringify(streetObjects)); }
-    closeAddPhoto();
-    alert("Photo added!");
-    renderPhotos();
+    const reader = new FileReader();
+    reader.onload = function(e){
+        const dataURL = e.target.result;
+        if(!obj.photos) obj.photos=[];
+        const newPhoto = { name:fileInput.name, date:photoDate.value, description:photoDescription.value, dataURL };
+        obj.photos.push(newPhoto);
+        const idx = streetObjects[streetName].findIndex(o=>o.name===obj.name);
+        if(idx!==-1){ streetObjects[streetName][idx]=obj; localStorage.setItem('streetObjects', JSON.stringify(streetObjects)); }
+        closeAddPhoto();
+        alert("Photo added!");
+        renderPhotos();
+    };
+    reader.readAsDataURL(fileInput);
 };
-
+    
 /* RENDER PHOTOS */
 function renderPhotos(){
     let photosSection = document.getElementById('photosSection');
@@ -275,7 +280,12 @@ function renderPhotos(){
         sorted.forEach(p=>{
             const box=document.createElement('div');
             box.className='photo-box';
-            box.innerHTML=`<div style="margin-bottom:3px;">${p.name}</div><div style="color:#aaa;">${p.date||''}</div>`;
+// create object URL for the image
+const url = p.dataURL || '';
+box.innerHTML = `
+    ${url ? `<img src="${url}" style="width:100%; height:auto; display:block; margin-bottom:5px; border-radius:3px;">` : `<div style="margin-bottom:3px;">${p.name}</div>`}
+    <div style="color:#aaa;">${p.date||''}</div>
+`;
             container.appendChild(box);
         });
     }
