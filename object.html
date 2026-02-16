@@ -223,11 +223,12 @@ editBtn.onclick = () => {
 /* CANCEL BUTTON */
 document.querySelector('#editPopup button[onclick="closeEdit()"]').onclick = closeEdit;
 
-/* SAVE EDIT OBJECT */
+/* SAVE EDIT OBJECT — updates immediately without reload */
 document.getElementById('saveEditStreet').onclick = () => {
     const mode = editPopup.dataset.mode;
 
     if(mode === 'editObject') {
+        // Get updated values from inputs
         const updatedObj = {
             name: editStreetName.value.trim(),
             number: editDistrict.value.trim(),
@@ -235,63 +236,55 @@ document.getElementById('saveEditStreet').onclick = () => {
             description: editDescription.value.trim()
         };
 
+        // Update object in local storage
         const idx = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
         if(idx > -1) {
             streetObjects[streetName][idx] = updatedObj;
             localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-            window.location.reload(); // reload object page to show updates and description/status logic
+
+            // Update current object reference
+            Object.assign(obj, updatedObj);
+
+            // Update page DOM immediately
+            document.getElementById('objectTitle').textContent = obj.name;
+            document.getElementById('objectNumber').textContent = obj.number || 'N/A';
+
+            // Update status
+            if(obj.existing && obj.existing !== 'Exists'){
+                document.getElementById('objectExisting').textContent = obj.existing;
+                existingWrapper.style.display = 'block';
+            } else if(obj.existing === false || obj.existing === "Doesn't exist"){
+                document.getElementById('objectExisting').textContent = obj.existing === false ? "Doesn't exist" : obj.existing;
+                existingWrapper.style.display = 'block';
+            } else {
+                existingWrapper.style.display = 'none';
+            }
+
+            // Update description
+            if(obj.description){
+                document.getElementById('objectDescription').textContent = obj.description;
+                descriptionWrapper.style.display = 'block';
+            } else {
+                descriptionWrapper.style.display = 'none';
+            }
+
+            // Update left-column table row
+            const tableRows = document.querySelectorAll('#objectsTableBody tr');
+            tableRows.forEach(row => {
+                const cell = row.cells[1]; // Name column
+                if(cell.textContent === objectName){
+                    cell.textContent = obj.name;
+                }
+            });
+
+            // Update objectName variable for future edits
+            objectName = obj.name;
+
+            // Close popup
+            closeEdit();
         }
     }
 };
-    
-function goToObject(name){
-    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
-}
-
-    // Example: object data (replace with your actual object reference)
-    let currentObject = {
-        id: 123,           // Object internal ID
-        name: "Old Name",
-        number: "1",
-        status: "Exists",
-        description: "Some description"
-    };
-
-    const saveButton = document.getElementById("saveEditStreet");
-
-    saveButton.addEventListener("click", function() {
-        // Get values from inputs
-        const newName = document.getElementById("editStreetName").value;
-        const newNumber = document.getElementById("editDistrict").value;
-        const newStatus = document.getElementById("editExisting").value;
-        const newDescription = document.getElementById("editDescription").value;
-
-        // Update the object locally
-        currentObject.name = newName;
-        currentObject.number = newNumber;
-        currentObject.status = newStatus;
-        currentObject.description = newDescription;
-
-        // OPTIONAL: Send update to backend (replace with your API call)
-        // fetch(`/api/objects/${currentObject.id}`, {
-        //     method: "PATCH",
-        //     headers: { "Content-Type": "application/json" },
-        //     body: JSON.stringify(currentObject)
-        // }).then(() => console.log("Saved to backend"));
-
-        // Update the UI immediately
-        document.getElementById("popupTitle").textContent = "Edit Object: " + newName;
-
-        // Close popup
-        closeEdit();
-
-        console.log("Updated object:", currentObject);
-    });
-
-    // Example close function
-    function closeEdit() {
-        document.getElementById("editPopup").style.display = "none";
-    }
     
 </script>
 
