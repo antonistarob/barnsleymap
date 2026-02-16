@@ -88,6 +88,22 @@ h1 { margin-top:0; }
     display: inline-block;       /* shrink to fit text */
     font-weight: bold;           /* optional: make street name stand out */
 }
+#streetBox {
+    border: 2px solid #aaa;      /* light border */
+    background: #333;            /* lighter background */
+    padding: 5px 15px;           /* spacing inside box */
+    border-radius: 6px;          /* rounded corners */
+    display: inline-block;       /* shrink to fit content */
+    font-weight: bold;
+    font-size: 20px;
+}
+#streetBox .object-link {
+    color: #eee;                 /* ensure text is readable */
+    text-decoration: none;
+}
+#streetBox .object-link:hover {
+    text-decoration: underline;
+}
 
 </style>
 
@@ -114,10 +130,12 @@ h1 { margin-top:0; }
 
 <div class="main-content">
     <h1 id="objectTitle"></h1>
-    <p class="info-line" id="objectStreetLine">
+<p class="info-line" id="objectStreetLine">
+    <span id="streetBox">
         <span id="objectStreet" class="object-link"></span>
-        <span id="objectNumber" style="font-weight:bold; margin-left:5px;" text-align:center;"></span>
-    </p>
+        <span id="objectNumber" style="margin-left:5px;"></span>
+    </span>
+</p>
 
     <div id="additionalInfo"></div>
 
