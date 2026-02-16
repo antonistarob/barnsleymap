@@ -57,8 +57,10 @@ h1 { margin-top:0; }
 
 <div class="main-content">
     <h1 id="objectTitle"></h1>
-    <p class="info-line"><strong>Street:</strong> <span id="objectStreet"></span></p>
-    <p class="info-line"><strong>Number:</strong> <span id="objectNumber"></span></p>
+    <p class="info-line" id="objectStreetLine">
+        <span id="objectStreet" style="cursor:pointer; text-decoration:underline;"></span>
+        <span id="objectNumber" style="font-weight:bold; margin-left:5px;"></span>
+    </p>
     <p id="existingWrapper" class="info-line"><strong>Existing:</strong> <span id="objectExisting"></span></p>
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
 </div>
@@ -82,8 +84,17 @@ if(!obj){
 
 /* DISPLAY OBJECT INFO */
 document.getElementById('objectTitle').textContent = obj.name;
-document.getElementById('objectStreet').textContent = streetName;
+
+/* street clickable + number bold */
+const streetEl = document.getElementById('objectStreet');
+streetEl.textContent = streetName;
+streetEl.onclick = () => {
+    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+};
+
 document.getElementById('objectNumber').textContent = obj.number || 'N/A';
+
+/* EXISTING AND DESCRIPTION LOGIC */
 if(obj.existing === false){
     document.getElementById('objectExisting').textContent = 'No';
 } else {
