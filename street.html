@@ -6,15 +6,48 @@
 <title>Street Info</title>
 <style>
     body {
-        font-family: Arial, sans-serif;
-        background-color: #121212;
-        color: #eee;
-        padding: 20px;
-    }
-    a {
-        color: #4a90e2;
-        text-decoration: none;
-    }
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #eee;
+    padding: 20px;
+    margin: 0;
+}
+
+/* Left column: Objects Table */
+.left-column {
+    width: 300px;           /* Fixed width */
+    position: fixed;        /* Stick to far left */
+    top: 0;
+    left: 0;
+    bottom: 0;              /* full height */
+    padding: 20px;
+    background-color: #121212;
+    border-right: 1px solid #333;
+    overflow-y: auto;       /* scroll if many objects */
+}
+
+.objects-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.objects-table th,
+.objects-table td {
+    padding: 5px 10px;
+    border-bottom: 1px solid #555;
+    text-align: left;
+}
+
+.objects-table th {
+    background-color: #1f1f1f;
+    color: #fff;
+}
+
+/* Main content area (right of left column) */
+.main-content {
+    margin-left: 320px;  /* leave space for 300px column + padding */
+    padding: 20px 0;
+}
     h1 {
         margin-bottom: 10px;
     }
@@ -56,63 +89,6 @@
     table { width:100%; border-collapse: collapse; margin-top:10px; }
     th, td { padding:5px; border-bottom:1px solid #555; text-align:left; }
 
-    
-    /* --- New Objects Table Styles --- */
-    .objects-table {
-        width: 300px;          /* Small width */
-        border-collapse: collapse;
-        margin-top: 10px;
-        margin-left: 0;        /* Align to left */
-    }
-
-    .objects-table th,
-    .objects-table td {
-        padding: 5px 10px;
-        border-bottom: 1px solid #555;
-        text-align: left;
-    }
-
-    .objects-table th {
-        background-color: #1f1f1f;
-        color: #fff;
-    }
-
-body {
-    font-family: Arial, sans-serif;
-    background-color: #121212;
-    color: #eee;
-    padding: 20px;
-}
-
-.left-column {
-    width: 250px;       /* Tiny table width */
-    position: fixed;    /* stick on left */
-    top: 100px;         /* adjust vertical alignment */
-    left: 20px;
-}
-
-.objects-table {
-    width: 100%;
-    border-collapse: collapse;
-}
-
-.objects-table th,
-.objects-table td {
-    padding: 5px 10px;
-    border-bottom: 1px solid #555;
-    text-align: left;
-}
-
-.objects-table th {
-    background-color: #1f1f1f;
-    color: #fff;
-}
-
-.main-content {
-    margin-left: 300px; /* Space for left column */
-}
-
-
 </style>
 </head>
 <body>
@@ -146,7 +122,6 @@ body {
     </table>
 </div>
 
-<!-- Main content -->
 <div class="main-content">
     <a href="index.html">Back to Map</a>
 
