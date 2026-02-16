@@ -216,6 +216,7 @@ a.object-link:hover {
 <div class="main-content">
     <h1 id="objectTitle"></h1>
     <p class="object-directory" id="objectDirectory"></p>
+    <p id="existingWrapper"><strong>Existing:</strong> <span id="objectExisting"></span></p>
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
 
     <div style="margin:15px 0;">
@@ -228,12 +229,21 @@ a.object-link:hover {
 <div class="popup-overlay" id="editPopup">
     <div class="popup">
         <h3>Edit Object</h3>
+
         <label>Object Name:</label>
         <input type="text" id="editObjectName">
+
         <label>Number:</label>
         <input type="text" id="editObjectNumber">
+
+        <label>
+            Existing
+            <input type="checkbox" id="editObjectExisting">
+        </label>
+
         <label>Description:</label>
         <textarea id="editObjectDescription" rows="3"></textarea>
+
         <div class="popup-buttons">
             <button id="saveEditObject" class="action-button">Save</button>
             <button onclick="closeEdit()" class="action-button">Cancel</button>
@@ -262,6 +272,9 @@ const objectsTableBody = document.getElementById('objectsTableBody');
 const objectTitle = document.getElementById('objectTitle');
 const objectDirectory = document.getElementById('objectDirectory');
 const objectDescription = document.getElementById('objectDescription');
+const objectExisting = document.getElementById('objectExisting');
+const existingWrapper = document.getElementById('existingWrapper');
+const descriptionWrapper = document.getElementById('descriptionWrapper');
 
 /* BUTTONS */
 const editObjectBtn = document.getElementById('editObjectBtn');
@@ -273,6 +286,7 @@ const deleteMessage = document.getElementById('deleteMessage');
 /* EDIT FIELDS */
 const editObjectName = document.getElementById('editObjectName');
 const editObjectNumber = document.getElementById('editObjectNumber');
+const editObjectExisting = document.getElementById('editObjectExisting');
 const editObjectDescription = document.getElementById('editObjectDescription');
 
 /* DATA */
@@ -289,7 +303,11 @@ if(!data){
 
 /* DISPLAY */
 objectTitle.textContent = data.name;
-objectDescription.textContent = data.description || 'N/A';
+objectDescription.textContent = data.description || '';
+objectExisting.textContent = data.existing === false ? 'No' : '';
+if(data.existing !== false) existingWrapper.style.display = 'none';
+if(!data.description) descriptionWrapper.style.display = 'none';
+
 const streetParam = encodeURIComponent(streetName);
 objectDirectory.innerHTML = `<a href="street.html?name=${streetParam}">${streetName}</a> <strong>${data.number || ''}</strong>`;
 
@@ -306,7 +324,6 @@ objectsList.forEach(o => {
     );
 });
 
-/* Function to navigate to object page */
 function goToObject(name){
     const streetParam = encodeURIComponent(streetName);
     const objectParam = encodeURIComponent(name);
@@ -317,14 +334,15 @@ function goToObject(name){
 editObjectBtn.onclick = () => {
     editObjectName.value = data.name;
     editObjectNumber.value = data.number || '';
+    editObjectExisting.checked = data.existing !== false;
     editObjectDescription.value = data.description || '';
     editPopup.style.display = 'flex';
 };
 
 document.getElementById('saveEditObject').onclick = () => {
-    // Update object data
     data.name = editObjectName.value;
     data.number = editObjectNumber.value;
+    data.existing = editObjectExisting.checked;
     data.description = editObjectDescription.value;
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
     location.reload();
@@ -345,7 +363,6 @@ document.getElementById('cancelDeleteObject').onclick = () => {
 };
 
 document.getElementById('confirmDeleteObject').onclick = () => {
-    // Remove object from list
     const idx = objectsList.findIndex(o => o.name === data.name);
     if(idx !== -1) objectsList.splice(idx, 1);
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
