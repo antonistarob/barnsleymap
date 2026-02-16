@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Object Info</title>
+
+<style>
+body {
+    font-family: Arial, sans-serif;
+    background-color: #121212;
+    color: #eee;
+    margin: 0;
+}
+
+/* --- HEADER --- */
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    background-color: #1f1f1f;
+    color: #eee;
+    width: 100%;
+    box-sizing: border-box;
+    position: relative;
+    z-index: 10;
+}
+
+header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.header-link {
+    color: #fff;
+    text-decoration: none;
+}
+
+.header-link:hover {
+    text-decoration: underline;
+}
+
+.auth-buttons button {
+    margin-left: 10px;
+    padding: 5px 10px;
+    cursor: pointer;
+    background-color: #333;
+    color: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
+.auth-buttons button:hover {
+    background-color: #444;
+}
+
+/* LEFT COLUMN */
+.left-column {
+    width: 200px;
+    position: fixed;
+    top: 40px;
+    left: 0;
+    bottom: 0;
+    padding: 10px;
+    border-right: 1px solid #333;
+    overflow-y: auto;
+}
+
+/* MAIN CONTENT */
+.main-content {
+    margin-left: 230px;
+    margin-top: 0px;
+    padding: 20px;
+}
+
+h1 { margin-top: 0; }
+
+.action-button {
+    cursor: pointer;
+    background-color: #333;
+    color: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+    padding: 6px 12px;
+    font-size: 14px;
+}
+
+.action-button:hover {
+    background-color: #444;
+}
+
+/* POPUPS */
+.popup-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.popup {
+    background: #1f1f1f;
+    padding: 25px;
+    border-radius: 10px;
+    width: 400px;
+    max-width: 90%;
+    border: 1px solid #444;
+}
+
+.popup h3 {
+    text-align: center;
+    margin-top: 0;
+}
+
+.popup label {
+    display: block;
+    margin-top: 10px;
+}
+
+.popup input[type="text"],
+.popup textarea,
+.popup select {
+    width: 100%;
+    padding: 5px;
+    margin-top: 5px;
+    background-color: #2b2b2b;
+    color: #eee;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
+.popup input[type="checkbox"] {
+    margin-left: 6px;
+    transform: scale(1.1);
+}
+
+.popup-buttons {
+    margin-top: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<header>
+    <h1>
+        <a href="index.html" class="header-link">Historical Interactive Map of Barnsley</a>
+    </h1>
+    <div class="auth-buttons">
+        <button>Sign Up</button>
+        <button>Log In</button>
+    </div>
+</header>
+
+<!-- LEFT COLUMN -->
+<div class="left-column">
+    <h2>Object Info</h2>
+    <p>Street: <span id="objectStreet"></span></p>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-content">
+    <h1 id="objectTitle"></h1>
+    <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
+
+    <div style="margin:15px 0;">
+        <button id="editBtn" class="action-button">Edit</button>
+        <button id="deleteBtn" class="action-button">Delete</button>
+    </div>
+</div>
+
+<!-- EDIT OBJECT POPUP -->
+<div class="popup-overlay" id="editPopup">
+    <div class="popup">
+        <h3>Edit Object</h3>
+
+        <label>Object Name:</label>
+        <input type="text" id="editObjectName">
+
+        <label>Description:</label>
+        <textarea id="editDescription" rows="3"></textarea>
+
+        <div class="popup-buttons">
+            <button id="saveEditObject" class="action-button">Save</button>
+            <button onclick="closeEdit()" class="action-button">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- DELETE POPUP -->
+<div class="popup-overlay" id="deletePopup">
+    <div class="popup">
+        <p id="deleteMessage"></p>
+        <div class="popup-buttons">
+            <button id="confirmDelete" class="action-button">Yes</button>
+            <button id="cancelDelete" class="action-button">No</button>
+        </div>
+    </div>
+</div>
+
+<script>
+// Get query params
+const params = new URLSearchParams(window.location.search);
+const streetName = params.get('street');
+const objectName = params.get('object');
+
+/* ELEMENTS */
+const objectTitle = document.getElementById('objectTitle');
+const objectStreet = document.getElementById('objectStreet');
+const objectDescription = document.getElementById('objectDescription');
+
+const editBtn = document.getElementById('editBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+
+const editPopup = document.getElementById('editPopup');
+const deletePopup = document.getElementById('deletePopup');
+const deleteMessage = document.getElementById('deleteMessage');
+
+const editObjectName = document.getElementById('editObjectName');
+const editDescription = document.getElementById('editDescription');
+
+/* DATA */
+let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+
+if(!streetObjects[streetName] || !streetObjects[streetName].find(o => o.name === objectName)){
+    objectTitle.textContent = 'Object not found';
+    throw new Error('Object missing');
+}
+
+const data = streetObjects[streetName].find(o => o.name === objectName);
+
+/* DISPLAY */
+objectTitle.textContent = data.name;
+objectStreet.textContent = streetName;
+objectDescription.textContent = data.description || 'N/A';
+
+/* EDIT OBJECT */
+editBtn.onclick = () => {
+    editObjectName.value = data.name;
+    editDescription.value = data.description || '';
+    editPopup.style.display = 'flex';
+};
+
+document.getElementById('saveEditObject').onclick = () => {
+    // Update object data
+    data.name = editObjectName.value;
+    data.description = editDescription.value;
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    location.reload();
+};
+
+function closeEdit(){
+    editPopup.style.display = 'none';
+}
+
+/* DELETE OBJECT */
+deleteBtn.onclick = () => {
+    deleteMessage.innerHTML = `Delete <b>${data.name}</b>?`;
+    deletePopup.style.display = 'flex';
+};
+
+document.getElementById('cancelDelete').onclick = () => {
+    deletePopup.style.display = 'none';
+};
+
+document.getElementById('confirmDelete').onclick = () => {
+    // Remove object from array
+    streetObjects[streetName] = streetObjects[streetName].filter(o => o.name !== data.name);
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    // Go back to street page
+    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+};
+</script>
+
+</body>
+</html>
