@@ -105,22 +105,30 @@ h1 { margin-top:0; }
 </div>
 
 <script>
-const qp = p => new URLSearchParams(location.search).get(p);
+// --- URL parameters ---
+const qp = p => decodeURIComponent(new URLSearchParams(location.search).get(p) || '');
+
+// Get street and object name from URL
 const streetName = qp('street');
 const objectName = qp('object');
 
+// --- Load data from localStorage ---
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-// Ensure streetObjects[streetName] exists
-streetObjects[streetName] = streetObjects[streetName] || [];
 
-// Find the object by name
+// Ensure the street exists
+if(!streetObjects[streetName]){
+    alert('Street not found in localStorage');
+    throw new Error('Street missing');
+}
+
+// Find the object by name (exact match)
 let objIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
-if(objIndex === -1) {
-    alert('Object not found');
+if(objIndex === -1){
+    alert('Object not found in this street');
     throw new Error('Object missing');
 }
 
-// Always use reference to object in array
+// Use reference to object
 let obj = streetObjects[streetName][objIndex];
 
 // Ensure photos array exists
@@ -187,16 +195,13 @@ localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 function renderPhotos(){
     photosContainer.innerHTML = '';
 
-    // Ensure photos array exists
-    if(!obj.photos) obj.photos = [];
-
-    if(obj.photos.length === 0){
+    if(!obj.photos || obj.photos.length === 0){
         photosContainer.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
         return;
     }
 
     // Sort photos by date
-    const sorted = obj.photos.slice().sort((a,b)=>new Date(a.date) - new Date(b.date));
+    const sorted = obj.photos.slice().sort((a,b) => new Date(a.date) - new Date(b.date));
 
     sorted.forEach(p => {
         const div = document.createElement('div');
