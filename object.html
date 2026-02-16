@@ -64,11 +64,58 @@ h1 { margin-top:0; }
 <div class="main-content">
     <h1 id="objectTitle"></h1>
     <p class="info-line" id="objectStreetLine">
-    <span id="objectStreet" class="object-link"></span>
-    <span id="objectNumber" style="font-weight:bold; margin-left:5px;"></span>
+        <span id="objectStreet" class="object-link"></span>
+        <span id="objectNumber" style="font-weight:bold; margin-left:5px;"></span>
     </p>
-    <p id="existingWrapper" class="info-line"><strong>Existing:</strong> <span id="objectExisting"></span></p>
+    <p id="existingWrapper" class="info-line"><strong>Status:</strong> <span id="objectExisting"></span></p>
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
+
+    <!-- Edit & Delete Buttons -->
+    <div style="margin:15px 0;">
+        <button id="editBtn" class="action-button">Edit</button>
+        <button id="deleteBtn" class="action-button">Delete</button>
+    </div>
+</div>
+
+<!-- Reuse the same popup as street page for Add/Edit Object -->
+<div class="popup-overlay" id="editPopup">
+    <div class="popup">
+        <h3 id="popupTitle">Edit Object</h3>
+
+        <label id="popupNameLabel">Object Name:</label>
+        <input type="text" id="editStreetName">
+
+        <label id="popupNumberLabel">Number:</label>
+        <input type="text" id="editDistrict">
+
+        <label>Status:</label>
+        <select id="editExisting">
+            <option value="Exists">Exists</option>
+            <option value="Doesn't exist">Doesn't exist</option>
+            <option value="To be demolished">To be demolished</option>
+            <option value="Exists partially">Exists partially</option>
+            <option value="In construction">In construction</option>
+        </select>
+
+        <label>Description:</label>
+        <textarea id="editDescription" rows="3"></textarea>
+
+        <div class="popup-buttons">
+            <button id="saveEditStreet" class="action-button">Save</button>
+            <button onclick="closeEdit()" class="action-button">Cancel</button>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Popup -->
+<div class="popup-overlay" id="deletePopup">
+    <div class="popup">
+        <p id="deleteMessage"></p>
+        <div class="popup-buttons">
+            <button id="confirmDelete" class="action-button">Yes</button>
+            <button id="cancelDelete" class="action-button">No</button>
+        </div>
+    </div>
 </div>
 
 <script>
@@ -133,6 +180,61 @@ const objectsTableBody = document.getElementById('objectsTableBody');
     );
 });
 
+    /* EDIT OBJECT */
+const editBtn = document.getElementById('editBtn');
+editBtn.onclick = () => {
+    document.getElementById('popupTitle').textContent = 'Edit Object';
+    document.getElementById('popupNameLabel').textContent = 'Object Name:';
+    document.getElementById('popupNumberLabel').textContent = 'Number:';
+
+    editStreetName.value = obj.name;
+    editDistrict.value = obj.number || '';
+    editExisting.value = obj.existing || 'Exists';
+    editDescription.value = obj.description || '';
+
+    editPopup.style.display = 'flex';
+    editPopup.dataset.mode = 'editObject';
+};
+
+/* DELETE OBJECT */
+const deleteBtn = document.getElementById('deleteBtn');
+deleteBtn.onclick = () => {
+    deleteMessage.innerHTML = `Delete <b>${obj.name}</b>?`;
+    deletePopup.style.display = 'flex';
+};
+
+document.getElementById('cancelDelete').onclick = () => { deletePopup.style.display = 'none'; };
+document.getElementById('confirmDelete').onclick = () => {
+    const index = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
+    if(index > -1) {
+        streetObjects[streetName].splice(index, 1);
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    }
+    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+};
+
+/* SAVE EDIT OBJECT */
+document.getElementById('saveEditStreet').onclick = () => {
+    const mode = editPopup.dataset.mode;
+
+    if(mode === 'editObject') {
+        // update object in streetObjects
+        const updatedObj = {
+            name: editStreetName.value.trim(),
+            number: editDistrict.value.trim(),
+            existing: editExisting.value,
+            description: editDescription.value.trim()
+        };
+
+        const idx = (streetObjects[streetName] || []).findIndex(o => o.name === objectName);
+        if(idx > -1) {
+            streetObjects[streetName][idx] = updatedObj;
+            localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+            window.location.reload(); // reload object page
+        }
+    }
+};
+    
 function goToObject(name){
     window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(name)}`;
 }
