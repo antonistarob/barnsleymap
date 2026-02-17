@@ -51,7 +51,7 @@ h1 { margin-top:0; }
 </header>
 
 <div class="left-column">
-    <h2 id="objectsHeader"  style="text-align:center;">Objects on this street</h2>
+    <h2 id="objectsHeader" style="text-align:center;">Objects on this street</h2>
     <table class="objects-table">
         <thead><tr><th>No.</th><th>Name</th></tr></thead>
         <tbody id="objectsTableBody"></tbody>
@@ -65,12 +65,11 @@ h1 { margin-top:0; }
     <p id="descriptionWrapper"><strong>Description:</strong> <span id="streetDescription"></span></p>
     <div style="margin:15px 0;">
         <button id="addObjectBtn" class="action-button">Add Object</button>
-        <button id="editBtn" class="action-button">Edit</button>
-        <button id="deleteBtn" class="action-button">Delete</button>
+        <button id="editBtn" class="action-button">Edit Street</button>
+        <button id="deleteBtn" class="action-button">Delete Street</button>
     </div>
 </div>
 
-<!-- ADD / EDIT STREET / OBJECT POPUP -->
 <!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
   <div class="popup">
@@ -127,6 +126,29 @@ h1 { margin-top:0; }
   </div>
 </div>
 
+<!-- EDIT STREET POPUP -->
+<div class="popup-overlay" id="editStreetPopup">
+  <div class="popup">
+    <h3>Edit Street</h3>
+    <label>Street Name:</label>
+    <input type="text" id="editStreetName" placeholder="e.g. Race Street">
+    <label>District:</label>
+    <input type="text" id="editDistrict" placeholder="e.g. Barnsley">
+    <label>Existing:</label>
+    <select id="editExisting">
+      <option value="Exists" selected>Exists</option>
+      <option value="Doesn't exist">Doesn't exist</option>
+    </select>
+    <label>Description:</label>
+    <textarea id="editStreetDescription" rows="3"></textarea>
+    <div class="popup-buttons">
+      <button id="saveEditStreet" class="action-button">Save</button>
+      <button onclick="closeEditStreet()" class="action-button">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELETE STREET POPUP -->
 <div class="popup-overlay" id="deletePopup">
     <div class="popup">
         <p id="deleteMessage"></p>
@@ -138,23 +160,9 @@ h1 { margin-top:0; }
 </div>
 
 <script>
-// Define icons for categories
-const categoryIcons = {
-    "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
-    "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
-    "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
-    "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
-    "Villa": "https://polska-org.pl/gfx/obj/05c.png",
-    "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
-    "Cottage": "https://polska-org.pl/gfx/category/500129.png",
-    "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
-    "Apartment block": "https://polska-org.pl/gfx/category/3258201.png"
-};
-    
 const qp = p => new URLSearchParams(location.search).get(p);
-let streetName = qp('name'); // make streetName let so we can rename
+let streetName = qp('name');
 
-/* ELEMENTS */
 const streetTitle = document.getElementById('streetTitle');
 const streetDistrict = document.getElementById('streetDistrict');
 const streetExisting = document.getElementById('streetExisting');
@@ -167,13 +175,14 @@ const editBtn = document.getElementById('editBtn');
 const deleteBtn = document.getElementById('deleteBtn');
 
 const editPopup = document.getElementById('editPopup');
+const editStreetPopup = document.getElementById('editStreetPopup');
 const deletePopup = document.getElementById('deletePopup');
 const deleteMessage = document.getElementById('deleteMessage');
 
-const editStreetName = document.getElementById('editStreetName');
-const editDistrict = document.getElementById('editDistrict');
-const editExisting = document.getElementById('editExisting');
-const editDescription = document.getElementById('editDescription');
+const editObjectName = document.getElementById('editObjectName');
+const editObjectNumber = document.getElementById('editObjectNumber');
+const editCategory = document.getElementById('editCategory');
+const editStatus = document.getElementById('editStatus');
 const editYearBuilt = document.getElementById('editYearBuilt');
 const editYearDemolished = document.getElementById('editYearDemolished');
 const editGradeListed = document.getElementById('editGradeListed');
@@ -181,11 +190,13 @@ const gradeOptions = document.getElementById('gradeOptions');
 const editGrade = document.getElementById('editGrade');
 const editListEntryNumber = document.getElementById('editListEntryNumber');
 const editDateListed = document.getElementById('editDateListed');
-const popupTitle = document.getElementById('popupTitle');
-const popupNameLabel = document.getElementById('popupNameLabel');
-const popupNumberLabel = document.getElementById('popupNumberLabel');
+const editDescription = document.getElementById('editDescription');
 
-/* LOAD DATA */
+const editStreetName = document.getElementById('editStreetName');
+const editDistrict = document.getElementById('editDistrict');
+const editExisting = document.getElementById('editExisting');
+const editStreetDescription = document.getElementById('editStreetDescription');
+
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 let streets = JSON.parse(localStorage.getItem('streets')) || [];
@@ -195,10 +206,7 @@ if(!streetsData[streetName]){
     throw new Error('Street missing');
 }
 
-document.getElementById('objectsHeader').textContent = `Objects in ${streetName}`;
 const data = streetsData[streetName];
-
-/* DISPLAY STREET INFO */
 streetTitle.textContent = streetName;
 streetDistrict.textContent = data.district || 'N/A';
 if(data.existing === false){
@@ -212,49 +220,32 @@ if(data.description){
     descriptionWrapper.style.display = 'none';
 }
 
-/* LEFT COLUMN */
+// Display objects
 objectsTableBody.innerHTML = '';
-(streetObjects[streetName] || []).forEach(o => {
+(streetObjects[streetName] || []).forEach((o, idx) => {
     const row = document.createElement('tr');
-    
     const numberCell = document.createElement('td');
     numberCell.textContent = o.number || '';
-    row.appendChild(numberCell);
-    
     const nameCell = document.createElement('td');
     nameCell.textContent = o.name;
     nameCell.classList.add('object-link');
-    
-    // Add click listener safely
     nameCell.addEventListener('click', () => {
-        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-        if (window.location.href === url) {
-            window.location.reload(); // force reload if same object
-        } else {
-            window.location.href = url;
-        }
+        window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
     });
-    
+    row.appendChild(numberCell);
     row.appendChild(nameCell);
     objectsTableBody.appendChild(row);
 });
 
-function goToObject(name){
-    const streetParam = encodeURIComponent(streetName);
-    const objectParam = encodeURIComponent(name);
-    window.location.href = `object.html?street=${streetParam}&object=${objectParam}`;
-}
-
-/* ADD OBJECT POPUP */
+// Add Object
 addObjectBtn.onclick = () => {
-    popupTitle.textContent = 'Add Object';
-    popupNameLabel.textContent = 'Object Name:';
-    popupNumberLabel.textContent = 'Number:';
-    editStreetName.value = '';
-    editDistrict.value = '';
+    editPopup.dataset.mode = 'addObject';
+    editObjectName.value = '';
+    editObjectNumber.value = '';
+    editCategory.value = '';
+    editStatus.value = 'Exists';
     editYearBuilt.value = '';
     editYearDemolished.value = '';
-    editExisting.value = 'Exists';
     editGradeListed.checked = false;
     gradeOptions.style.display = 'none';
     editGrade.value = 'Grade I';
@@ -262,83 +253,63 @@ addObjectBtn.onclick = () => {
     editDateListed.value = '';
     editDescription.value = '';
     editPopup.style.display = 'flex';
-    editPopup.dataset.mode = 'addObject';
 };
 
-/* GRADE LISTED TOGGLE */
-editGradeListed.onchange = () => {
-    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
-};
-
-/* FLATPICKR CALENDAR */
-flatpickr(editDateListed, {
-    altInput: true,
-    altFormat: "d/m/Y",
-    dateFormat: "Y-m-d",
-    theme: "dark"
-});
-
-/* ADD OBJECT */
+// Edit first object (can extend later)
+editPopup.dataset.mode = 'editObject';
 editBtn.onclick = () => {
-    editPopup.style.display = 'flex';
-    editObjectName.value = obj.name;
-    editObjectNumber.value = obj.number || '';
-    editStatus.value = obj.status || 'Exists';
-    editYearBuilt.value = obj.yearBuilt || '';
-    editYearDemolished.value = obj.yearDemolished || '';
-    editGradeListed.checked = obj.gradeListed || false;
-    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
-    editGrade.value = obj.grade || 'Grade I';
-    editListEntryNumber.value = obj.listEntryNumber || '';
-    editDateListed.value = obj.dateListed || '';
-    editDescription.value = obj.description || '';
-    editCategory.value = obj.category || '';
+    editStreetName.value = streetName;
+    editDistrict.value = streetDistrict.textContent;
+    editExisting.value = existingWrapper.style.display === 'none' ? "Exists" : streetExisting.textContent === "No" ? "Doesn't exist" : "Exists";
+    editStreetDescription.value = streetDescription.textContent;
+    editStreetPopup.style.display = 'flex';
 };
+function closeEditStreet() { editStreetPopup.style.display = 'none'; }
+
+// Save Street
+document.getElementById('saveEditStreet').onclick = () => {
+    const newName = editStreetName.value.trim();
+    if(!newName) return alert("Street name cannot be empty.");
+    const updatedData = {
+        district: editDistrict.value.trim(),
+        existing: editExisting.value === "Exists",
+        description: editStreetDescription.value.trim()
+    };
+    if(newName !== streetName){
+        streetsData[newName] = updatedData;
+        delete streetsData[streetName];
+        streets = streets.map(s => s === streetName ? newName : s);
+        if(streetObjects[streetName]){
+            streetObjects[newName] = streetObjects[streetName];
+            delete streetObjects[streetName];
+        }
+        streetName = newName;
+    } else {
+        streetsData[streetName] = updatedData;
+    }
+    localStorage.setItem('streetsData', JSON.stringify(streetsData));
+    localStorage.setItem('streets', JSON.stringify(streets));
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    location.reload();
+};
+
+// Grade Listed toggle
 editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
 flatpickr(editDateListed, { altInput: true, altFormat: "d/m/Y", dateFormat: "Y-m-d", theme: "dark" });
 
-
-/* SAVE EDIT / ADD OBJECT */
-document.getElementById('saveEditStreet').onclick = () => {
+// Save Object
+document.getElementById('saveEditObject').onclick = () => {
     const mode = editPopup.dataset.mode;
-    if(mode === 'edit'){
-        const newName = editStreetName.value.trim();
-        if(!newName) return alert("Street name cannot be empty.");
-        const updatedData = {
-            district: editDistrict.value,
-            existing: editExisting.value === 'Exists',
-            description: editDescription.value,
-            yearBuilt: editYearBuilt.value.trim(),
-            yearDemolished: editYearDemolished.value.trim(),
-            gradeListed: editGradeListed.checked,
-            grade: editGrade.value,
-            listEntryNumber: editListEntryNumber.value.trim(),
-            dateListed: editDateListed.value.trim()
-        };
-        if(newName !== streetName){
-            streetsData[newName] = updatedData;
-            delete streetsData[streetName];
-            streets = streets.map(s => s === streetName ? newName : s);
-            localStorage.setItem('streets', JSON.stringify(streets));
-            if(streetObjects[streetName]){
-                streetObjects[newName] = streetObjects[streetName];
-                delete streetObjects[streetName];
-                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-            }
-            streetName = newName;
-        } else {
-            streetsData[streetName] = updatedData;
-        }
-        localStorage.setItem('streetsData', JSON.stringify(streetsData));
-        location.reload();
-    } else if(mode === 'addObject'){
-        const objectName = editStreetName.value.trim();
-        if(!objectName) return alert("Object name cannot be empty.");
-        if(!streetObjects[streetName]) streetObjects[streetName] = [];
+    const objectName = editObjectName.value.trim();
+    if(!objectName) return alert("Object name cannot be empty.");
+    if(!streetObjects[streetName]) streetObjects[streetName] = [];
+
+    if(mode === 'addObject'){
         streetObjects[streetName].push({
             name: objectName,
-            number: editDistrict.value.trim(),
-            status: editExisting.value,
+            number: editObjectNumber.value.trim(),
+            status: editStatus.value,
+            category: editCategory.value,
             yearBuilt: editYearBuilt.value.trim(),
             yearDemolished: editYearDemolished.value.trim(),
             gradeListed: editGradeListed.checked,
@@ -347,19 +318,19 @@ document.getElementById('saveEditStreet').onclick = () => {
             dateListed: editDateListed.value.trim(),
             description: editDescription.value.trim()
         });
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        location.reload();
     }
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    location.reload();
 };
 
 function closeEdit(){ editPopup.style.display = 'none'; }
 
-/* DELETE STREET */
+// Delete Street
 deleteBtn.onclick = () => {
     deleteMessage.innerHTML = `Are you sure you want to delete <b>${streetName}</b>?`;
     deletePopup.style.display = 'flex';
 };
-document.getElementById('cancelDelete').onclick = () => { deletePopup.style.display = 'none'; };
+document.getElementById('cancelDelete').onclick = () => deletePopup.style.display = 'none';
 document.getElementById('confirmDelete').onclick = () => {
     delete streetsData[streetName];
     localStorage.setItem('streetsData', JSON.stringify(streetsData));
