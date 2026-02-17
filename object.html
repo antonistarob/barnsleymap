@@ -575,24 +575,22 @@
 // Black calendar popup for photoDate (optional)
 flatpickr("#photoDate", {
     altInput: false,
-    dateFormat: "Y-m-d", // only for full date
+    dateFormat: "Y-m-d", // only for full date selection
     theme: "dark",
-    allowInput: true, // allow typing YYYY, YYYY-YYYY, etc
+    allowInput: true, // allow typing custom formats
     defaultDate: null,
     onChange: function(selectedDates, dateStr) {
         // Only overwrite if user picked a full date
-        if (dateStr) photoDate.value = dateStr;
+        if (dateStr) {
+            document.getElementById('photoDate').value = dateStr;
+        }
     },
     onReady: function(selectedDates, dateStr, instance) {
-        // Add dark theme styling manually if needed
+        // Dark theme styling
         instance.calendarContainer.style.background = "#121212";
         instance.calendarContainer.style.color = "#eee";
     }
 });
-
-    calendar.focus();
-});
-
 
 /* DISPLAY OBJECT */
 // Set basic info
