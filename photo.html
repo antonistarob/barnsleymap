@@ -9,16 +9,16 @@ body { background: #121212; color: #eee; font-family: Arial; margin: 0; padding:
 a { color: #88c; text-decoration: none; }
 a:hover { text-decoration: underline; }
 h1 { text-align: center; margin-bottom: 20px; }
-#photoContainer { display: flex; flex-wrap: wrap; justify-content: center; gap: 15px; }
-.photo-card { background: #1f1f1f; border: 1px solid #555; border-radius: 5px; width: 240px; padding: 10px; text-align: center; }
-.photo-card img { width: 220px; border-radius: 5px; cursor: pointer; }
-.photo-info { margin-top: 8px; background: #2b2b2b; padding: 5px; border-radius: 5px; font-size: 12px; text-align: left; color: #ccc; }
+#photoContainer { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; }
+.photo-card { background: #1f1f1f; border: 1px solid #555; border-radius: 5px; padding: 10px; text-align: center; max-width: 400px; }
+.photo-card img { width: 100%; border-radius: 5px; cursor: pointer; }
+.photo-info { margin-top: 8px; background: #2b2b2b; padding: 8px; border-radius: 5px; font-size: 13px; text-align: left; color: #ccc; }
 .photo-info div { margin-bottom: 3px; }
 </style>
 </head>
 <body>
 
-<h1>Photos</h1>
+<h1>Photo Viewer</h1>
 <div id="photoContainer"></div>
 
 <script>
@@ -26,16 +26,23 @@ function getQueryParam(p) { return new URLSearchParams(location.search).get(p); 
 
 const streetName = getQueryParam('street');
 const objectName = getQueryParam('object');
+const photoId = getQueryParam('photo');
 
 const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
-
 const container = document.getElementById('photoContainer');
 
 if(!obj || !obj.photos || obj.photos.length === 0){
-    container.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
+    container.innerHTML = '<p style="color:#aaa;">No photos found.</p>';
 } else {
-    obj.photos.forEach(photo => {
+    const photo = obj.photos.find(p => p.id === photoId);
+    if(!photo){
+        container.innerHTML = '<p style="color:#aaa;">Photo not found.</p>';
+    } else {
+        // increment views
+        photo.views = (photo.views || 0) + 1;
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
         const card = document.createElement('div');
         card.className = 'photo-card';
 
@@ -58,9 +65,9 @@ if(!obj || !obj.photos || obj.photos.length === 0){
             info.innerHTML += `<div><strong>Date added:</strong> ${dateAdded.toLocaleDateString()}</div>`;
         }
         if(photo.username) info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
-        if(photo.views !== undefined) info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
+        info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
 
-        // Directory with clickable links
+        // directory with clickable links
         info.innerHTML += `<div><strong>Directory:</strong> 
             <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; 
             <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
@@ -68,7 +75,7 @@ if(!obj || !obj.photos || obj.photos.length === 0){
 
         card.appendChild(info);
         container.appendChild(card);
-    });
+    }
 }
 </script>
 
