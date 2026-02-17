@@ -217,6 +217,18 @@ h1 { margin-top:0; }
 </div>
 
 <script>
+// Define icons for categories
+const categoryIcons = {
+    "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
+    "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
+    "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
+    "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
+    "Villa": "https://polska-org.pl/gfx/obj/05c.png",
+    "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
+    "Cottage": "https://polska-org.pl/gfx/category/500129.png",
+    "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
+    "Apartment block": "https://polska-org.pl/gfx/category/3258201.png"
+};
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
 const objectName = qp('object');
@@ -271,6 +283,17 @@ if (!obj) {
     throw new Error('Object missing');
 }
 
+// Function to create Leaflet icon
+function getCategoryIcon(category) {
+    const iconUrl = categoryIcons[category] || "icons/default.png"; // fallback
+    return L.icon({
+        iconUrl: iconUrl,
+        iconSize: [32, 37],  // size of the icon
+        iconAnchor: [16, 37], // point of the icon which will correspond to marker's location
+        popupAnchor: [0, -28] // point from which the popup should open relative to the iconAnchor
+    });
+}
+  
 /* DISPLAY OBJECT */
 objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
@@ -518,7 +541,7 @@ function initObjectMap() {
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
-    L.marker([obj.lat, obj.lng]).addTo(map);
+   L.marker([obj.lat, obj.lng], { icon: getCategoryIcon(obj.category) }).addTo(map);
 }
 
 if (obj.lat && obj.lng) {
