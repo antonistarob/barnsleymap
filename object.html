@@ -573,6 +573,16 @@ function initObjectMap() {
 }
 
 displayPhotos();
+
+  /* SHOW MAP IF LOCATION ALREADY SET */
+if (obj.lat && obj.lng) {
+    mapNotSetText.style.display = 'none';
+    mapSection.style.display = 'block';
+    initObjectMap();
+} else {
+    mapNotSetText.style.display = 'block';
+    mapSection.style.display = 'none';
+}
 </script>
 </body>
 </html>
