@@ -827,23 +827,22 @@
         }).addTo(map);
 
         const objectsOnStreet = streetObjects[streetName] || [];
-        objectsOnStreet.forEach(o => {
-            if (!o.lat || !o.lng) return;
+objectsOnStreet.forEach(o => {
+    if (!o.lat || !o.lng) return;
 
-            const isCurrent = o.name === obj.name;
-            const marker = L.marker([o.lat, o.lng], {
-                icon: getCategoryIcon(o.category, o.status),
-                opacity: isCurrent ? 1 : 0.7
-            }).addTo(map);
+    const marker = L.marker([o.lat, o.lng], {
+        icon: getCategoryIcon(o.category, o.status),
+        opacity: 1 // make all markers fully visible
+    }).addTo(map);
 
-            marker.bindPopup(`<b>${o.name}</b>`);
+    marker.bindPopup(`<b>${o.name}</b>`);
 
-            if (!isCurrent) {
-                marker.on('click', () => {
-                    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-                });
-            }
+    if (o.name !== obj.name) {
+        marker.on('click', () => {
+            window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
         });
+    }
+});
 
         // Zoom display
         const zoomDiv = document.getElementById('objectMapZoom');
