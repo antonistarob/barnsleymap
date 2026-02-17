@@ -744,12 +744,15 @@ function populateExifDate() {
 
 // SAVE PHOTO
 savePhotoBtn.onclick = () => {
+    console.log("DEBUG: Add Photo button clicked");
     const file = photoFile.files[0];
     if (!file) {
         alert("Please select a photo.");
         return;
     }
 
+console.log("DEBUG: File selected:", file.name, file.size);
+    
     // Re-fetch object fresh from localStorage
     let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
     let objArray = streetObjects[streetName] || [];
@@ -761,6 +764,7 @@ savePhotoBtn.onclick = () => {
 
     const reader = new FileReader();
     reader.onload = function(e) {
+        console.log("DEBUG: FileReader.onload fired");
         const dataUrl = e.target.result;
 
         // Ensure photos array exists
