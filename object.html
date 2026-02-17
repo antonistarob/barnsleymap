@@ -680,64 +680,79 @@
     };
 
  /* MAP EDIT */
-    let editMap, editMarker, tempLat = null, tempLng = null;
+let editMap, editMarker, tempLat = null, tempLng = null;
 
-    function initEditMap() {
-        if (editMap) return;
+function initEditMap() {
+    if (editMap) return;
 
-        const lat = obj.lat || 53.552;
-        const lng = obj.lng || -1.478;
+    const lat = obj.lat || 53.552;
+    const lng = obj.lng || -1.478;
 
-        // Ensure zoom is within min/max
-        const zoomMin = 16;
-        const zoomMax = 19;
-        let zoom = obj.zoom || 16;
-        if (zoom < zoomMin) zoom = zoomMin;
-        if (zoom > zoomMax) zoom = zoomMax;
+    const zoomMin = 16;
+    const zoomMax = 19;
 
-        editMap = L.map('mapEdit', { minZoom: zoomMin, maxZoom: zoomMax }).setView([lat, lng], zoom);
+    let zoom = obj.zoom || zoomMin;
+    if (zoom < zoomMin) zoom = zoomMin;
+    if (zoom > zoomMax) zoom = zoomMax;
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(editMap);
+    editMap = L.map('mapEdit', {
+        minZoom: zoomMin,
+        maxZoom: zoomMax
+    }).setView([lat, lng], zoom);
 
-if (obj.lat && obj.lng) {
-    editMarker = L.marker(
-        [lat, lng],
-        {
-            icon: getCategoryIcon(obj.category, obj.status, true)
-        }
-    ).addTo(editMap);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(editMap);
 
-        // Click to set marker
-        editMap.on('click', e => {
-            if (editMarker) editMarker.remove();
-            editMarker = L.marker(e.latlng).addTo(editMap);
-            tempLat = e.latlng.lat;
-            tempLng = e.latlng.lng;
-            document.getElementById('mapZoom').value = editMap.getZoom();
-        });
-
-        // Track zoom
-        document.getElementById('mapZoom').value = editMap.getZoom();
-        editMap.on('zoomend', () => {
-            document.getElementById('mapZoom').value = editMap.getZoom();
-        });
-
-        // Set min/max inputs
-        document.getElementById('mapZoomMin').value = zoomMin;
-        document.getElementById('mapZoomMax').value = zoomMax;
-
-        // Make sure all inputs are same height
-        const inputs = document.querySelectorAll('.map-zoom-input');
-        inputs.forEach(inp => inp.style.height = '28px');
+    /* EXISTING MARKER */
+    if (obj.lat && obj.lng) {
+        editMarker = L.marker(
+            [lat, lng],
+            {
+                icon: getCategoryIcon(obj.category, obj.status, true)
+            }
+        ).addTo(editMap);
     }
 
-    /* MAP BUTTON */
-    mapBtn.onclick = () => {
-        mapPopup.style.display = 'flex';
-        initEditMap();
-    };
+    /* CLICK TO SET / MOVE MARKER */
+    editMap.on('click', e => {
+        if (editMarker) editMarker.remove();
+
+        editMarker = L.marker(
+            e.latlng,
+            {
+                icon: getCategoryIcon(obj.category, obj.status, true)
+            }
+        ).addTo(editMap);
+
+        tempLat = e.latlng.lat;
+        tempLng = e.latlng.lng;
+
+        document.getElementById('mapZoom').value = editMap.getZoom();
+    });
+
+    /* ZOOM TRACKING */
+    document.getElementById('mapZoom').value = editMap.getZoom();
+
+    editMap.on('zoomend', () => {
+        document.getElementById('mapZoom').value = editMap.getZoom();
+    });
+
+    /* ZOOM LIMIT DISPLAY */
+    document.getElementById('mapZoomMin').value = zoomMin;
+    document.getElementById('mapZoomMax').value = zoomMax;
+
+    /* INPUT HEIGHT CONSISTENCY */
+    document.querySelectorAll('.map-zoom-input').forEach(inp => {
+        inp.style.height = '28px';
+    });
+}
+
+/* MAP BUTTON */
+mapBtn.onclick = () => {
+    mapPopup.style.display = 'flex';
+    initEditMap();
+};
 
     function closeMapPopup() {
         mapPopup.style.display = 'none';
