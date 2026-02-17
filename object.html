@@ -365,8 +365,8 @@
             <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
             <label for="photoFile">File:</label>
             <input type="file" id="photoFile" accept="image/*">
-            <label for="photoDate">Date:</label>
-            <input type="date" id="photoDate">
+<label for="photoDate">Date:</label>
+<input type="text" id="photoDate" placeholder="YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD">
             <div id="exifError"
      style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
     Unable to read photo date from EXIF. Please enter the date manually.
@@ -499,6 +499,16 @@
         "Apartment block": "https://polska-org.pl/gfx/category/3258201.png",
         "Church": "https://polska-org.pl/gfx/obj/06a.png"
     };
+
+       // Black calendar for Add Photo date
+flatpickr("#photoDate", {
+    altInput: true,        // shows user-friendly date
+    altFormat: "Y-m-d",    // YYYY-MM-DD in the popup
+    dateFormat: "Y-m-d",   // actual value stored
+    allowInput: true,       // allow typing custom formats
+    theme: "dark",          // black calendar
+    clickOpens: true,       // calendar opens on click
+});
 
     // Get query params
     const qp = p => new URLSearchParams(location.search).get(p);
