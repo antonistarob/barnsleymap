@@ -523,24 +523,24 @@
         throw new Error('Object missing');
     }
 
-    /* DISPLAY OBJECT */
+/* DISPLAY OBJECT */
 // Set basic info
-objectTitle.textContent = objData.name;
+objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
-objectNumber.textContent = objData.number || "";
-objectDescription.textContent = objData.description || '';
-if(!objData.description) descriptionWrapper.style.display = 'none';
+objectNumber.textContent = obj.number || "";
+objectDescription.textContent = obj.description || '';
+descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
-    // Additional info
-    additionalInfo.innerHTML = '';
-    if (obj.status && obj.status !== 'Exists') additionalInfo.innerHTML += `<span><strong>Status:</strong> ${obj.status}</span><br>`;
-    if (obj.yearBuilt) additionalInfo.innerHTML += `<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
-    if (obj.yearDemolished) additionalInfo.innerHTML += `<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
-    if (obj.gradeListed) {
-        additionalInfo.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
-        if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
-        if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
-    }
+// Additional info
+additionalInfo.innerHTML = '';
+if (obj.status && obj.status !== 'Exists') additionalInfo.innerHTML += `<span><strong>Status:</strong> ${obj.status}</span><br>`;
+if (obj.yearBuilt) additionalInfo.innerHTML += `<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
+if (obj.yearDemolished) additionalInfo.innerHTML += `<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
+if (obj.gradeListed) {
+    additionalInfo.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
+    if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
+    if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
+}
 
     objectDescription.textContent = obj.description || '';
     descriptionWrapper.style.display = obj.description ? 'block' : 'none';
