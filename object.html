@@ -663,32 +663,30 @@ savePhotoBtn.onclick = () => {
         const file = files[i]; // capture file
         const reader = new FileReader();
 
-        reader.onload = function(e) {
-            photosToAdd.push({
-                name: file.name,
-                date: photoDate.value,
-                description: photoDescription.value,
-                dataUrl: e.target.result
-            });
+reader.onload = function(e) {
+    const photoId = Date.now() + '_' + Math.floor(Math.random()*1000); // unique id
+    photosToAdd.push({
+        id: photoId,                      // ✅ add unique ID
+        name: file.name,
+        date: photoDate.value,
+        description: photoDescription.value,
+        dataUrl: e.target.result
+    });
 
-            filesProcessed++;
-            if (filesProcessed === files.length) {
-                // Add all photos at once
-                streetObjects[streetName][objectIndex].photos.push(...photosToAdd);
+    filesProcessed++;
+    if (filesProcessed === files.length) {
+        // Add all photos at once
+        streetObjects[streetName][objectIndex].photos.push(...photosToAdd);
 
-                // Update localStorage
-                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        // Update localStorage
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-                // Update the obj reference
-                Object.assign(obj, streetObjects[streetName][objectIndex]);
+        // Update the obj reference
+        Object.assign(obj, streetObjects[streetName][objectIndex]);
 
-                closeAddPhoto();
-                displayPhotos();
-                alert(`${filesProcessed} photo(s) added!`);
-            }
-        };
-
-        reader.readAsDataURL(file);
+        closeAddPhoto();
+        displayPhotos();
+        alert(`${filesProcessed} photo(s) added!`);
     }
 };
 
@@ -937,10 +935,11 @@ icon: getCategoryIcon(o.category, o.status, true),
         const img = document.createElement('img');
         img.src = photo.dataUrl; // ✅ use dataUrl, not photo.src
         img.style = 'width:100%; height:auto; object-fit:cover; border-radius:3px;';
-        img.addEventListener('click', () => {
-            const url = `photo.html?src=${encodeURIComponent(photo.dataUrl)}&date=${encodeURIComponent(photo.date || '')}&desc=${encodeURIComponent(photo.description || '')}`;
-            window.location.href = url;
-        });
+img.addEventListener('click', () => {
+    // Pass only the photo ID in URL
+    const url = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}&photoId=${encodeURIComponent(photo.id)}`;
+    window.location.href = url;
+});
         box.appendChild(img);
 
         if(photo.date){
