@@ -340,6 +340,15 @@
             <button id="deleteBtn" class="action-button">Delete</button>
         </div>
 
+        <!-- PHOTO LIGHTBOX -->
+<div id="photoLightbox" class="modal" style="display:none;">
+    <div class="modal-box" style="text-align:center; position:relative;">
+        <span id="lightboxClose" style="position:absolute; top:5px; right:10px; cursor:pointer; font-size:20px;">&times;</span>
+        <img id="lightboxImg" src="" style="max-width:100%; max-height:70vh; border:1px solid #555; border-radius:5px;">
+        <div id="lightboxCaption" style="color:#aaa; font-size:14px; margin-top:5px;"></div>
+    </div>
+</div>
+
         <div id="photosSection">
             <h3>Photos</h3>
             <div id="photosDiv"></div>
@@ -555,6 +564,11 @@
     const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
     const saveMapBtn = document.getElementById('saveMapBtn');
     const cancelAddPhotoBtn = document.getElementById('cancelAddPhotoBtn');
+
+       const lightbox = document.getElementById('photoLightbox');
+const lightboxImg = document.getElementById('lightboxImg');
+const lightboxCaption = document.getElementById('lightboxCaption');
+const lightboxClose = document.getElementById('lightboxClose');
 
        const useExifDate = document.getElementById('useExifDate');
 const exifError = document.getElementById('exifError');
@@ -797,36 +811,43 @@ function displayPhotos() {
         return;
     }
 
-    objPhotos.forEach(photo => {
-        const card = document.createElement('div');
-        card.style.display = 'inline-block';
-        card.style.margin = '5px';
-        card.style.textAlign = 'center';
+objPhotos.forEach(photo => {
+    const card = document.createElement('div');
+    card.style.display = 'inline-block';
+    card.style.margin = '5px';
+    card.style.textAlign = 'center';
 
-        const img = document.createElement('img');
-        img.src = photo.dataUrl || ''; // always use dataUrl
-        img.alt = photo.description || '';
-        img.style.width = "150px";
-        img.style.border = "1px solid #555";
-        img.style.borderRadius = "5px";
-        img.style.cursor = "pointer";
-        img.onclick = () => {
-            window.location.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photo=${photo.id}`;
-        };
-        card.appendChild(img);
+    const img = document.createElement('img');
+    img.src = photo.dataUrl || ''; 
+    img.alt = photo.description || '';
+    img.style.width = "150px";
+    img.style.border = "1px solid #555";
+    img.style.borderRadius = "5px";
+    img.style.cursor = "pointer";
 
-        if (photo.date) {
-            const dateDiv = document.createElement('div');
-            dateDiv.style.fontSize = '12px';
-            dateDiv.style.color = '#aaa';
-            dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date.split('T')[0];
-            card.appendChild(dateDiv);
-        }
+    // OPEN LIGHTBOX
+    img.onclick = () => {
+        lightbox.style.display = 'flex';
+        lightboxImg.src = photo.dataUrl;
+        let captionText = '';
+        if(photo.date) captionText += `${photo.date.split('T')[0]}`;
+        if(photo.description) captionText += (captionText ? ' — ' : '') + photo.description;
+        lightboxCaption.textContent = captionText;
+    };
 
-        photosDiv.appendChild(card);
-    });
-}
+    card.appendChild(img);
+
+    if(photo.date) {
+        const dateDiv = document.createElement('div');
+        dateDiv.style.fontSize = '12px';
+        dateDiv.style.color = '#aaa';
+        dateDiv.style.marginTop = '4px';
+        dateDiv.textContent = photo.date.split('T')[0];
+        card.appendChild(dateDiv);
+    }
+
+    photosDiv.appendChild(card);
+});
 
 // Initial render
 displayPhotos();
