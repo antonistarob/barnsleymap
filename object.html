@@ -826,8 +826,36 @@ if (status === "Doesn't exist") {
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(map);
 
-        const objectsOnStreet = streetObjects[streetName] || [];
-objectsOnStreet.forEach(o => {
+Object.keys(streetObjects).forEach(street => {
+    streetObjects[street].forEach(o => {
+
+        if (!o.lat || !o.lng) return;
+
+        const isCurrent =
+            street === streetName &&
+            o.name === obj.name;
+
+        const marker = L.marker(
+            [o.lat, o.lng],
+            {
+                icon: getCategoryIcon(o.category, o.status),
+                opacity: 1   // ← do NOT fade others
+            }
+        ).addTo(map);
+
+        marker.bindPopup(
+            `<b>${o.name}</b><br>${street}`
+        );
+
+        if (!isCurrent) {
+            marker.on('click', () => {
+                window.location.href =
+                    `object.html?street=${encodeURIComponent(street)}&object=${encodeURIComponent(o.name)}`;
+            });
+        }
+
+    });
+});
     if (!o.lat || !o.lng) return;
 
     const marker = L.marker([o.lat, o.lng], {
