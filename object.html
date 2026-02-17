@@ -656,15 +656,16 @@ savePhotoBtn.onclick = () => {
     if (!streetObjects[streetName][objectIndex].photos)
         streetObjects[streetName][objectIndex].photos = [];
 
+    const photosToAdd = [];
     let filesProcessed = 0;
 
     for (let i = 0; i < files.length; i++) {
-        const file = files[i]; // capture file inside loop
+        const file = files[i]; // capture file
         const reader = new FileReader();
 
         reader.onload = function(e) {
-            streetObjects[streetName][objectIndex].photos.push({
-                name: file.name, // use captured file
+            photosToAdd.push({
+                name: file.name,
                 date: photoDate.value,
                 description: photoDescription.value,
                 dataUrl: e.target.result
@@ -672,8 +673,15 @@ savePhotoBtn.onclick = () => {
 
             filesProcessed++;
             if (filesProcessed === files.length) {
+                // Add all photos at once
+                streetObjects[streetName][objectIndex].photos.push(...photosToAdd);
+
+                // Update localStorage
                 localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+                // Update the obj reference
                 Object.assign(obj, streetObjects[streetName][objectIndex]);
+
                 closeAddPhoto();
                 displayPhotos();
                 alert(`${filesProcessed} photo(s) added!`);
