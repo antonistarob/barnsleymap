@@ -553,16 +553,15 @@
         throw new Error('Object missing');
     }
 
-// Black calendar popup for photoDate (optional)
+// Initialize Flatpickr for the photoDate input
 flatpickr("#photoDate", {
     altInput: false,
-    dateFormat: "Y-m-d",
-    theme: "dark",
-    allowInput: true, // let user type "2025" or "2025-2026"
-    defaultDate: null,
+    allowInput: true,        // important: allows manual text entry
+    dateFormat: "Y-m-d",     // still valid if user enters full date
     onChange: function(selectedDates, dateStr) {
-        // Do NOT overwrite user input for partial dates
-        photoDate.value = photoDate.value.trim(); 
+        // Don't overwrite what user typed manually
+        // Just keep the raw value in the input
+        photoDate.value = photoDate.value.trim();
     }
 });
 
@@ -758,16 +757,17 @@ if (photo.date) {
 savePhotoBtn.addEventListener('click', () => {
     const file = photoFile.files[0];
     const desc = photoDescription.value.trim();
-    const dateStr = photoDate.value.trim();
+    const dateStr = photoDate.value.trim(); // keep exactly what user typed
 
     if (!file) {
         alert("Please select a photo.");
         return;
     }
 
-    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}-\d{4}|\d{4})$/;
+    // Validate allowed formats
+    const dateRegex = /^(\d{4}|\d{4}-\d{2}|\d{4}-\d{2}-\d{2}|\d{4}-\d{4})$/;
     if (dateStr && !dateRegex.test(dateStr)) {
-        alert("Date must be YYYY-MM-DD, YYYY-MM, YYYY-YYYY, or YYYY");
+        alert("Date must be YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD");
         return;
     }
 
@@ -777,7 +777,7 @@ savePhotoBtn.addEventListener('click', () => {
             id: Date.now() + "_" + Math.floor(Math.random() * 1000),
             dataUrl: e.target.result,
             description: desc,
-            date: dateStr || null,
+            date: dateStr || null,   // store exactly what user typed
             username: "Anonymous",
             views: 0
         };
