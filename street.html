@@ -71,12 +71,11 @@ h1 { margin-top:0; }
 </div>
 
 <!-- EDIT OBJECT POPUP -->
-<!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
   <div class="popup">
     <h3 id="popupTitle">Add Object</h3>
     <div id="popupSubTitle" style="font-size:13px; color:#aaa; margin-bottom:10px;">
-      Add Object to ""
+      Add Object to <strong id="popupStreetName"></strong>
     </div>
 
     <label id="popupNameLabel">Object Name:</label>
@@ -236,6 +235,11 @@ if(data.description){
     descriptionWrapper.style.display = 'none';
 }
 
+    // logic for "Add Object to Race Street"
+<div id="popupSubTitle" style="font-size:13px; color:#aaa; margin-bottom:10px;">
+  Add Object to <strong id="popupStreetName"></strong>
+</div>
+    
 // Display objects
 objectsTableBody.innerHTML = '';
 (streetObjects[streetName] || []).forEach((o, idx) => {
