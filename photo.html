@@ -68,7 +68,9 @@ if (!obj || !obj.photos || obj.photos.length === 0) {
         }
 
         if (photo.date) {
-            info.innerHTML += `<div><strong>Date of photo:</strong> ${photo.date}</div>`;
+            const photoDate = new Date(photo.date);
+            const formattedPhotoDate = photoDate.toLocaleDateString('en-GB');
+            info.innerHTML += `<div><strong>Date of photo:</strong> ${formattedPhotoDate}</div>`;
         }
 
         if (photo.id) {
