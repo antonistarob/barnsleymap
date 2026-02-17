@@ -71,13 +71,20 @@ h1 { margin-top:0; }
 </div>
 
 <!-- EDIT OBJECT POPUP -->
+<!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
   <div class="popup">
     <h3 id="popupTitle">Add Object</h3>
+    <div id="popupSubTitle" style="font-size:13px; color:#aaa; margin-bottom:10px;">
+      Add Object to ""
+    </div>
+
     <label id="popupNameLabel">Object Name:</label>
     <input type="text" id="editObjectName" placeholder="e.g. Building nr 10">
+
     <label id="popupNumberLabel">Number:</label>
     <input type="text" id="editObjectNumber" placeholder="e.g. 10">
+
     <label>Object Category:</label>
     <select id="editCategory">
       <option value="">--Select category--</option>
@@ -91,6 +98,7 @@ h1 { margin-top:0; }
       <option value="Single-family house">Single-family house</option>
       <option value="Apartment block">Apartment block</option>
     </select>
+
     <label>Status:</label>
     <select id="editStatus">
       <option value="Exists" selected>Exists</option>
@@ -99,12 +107,16 @@ h1 { margin-top:0; }
       <option value="Exists partially">Exists partially</option>
       <option value="In construction">In construction</option>
     </select>
+
     <label>Year Built:</label>
     <input type="text" id="editYearBuilt" placeholder="e.g. 1890">
+
     <label>Year Demolished:</label>
     <input type="text" id="editYearDemolished" placeholder="e.g. 1975">
+
     <label>Grade Listed:</label>
     <input type="checkbox" id="editGradeListed">
+
     <div id="gradeOptions">
       <label>Grade:</label>
       <select id="editGrade">
@@ -112,20 +124,24 @@ h1 { margin-top:0; }
         <option value="Grade II*">Grade II*</option>
         <option value="Grade II">Grade II</option>
       </select>
+
       <label>List Entry Number:</label>
       <input type="text" id="editListEntryNumber">
+
       <label>Date first listed:</label>
       <input type="text" id="editDateListed">
     </div>
+
     <label>Description:</label>
     <textarea id="editDescription" rows="3"></textarea>
+
     <div class="popup-buttons">
       <button id="saveEditObject" class="action-button">Save</button>
       <button onclick="closeEdit()" class="action-button">Cancel</button>
     </div>
   </div>
 </div>
-
+    
 <!-- EDIT STREET POPUP -->
 <div class="popup-overlay" id="editStreetPopup">
   <div class="popup">
