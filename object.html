@@ -755,6 +755,54 @@ savePhotoBtn.onclick = () => {
 // Initial render
 displayPhotos();
 
+       function openAddPhoto() {
+    document.getElementById('addPhotoModal').style.display = 'flex';
+           <button onclick="openAddPhoto()">Add photo</button>
+}
+
+function closeAddPhoto() {
+    document.getElementById('addPhotoModal').style.display = 'none';
+}
+
+function savePhoto() {
+    const fileInput = document.getElementById('photoFile');
+    const date = document.getElementById('photoDate').value;
+    const description = document.getElementById('photoDescription').value;
+
+    if (!fileInput.files[0]) {
+        alert('Please select a photo');
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = () => {
+        const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+        const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+
+        if (!obj) return;
+
+        if (!obj.photos) obj.photos = [];
+
+        const photoId = Date.now() + '_' + Math.random().toString(36).slice(2,7);
+
+        obj.photos.push({
+            id: photoId,
+            dataUrl: reader.result,
+            date: date ||.Qtq,
+            description: description || '',
+            username: 'User',     // ← change later if you add accounts
+            views: 0
+        });
+
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+        closeAddPhoto();
+        location.reload();
+    };
+
+    reader.readAsDataURL(fileInput.files[0]);
+}
+
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
 
