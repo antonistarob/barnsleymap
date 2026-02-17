@@ -556,22 +556,20 @@
 // Black calendar popup for photoDate (optional)
 flatpickr("#photoDate", {
     altInput: false,
-    dateFormat: "Y-m-d", // only for full date selection
+    dateFormat: "Y-m-d",  // only used internally for sorting
     theme: "dark",
-    allowInput: true, // allow typing custom formats
-    defaultDate: null,
+    allowInput: true,      // user can type YYYY, YYYY-MM, etc
+    defaultDate: photoDate.value || null, // preserve typed value
     onChange: function(selectedDates, dateStr) {
-        // Only overwrite if user picked a full date
-        if (dateStr) {
-            document.getElementById('photoDate').value = dateStr;
-        }
+        // Only store what the user typed
+        photoDate.value = dateStr || photoDate.value;
     },
     onReady: function(selectedDates, dateStr, instance) {
-        // Dark theme styling
         instance.calendarContainer.style.background = "#121212";
         instance.calendarContainer.style.color = "#eee";
     }
 });
+
 
 /* DISPLAY OBJECT */
 // Set basic info
@@ -696,19 +694,25 @@ function displayPhotos() {
     }
 
     // Sort photos by date
-    objPhotos.sort((a, b) => {
-        const parseDate = d => {
-            if (!d) return 0;
+   objPhotos.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+const parseDate = d => {
+    if (!d) return 0;
 
-            if (/^\d{4}-\d{4}$/.test(d)) return new Date(parseInt(d.split('-')[0]), 0, 1).getTime();
-            if (/^\d{4}-\d{2}$/.test(d)) return new Date(parseInt(d.split('-')[0]), parseInt(d.split('-')[1]) - 1, 1).getTime();
-            if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-                const [y, m, day] = d.split('-').map(n => parseInt(n));
-                return new Date(y, m - 1, day).getTime();
-            }
-            if (/^\d{4}$/.test(d)) return new Date(parseInt(d), 0, 1).getTime();
-            return 0;
-        };
+    if (/^\d{4}-\d{4}$/.test(d)) {
+        // "2023-2025" → use start year
+        return new Date(parseInt(d.split('-')[0]), 0, 1).getTime();
+    }
+    if (/^\d{4}-\d{2}$/.test(d)) {
+        const [y, m] = d.split('-').map(n => parseInt(n));
+        return new Date(y, m - 1, 1).getTime();
+    }
+    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+        const [y, m, day] = d.split('-').map(n => parseInt(n));
+        return new Date(y, m - 1, day).getTime();
+    }
+    if (/^\d{4}$/.test(d)) return new Date(parseInt(d), 0, 1).getTime();
+    return 0;
+};
         return parseDate(a.date) - parseDate(b.date);
     });
 
@@ -733,14 +737,15 @@ function displayPhotos() {
         };
         card.appendChild(img);
 
-        if (photo.date) {
-            const dateDiv = document.createElement('div');
-            dateDiv.style.fontSize = '12px';
-            dateDiv.style.color = '#aaa';
-            dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date;
-            card.appendChild(dateDiv);
-        }
+if (photo.date) {
+    const dateDiv = document.createElement('div');
+    dateDiv.style.fontSize = '12px';
+    dateDiv.style.color = '#aaa';
+    dateDiv.style.marginTop = '4px';
+    // display exactly what user typed
+    dateDiv.textContent = photo.date;
+    card.appendChild(dateDiv);
+}
 
         photosDiv.appendChild(card);
     });
