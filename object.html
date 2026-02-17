@@ -819,14 +819,14 @@ function initObjectMap() {
 
     const map = L.map('objectMap', {
         minZoom: obj.zoomMin || 16,
-        maxZoom: obj.zoomMax || 19
+        maxZoom: obj.zoomMax || 18
     }).setView([obj.lat, obj.lng], obj.zoom || 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // 🔹 SHOW ALL OBJECTS FROM ALL STREETS
+    // ✅ SHOW ALL OBJECTS FROM ALL STREETS
     Object.keys(streetObjects).forEach(street => {
         streetObjects[street].forEach(o => {
 
@@ -840,12 +840,13 @@ function initObjectMap() {
                 [o.lat, o.lng],
                 {
                     icon: getCategoryIcon(o.category, o.status),
-                    opacity: 1
+                    opacity: 1   // keep everything visible
                 }
             ).addTo(map);
 
             marker.bindPopup(`<b>${o.name}</b><br>${street}`);
 
+            // click-through for other objects
             if (!isCurrent) {
                 marker.on('click', () => {
                     window.location.href =
@@ -855,7 +856,7 @@ function initObjectMap() {
         });
     });
 
-    // 🔹 Zoom display
+    // Zoom display
     const zoomDiv = document.getElementById('objectMapZoom');
     zoomDiv.style.display = 'block';
     zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
@@ -864,13 +865,6 @@ function initObjectMap() {
         zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
     });
 }
-
-        // Zoom display
-        const zoomDiv = document.getElementById('objectMapZoom');
-        zoomDiv.style.display = 'block';
-        zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
-        map.on('zoomend', () => zoomDiv.textContent = `Zoom: ${map.getZoom()}`);
-    }
 
     /* DISPLAY PHOTOS */
     function displayPhotos() {
