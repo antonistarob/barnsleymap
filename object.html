@@ -510,7 +510,7 @@ saveMapBtn.onclick = () => {
     closeMapPopup();
     mapNotSetText.style.display = 'none';
     mapSection.style.display = 'block';
-    initObjectMap();
+    ();
 };
 
 /* DELETE MARKER */
@@ -587,7 +587,7 @@ function initObjectMap() {
 
         const isCurrent = o.name === obj.name;
         const marker = L.marker([o.lat, o.lng], { 
-            icon: getCategoryIcon(o.category),
+            icon: getCategoryIcon(o.category, o.status),
             opacity: isCurrent ? 1 : 0.7
         }).addTo(map);
 
