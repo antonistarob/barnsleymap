@@ -285,12 +285,26 @@ if (!obj) {
 
 // Function to create Leaflet icon
 function getCategoryIcon(category) {
-    const iconUrl = categoryIcons[category] || "icons/default.png"; // fallback
+    const iconUrl = categoryIcons[category] || "https://polska-org.pl/gfx/category/500045.png"; // fallback
+
+    // Create a temporary image to get natural size
+    const img = new Image();
+    img.src = iconUrl;
+
+    // Default size if not loaded yet
+    let width = 32;
+    let height = 32;
+
+    img.onload = () => {
+        const aspect = img.naturalWidth / img.naturalHeight;
+        height = width / aspect;
+    }
+
     return L.icon({
         iconUrl: iconUrl,
-        iconSize: [32, 37],  // size of the icon
-        iconAnchor: [16, 37], // point of the icon which will correspond to marker's location
-        popupAnchor: [0, -28] // point from which the popup should open relative to the iconAnchor
+        iconSize: [width, height],    // width fixed, height proportional
+        iconAnchor: [width/2, height],
+        popupAnchor: [0, -height + 5]
     });
 }
   
