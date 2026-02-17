@@ -769,12 +769,12 @@ savePhotoBtn.onclick = () => {
     reader.onload = function(e){
         const dataUrl = e.target.result;
         if(!obj.photos) obj.photos = [];
-        obj.photos.push({
-            id: Date.now(),
-            dataUrl,
-            date: photoDate.value.trim(),
-            description: photoDescription.value.trim()
-        });
+obj.photos.push({
+    id: Date.now().toString(),  // <-- convert to string
+    dataUrl,
+    date: photoDate.value.trim(),
+    description: photoDescription.value.trim()
+});
 
         // Save back to localStorage
         objArray[objIndex] = obj;
