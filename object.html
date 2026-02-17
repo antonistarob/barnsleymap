@@ -480,21 +480,6 @@
         </div>
     </div>
 
-    <div id="addPhotoModal" class="modal" style="display:none;">
-    <div class="modal-box">
-        <h3>Add photo</h3>
-
-        <input type="file" id="photoFile" accept="image/*"><br><br>
-
-        <input type="date" id="photoDate"><br><br>
-
-        <textarea id="photoDescription" placeholder="Description"></textarea><br><br>
-
-        <button onclick="savePhoto()">Save</button>
-        <button onclick="closeAddPhoto()">Cancel</button>
-    </div>
-</div>
-
    <script>
     // Define icons for categories
     const categoryIcons = {
@@ -652,6 +637,7 @@ if (obj.gradeListed) {
 
     function closeEdit() { editPopup.style.display = 'none'; }
 
+
     /* DELETE OBJECT */
     deleteBtn.onclick = () => {
         deleteMessage.innerHTML = `Are you sure you want to delete <b>${obj.name}</b>?`;
@@ -664,6 +650,16 @@ if (obj.gradeListed) {
         window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
     };
 
+addPhotoBtn.onclick = () => {
+    addPhotoPopup.style.display = 'flex';
+    addPhotoTitle.textContent = `Adding photo(s) to:`;
+    addPhotoSubTitle.textContent = obj.name;
+};
+
+       function closeAddPhoto() {
+    addPhotoPopup.style.display = 'none';
+}
+       
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
     const photosDiv = document.getElementById('photosDiv');
@@ -731,7 +727,9 @@ savePhotoBtn.onclick = () => {
             photosToAdd.push({
                 id: photoId,
                 name: file.name,
-                date: photoDate.value,
+            date: photoDate.value
+    ? new Date(photoDate.value).toLocaleDateString('en-GB')
+    : '',
                 description: photoDescription.value,
                 dataUrl: e.target.result,
                 username: "Anonymous",
@@ -754,54 +752,6 @@ savePhotoBtn.onclick = () => {
 
 // Initial render
 displayPhotos();
-
-       function openAddPhoto() {
-    document.getElementById('addPhotoModal').style.display = 'flex';
-           <button onclick="openAddPhoto()">Add photo</button>
-}
-
-function closeAddPhoto() {
-    document.getElementById('addPhotoModal').style.display = 'none';
-}
-
-function savePhoto() {
-    const fileInput = document.getElementById('photoFile');
-    const date = document.getElementById('photoDate').value;
-    const description = document.getElementById('photoDescription').value;
-
-    if (!fileInput.files[0]) {
-        alert('Please select a photo');
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-        const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-        const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
-
-        if (!obj) return;
-
-        if (!obj.photos) obj.photos = [];
-
-        const photoId = Date.now() + '_' + Math.random().toString(36).slice(2,7);
-
-        obj.photos.push({
-            id: photoId,
-            dataUrl: reader.result,
-            date: date ||.Qtq,
-            description: description || '',
-            username: 'User',     // ← change later if you add accounts
-            views: 0
-        });
-
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        closeAddPhoto();
-        location.reload();
-    };
-
-    reader.readAsDataURL(fileInput.files[0]);
-}
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
