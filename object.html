@@ -385,7 +385,7 @@
 
         <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
             <button id="savePhotoBtn" class="action-button" type="button" style="margin-right:10px;">Add Photo</button>
-            <button onclick="closeAddPhoto()" class="action-button">Cancel</button>
+            <button id="cancelAddPhotoBtn" class="action-button">Cancel</button>
         </div>
     </div>
 </div>
@@ -706,9 +706,19 @@ addPhotoBtn.onclick = () => {
     addPhotoSubTitle.textContent = obj.name;
 };
 
-       function closeAddPhoto() {
+const cancelAddPhotoBtn = document.getElementById('cancelAddPhotoBtn');
+
+function closeAddPhoto() {
     addPhotoPopup.style.display = 'none';
+    // Clear fields when closing
+    photoFile.value = '';
+    photoDate.value = '';
+    photoDescription.value = '';
+    useExifDate.checked = false;
+    exifError.style.display = 'none';
 }
+
+cancelAddPhotoBtn.onclick = closeAddPhoto;
 
        savePhotoBtn.onclick = () => {
     const file = photoFile.files[0];
