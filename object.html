@@ -632,49 +632,40 @@ function displayPhotos() {
         photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
     } else {
         objPhotos.forEach(photo => {
-            // Create container
-            const container = document.createElement('div');
-            container.style.margin = '5px';
-            container.style.textAlign = 'center';
-            container.style.width = '150px';
+            // make sure it has an id
+            if(!photo.id) photo.id = Date.now() + '_' + Math.floor(Math.random()*1000);
 
-            // Create image
+            const card = document.createElement('div');
+            card.style.display = 'inline-block';
+            card.style.margin = '5px';
+            card.style.textAlign = 'center';
+
             const img = document.createElement('img');
-            img.src = photo.dataUrl || photo.src; // Base64 or URL
+            img.src = photo.dataUrl || photo.src;
             img.alt = photo.description || '';
             img.style.width = "150px";
             img.style.border = "1px solid #555";
             img.style.borderRadius = "5px";
             img.style.cursor = "pointer";
 
-            // Click to open in new tab or popup
             img.onclick = () => {
-                const win = window.open();
-                win.document.write(`<img src="${img.src}" style="max-width:100%; display:block; margin:auto;">`);
+                window.location.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photo=${photo.id}`;
             };
 
-            container.appendChild(img);
+            card.appendChild(img);
 
-            // Add date
-            if(photo.date) {
-                const dateEl = document.createElement('div');
-                dateEl.textContent = photo.date;
-                dateEl.style.fontSize = '12px';
-                dateEl.style.color = '#aaa';
-                dateEl.style.marginTop = '3px';
-                container.appendChild(dateEl);
-            }
+            const infoBox = document.createElement('div');
+            infoBox.style.fontSize = '12px';
+            infoBox.style.color = '#aaa';
+            infoBox.style.marginTop = '4px';
+            infoBox.style.maxWidth = '150px';
+            infoBox.style.wordBreak = 'break-word';
 
-            // Add description
-            if(photo.description) {
-                const descEl = document.createElement('div');
-                descEl.textContent = photo.description;
-                descEl.style.fontSize = '12px';
-                descEl.style.color = '#ccc';
-                container.appendChild(descEl);
-            }
+            if(photo.date) infoBox.innerHTML += `Date: ${photo.date}<br>`;
+            if(photo.description) infoBox.innerHTML += `Desc: ${photo.description}`;
 
-            photosDiv.appendChild(container);
+            card.appendChild(infoBox);
+            photosDiv.appendChild(card);
         });
     }
 }
