@@ -5,45 +5,108 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Photo Viewer</title>
 <style>
-    body { background:#121212; color:#eee; font-family:Arial; text-align:center; margin:0; padding:20px;}
-    img { max-width:90%; max-height:70vh; border-radius:5px; }
-    .info-box { margin-top:15px; background:#1f1f1f; padding:10px; border-radius:5px; display:inline-block; text-align:left; }
+    body {
+        background: #121212;
+        color: #eee;
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 20px;
+    }
+    a { color: #88c; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    h1 { text-align: center; margin-bottom: 20px; }
+
+    #photoContainer {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 15px;
+    }
+
+    .photo-card {
+        background: #1f1f1f;
+        border: 1px solid #555;
+        border-radius: 5px;
+        width: 220px;
+        padding: 10px;
+        text-align: center;
+    }
+
+    .photo-card img {
+        width: 200px;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+    .photo-info {
+        margin-top: 8px;
+        background: #2b2b2b;
+        padding: 5px;
+        border-radius: 5px;
+        font-size: 12px;
+        text-align: left;
+        color: #ccc;
+    }
+
+    .photo-info div { margin-bottom: 3px; }
 </style>
 </head>
 <body>
-<h1>Photo Viewer</h1>
-<div id="photoContainer">
-    <img id="photoImg" src="" alt="Photo">
-    <div class="info-box">
-        <div id="photoDate"></div>
-        <div id="photoDesc"></div>
-    </div>
-</div>
+
+<h1>Photos for Object</h1>
+<div id="photoContainer"></div>
 
 <script>
-const qp = p => new URLSearchParams(location.search).get(p);
-const street = qp('street');
-const objectName = qp('object');
-const photoId = qp('photoId');
+    // Example data: in real use, pull from localStorage or query params
+    const streetName = "Peel Street 2";
+    const objectName = "Holden House";
 
-if(!street || !objectName || !photoId){
-    document.body.innerHTML = '<p>No photo data provided.</p>';
-} else {
-    const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-    const obj = (streetObjects[street] || []).find(o => o.name === objectName);
-    if(!obj || !obj.photos) {
-        document.body.innerHTML = '<p>Photo not found.</p>';
-    } else {
-        const photo = obj.photos.find(p => p.id === photoId);
-        if(!photo){
-            document.body.innerHTML = '<p>Photo not found.</p>';
-        } else {
-            document.getElementById('photoImg').src = photo.dataUrl;
-            document.getElementById('photoDate').textContent = photo.date ? `Date: ${photo.date}` : '';
-            document.getElementById('photoDesc').textContent = photo.description ? `Description: ${photo.description}` : '';
-        }
+    // Sample photo array
+    let objPhotos = JSON.parse(localStorage.getItem('streetObjects'))?.[streetName]?.find(o => o.name === objectName)?.photos || [];
+
+    const container = document.getElementById('photoContainer');
+
+    if(!objPhotos || objPhotos.length === 0){
+        container.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
     }
-}
+
+    objPhotos.forEach(photo => {
+        const card = document.createElement('div');
+        card.className = 'photo-card';
+
+        const img = document.createElement('img');
+        img.src = photo.dataUrl || photo.src;
+        img.alt = photo.description || '';
+        img.onclick = () => {
+            // Open photo in new tab
+            const win = window.open();
+            win.document.write(`<img src="${img.src}" style="max-width:100%; display:block; margin:auto;">`);
+        };
+        card.appendChild(img);
+
+        const info = document.createElement('div');
+        info.className = 'photo-info';
+
+        if(photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
+        if(photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${photo.date}</div>`;
+        if(photo.id){
+            const dateAdded = new Date(parseInt(photo.id.split('_')[0]));
+            info.innerHTML += `<div><strong>Date added:</strong> ${dateAdded.toLocaleDateString()}</div>`;
+        }
+        if(photo.username) info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
+        if(photo.views !== undefined) info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
+
+        // Directory links
+        info.innerHTML += `<div><strong>Directory:</strong> 
+            <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; 
+            <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
+        </div>`;
+
+        card.appendChild(info);
+        container.appendChild(card);
+    });
 </script>
+
 </body>
 </html>
