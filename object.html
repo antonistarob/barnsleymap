@@ -845,14 +845,15 @@ objPhotos.forEach(photo => {
 
     card.appendChild(img);
 
-    if(photo.date) {
-        const dateDiv = document.createElement('div');
-        dateDiv.style.fontSize = '12px';
-        dateDiv.style.color = '#aaa';
-        dateDiv.style.marginTop = '4px';
-        dateDiv.textContent = photo.date.split('T')[0];
-        card.appendChild(dateDiv);
-    }
+if (photo.date) {
+    const dateDiv = document.createElement('div');
+    dateDiv.style.fontSize = '12px';
+    dateDiv.style.color = '#aaa';
+    dateDiv.style.marginTop = '4px';
+    // show the date as entered, don't split by 'T'
+    dateDiv.textContent = photo.date;
+    card.appendChild(dateDiv);
+}
 
     photosDiv.appendChild(card);
 });
