@@ -758,28 +758,33 @@ function displayPhotos() {
         return;
     }
 
-    // Sort photos by date (works with YYYY, YYYY-YYYY, YYYY-MM, YYYY-MM-DD)
+    // Sort photos by date
     objPhotos.sort((a, b) => {
         const parseDate = d => {
             if (!d) return 0;
-            // Take the first year/month/day available
-            const parts = d.split('-');
-            const year = parseInt(parts[0]) || 0;
 
-            // If second part is > 12, treat as range end and ignore for sorting
-            let month = 1, day = 1;
-            if (parts.length > 1) {
-                if (parseInt(parts[1]) <= 12) month = parseInt(parts[1]);
-                else month = 1; // range end ignored
+            // If range YYYY-YYYY, take first year
+            if (/^\d{4}-\d{4}$/.test(d)) return new Date(parseInt(d.split('-')[0]),0,1).getTime();
+
+            // If year-month YYYY-MM
+            if (/^\d{4}-\d{2}$/.test(d)) return new Date(parseInt(d.split('-')[0]), parseInt(d.split('-')[1])-1,1).getTime();
+
+            // If full date YYYY-MM-DD
+            if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+                const parts = d.split('-');
+                return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2])).getTime();
             }
-            if (parts.length > 2) day = parseInt(parts[2]);
-            return new Date(year, month - 1, day).getTime();
+
+            // If single year YYYY
+            if (/^\d{4}$/.test(d)) return new Date(parseInt(d),0,1).getTime();
+
+            return 0; // fallback
         };
+
         return parseDate(a.date) - parseDate(b.date);
     });
 
     objPhotos.forEach(photo => {
-        // ensure photo has an ID
         if (!photo.id) photo.id = Date.now() + '_' + Math.floor(Math.random() * 1000);
 
         const card = document.createElement('div');
@@ -787,7 +792,6 @@ function displayPhotos() {
         card.style.margin = '5px';
         card.style.textAlign = 'center';
 
-        // Image
         const img = document.createElement('img');
         img.src = photo.dataUrl || photo.src;
         img.alt = photo.description || '';
@@ -800,13 +804,12 @@ function displayPhotos() {
         };
         card.appendChild(img);
 
-        // Only show the photo date below the image
         if (photo.date) {
             const dateDiv = document.createElement('div');
             dateDiv.style.fontSize = '12px';
             dateDiv.style.color = '#aaa';
             dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date; // show exactly as entered
+            dateDiv.textContent = photo.date; // keep original format
             card.appendChild(dateDiv);
         }
 
