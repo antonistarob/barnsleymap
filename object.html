@@ -554,6 +554,45 @@
         throw new Error('Object missing');
     }
 
+       // Optional black calendar
+const photoDateInput = document.getElementById('photoDate');
+
+photoDateInput.addEventListener('focus', () => {
+    // only create calendar if not already created
+    if (document.getElementById('calendarPopup')) return;
+
+    const calendar = document.createElement('input');
+    calendar.type = 'date';
+    calendar.id = 'calendarPopup';
+    calendar.style.position = 'absolute';
+    calendar.style.zIndex = 1000;
+    calendar.style.background = '#121212';
+    calendar.style.color = '#eee';
+    calendar.style.border = '1px solid #555';
+    calendar.style.borderRadius = '4px';
+
+    // position under the input
+    const rect = photoDateInput.getBoundingClientRect();
+    calendar.style.left = rect.left + 'px';
+    calendar.style.top = (rect.bottom + window.scrollY) + 'px';
+
+    document.body.appendChild(calendar);
+
+    calendar.addEventListener('change', () => {
+        photoDateInput.value = calendar.value; // YYYY-MM-DD
+        document.body.removeChild(calendar);
+    });
+
+    calendar.addEventListener('blur', () => {
+        if (document.getElementById('calendarPopup')) {
+            document.body.removeChild(calendar);
+        }
+    });
+
+    calendar.focus();
+});
+
+
 /* DISPLAY OBJECT */
 // Set basic info
 objectTitle.textContent = obj.name;
@@ -748,47 +787,46 @@ if (photo.date) {
 });
 
 /* === ADD PHOTO HANDLING === */
-savePhotoBtn.onclick = () => {
-    const files = photoFile.files;
-    if (!files || files.length === 0) return alert("Please select at least one photo file.");
+document.getElementById('savePhotoBtn').addEventListener('click', () => {
+    const fileInput = document.getElementById('photoFile');
+    const desc = document.getElementById('photoDescription').value.trim();
+    const dateStr = document.getElementById('photoDate').value.trim();
 
-    const objectIndex = streetObjects[streetName].findIndex(o => o.name === obj.name);
-    if (objectIndex === -1) return alert("Object not found.");
-    if (!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos = [];
-
-    const photosToAdd = [];
-    let filesProcessed = 0;
-
-    for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            const photoId = Date.now() + '_' + Math.floor(Math.random()*1000);
-            photosToAdd.push({
-                id: photoId,
-                name: file.name,
-            date: photoDate.value
-    ? new Date(photoDate.value).toLocaleDateString('en-GB')
-    : '',
-                description: photoDescription.value,
-                dataUrl: e.target.result,
-                username: "Anonymous",
-                addedDate: new Date().toLocaleDateString(),
-                views: 0
-            });
-            filesProcessed++;
-            if (filesProcessed === files.length) {
-                streetObjects[streetName][objectIndex].photos.push(...photosToAdd);
-                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-                Object.assign(obj, streetObjects[streetName][objectIndex]);
-                closeAddPhoto();
-                displayPhotos();
-                alert(`${filesProcessed} photo(s) added!`);
-            }
-        };
-        reader.readAsDataURL(file);
+    if (!fileInput.files.length) {
+        alert("Please select a photo.");
+        return;
     }
-};
+
+    // Acceptable formats
+    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}-\d{4}|\d{4})$/;
+    if (dateStr && !dateRegex.test(dateStr)) {
+        alert("Date must be YYYY-MM-DD, YYYY-MM, YYYY-YYYY, or YYYY");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const newPhoto = {
+            id: Date.now() + "_" + Math.floor(Math.random()*1000),
+            dataUrl: e.target.result,
+            description: desc,
+            date: dateStr || null,
+            username: "Anonymous",
+            views: 0
+        };
+
+        // Save to localStorage
+        let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+        const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+        if (!obj.photos) obj.photos = [];
+        obj.photos.push(newPhoto);
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+        closeAddPhoto();
+        location.reload();
+    };
+    reader.readAsDataURL(fileInput.files[0]);
+});
 
 // Initial render
 displayPhotos();
