@@ -554,6 +554,7 @@
     const mapNotSetText = document.getElementById('mapNotSetText');
     const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
     const saveMapBtn = document.getElementById('saveMapBtn');
+    const cancelAddPhotoBtn = document.getElementById('cancelAddPhotoBtn');
 
        const useExifDate = document.getElementById('useExifDate');
 const exifError = document.getElementById('exifError');
@@ -706,8 +707,6 @@ addPhotoBtn.onclick = () => {
     addPhotoSubTitle.textContent = obj.name;
 };
 
-const cancelAddPhotoBtn = document.getElementById('cancelAddPhotoBtn');
-
 function closeAddPhoto() {
     addPhotoPopup.style.display = 'none';
     // Clear fields when closing
@@ -717,10 +716,38 @@ function closeAddPhoto() {
     useExifDate.checked = false;
     exifError.style.display = 'none';
 }
-
 cancelAddPhotoBtn.onclick = closeAddPhoto;
 
-       savePhotoBtn.onclick = () => {
+// EXIF handling
+function populateExifDate() {
+    exifError.style.display = 'none';
+    const file = photoFile.files[0];
+    if (!file) return;
+
+    EXIF.getData(file, function() {
+        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+        if (exifDate) {
+            const parts = exifDate.split(" ")[0].split(":"); 
+            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+        } else {
+            exifError.style.display = 'block';
+            photoDate.value = '';
+        }
+    });
+}
+
+useExifDate.addEventListener('change', () => {
+    exifError.style.display = 'none';
+    if (useExifDate.checked) populateExifDate();
+    else photoDate.value = '';
+});
+
+photoFile.addEventListener('change', () => {
+    if (useExifDate.checked) populateExifDate();
+});
+
+// Save photo
+savePhotoBtn.onclick = () => {
     const file = photoFile.files[0];
     if (!file) {
         alert("Please select a photo.");
@@ -729,31 +756,19 @@ cancelAddPhotoBtn.onclick = closeAddPhoto;
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        const dataUrl = e.target.result;
-        const dateValue = photoDate.value.trim();
-        const descriptionValue = photoDescription.value.trim();
-
         if (!obj.photos) obj.photos = [];
         obj.photos.push({
             id: Date.now(),
-            dataUrl: dataUrl,
-            date: dateValue,
-            description: descriptionValue
+            dataUrl: e.target.result,
+            date: photoDate.value.trim(),
+            description: photoDescription.value.trim()
         });
-
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
         displayPhotos();
         closeAddPhoto();
-
-        // Clear fields for next time
-        photoFile.value = '';
-        photoDate.value = '';
-        photoDescription.value = '';
-        useExifDate.checked = false;
     };
     reader.readAsDataURL(file);
 };
-
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
     const photosDiv = document.getElementById('photosDiv');
