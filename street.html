@@ -138,6 +138,19 @@ h1 { margin-top:0; }
 </div>
 
 <script>
+// Define icons for categories
+const categoryIcons = {
+    "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
+    "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
+    "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
+    "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
+    "Villa": "https://polska-org.pl/gfx/obj/05c.png",
+    "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
+    "Cottage": "https://polska-org.pl/gfx/category/500129.png",
+    "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
+    "Apartment block": "https://polska-org.pl/gfx/category/3258201.png"
+};
+    
 const qp = p => new URLSearchParams(location.search).get(p);
 let streetName = qp('name'); // make streetName let so we can rename
 
