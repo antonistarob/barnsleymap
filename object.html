@@ -773,7 +773,7 @@ console.log("DEBUG: File selected:", file.name, file.size);
         // Add the new photo
         objArray[objIndex].photos.push({
             id: Date.now(),
-            dataUrl,
+            filename: file.name,
             date: photoDate.value.trim(),
             description: photoDescription.value.trim()
         });
@@ -819,7 +819,7 @@ function displayPhotos(currentObj) {
         link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(currentObj.name)}&photoId=${photo.id}`;
 
         const img = document.createElement('img');
-        img.src = photo.dataUrl;
+        img.src = `photos/${photo.filename}`;   // ✅ HERE
         img.alt = photo.description || '';
         img.style.width = "150px";
         img.style.border = "1px solid #555";
