@@ -287,7 +287,15 @@ if (obj.gradeListed) {
     if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
     if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
-if (obj.category) additionalInfo.innerHTML += `<span><strong>Category:</strong> ${obj.category}</span><br>`;
+
+  // Show category prominently
+if (obj.category) {
+    const categoryEl = document.createElement('p');
+    categoryEl.innerHTML = `<strong>Category:</strong> ${obj.category}`;
+    categoryEl.style.fontSize = '18px';
+    categoryEl.style.margin = '5px 0';
+    additionalInfo.appendChild(categoryEl);
+}
 
 // Description
 objectDescription.textContent = obj.description || '';
