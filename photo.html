@@ -22,7 +22,9 @@ h1 { text-align: center; margin-bottom: 20px; }
 <div id="photoContainer"></div>
 
 <script>
-function getQueryParam(p) { return new URLSearchParams(location.search).get(p); }
+function getQueryParam(p) {
+    return new URLSearchParams(location.search).get(p);
+}
 
 const streetName = getQueryParam('street');
 const objectName = getQueryParam('object');
@@ -32,36 +34,59 @@ const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
 const container = document.getElementById('photoContainer');
 
-if(!obj || !obj.photos || obj.photos.length === 0){
+if (!obj || !obj.photos || obj.photos.length === 0) {
     container.innerHTML = '<p style="color:#aaa;">No photos found.</p>';
 } else {
     const photo = obj.photos.find(p => p.id === photoId);
-    if(!photo){
+
+    if (!photo) {
         container.innerHTML = '<p style="color:#aaa;">Photo not found.</p>';
     } else {
+        // defaults (safety)
+        if (!photo.username) photo.username = "Anonymous";
+        if (!photo.views) photo.views = 0;
+
         // increment views
-        photo.views = (photo.views || 0) + 1;
+        photo.views++;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
         const card = document.createElement('div');
         card.className = 'photo-card';
 
+        /* IMAGE (NOT CLICKABLE) */
         const img = document.createElement('img');
         img.src = photo.dataUrl || photo.src;
         img.alt = photo.description || '';
-        // removed onclick — photo no longer clickable
         card.appendChild(img);
 
+        /* INFO BOX */
         const info = document.createElement('div');
         info.className = 'photo-info';
 
-        if(photo.date) info.innerHTML += `${photo.date}<br>`;  // just show the date under photo
+        if (photo.description) {
+            info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
+        }
 
-        // directory with clickable links
-        info.innerHTML += `<div><strong>Directory:</strong> 
-            <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; 
-            <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
-        </div>`;
+        if (photo.date) {
+            info.innerHTML += `<div><strong>Date of photo:</strong> ${photo.date}</div>`;
+        }
+
+        if (photo.id) {
+            const addedDate = new Date(parseInt(photo.id.split('_')[0]));
+            info.innerHTML += `<div><strong>Date added:</strong> ${addedDate.toLocaleDateString()}</div>`;
+        }
+
+        info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
+        info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
+
+        /* DIRECTORY */
+        info.innerHTML += `
+            <div>
+                <strong>Directory:</strong>
+                <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt;
+                <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
+            </div>
+        `;
 
         card.appendChild(info);
         container.appendChild(card);
