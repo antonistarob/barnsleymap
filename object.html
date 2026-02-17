@@ -531,10 +531,41 @@ deleteMarkerBtn.onclick = () => {
 };
 
 /* OBJECT MAP */
-function getCategoryIcon(category) {
+function getCategoryIcon(category, status) {
     const iconUrl = categoryIcons[category] || "https://polska-org.pl/gfx/category/500045.png";
-    return L.icon({ iconUrl, iconSize: [32,32], iconAnchor: [16,32], popupAnchor: [0,-32] });
+
+    // If object doesn't exist, wrap icon in a black ring
+    if (status === "Doesn't exist") {
+        return L.divIcon({
+            html: `
+                <div style="
+                    display:flex; 
+                    justify-content:center; 
+                    align-items:center;
+                    width:36px; 
+                    height:36px; 
+                    border:3px solid black; 
+                    border-radius:50%;
+                    background-color:transparent;
+                ">
+                    <img src="${iconUrl}" style="width:24px;height:24px;" />
+                </div>
+            `,
+            className: '', // no default styles
+            iconSize: [36,36],
+            iconAnchor: [18,36],
+            popupAnchor: [0,-36]
+        });
+    } else {
+        return L.icon({ 
+            iconUrl, 
+            iconSize: [32,32], 
+            iconAnchor: [16,32], 
+            popupAnchor: [0,-32] 
+        });
+    }
 }
+  
 function initObjectMap() {
     if (!obj.lat || !obj.lng) return;
 
