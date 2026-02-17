@@ -297,6 +297,7 @@
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
 </head>
 
 <body>
@@ -366,6 +367,10 @@
             <input type="file" id="photoFile" accept="image/*">
             <label for="photoDate">Date:</label>
             <input type="date" id="photoDate">
+            <div id="exifError"
+     style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
+    Unable to read photo date from EXIF. Please enter the date manually.
+</div>
             <label for="photoDescription">Photo Description:</label>
             <textarea id="photoDescription" rows="3"></textarea>
             <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
@@ -706,6 +711,33 @@ function displayPhotos() {
         photosDiv.appendChild(card);
     });
 }
+
+       photoFile.addEventListener('change', () => {
+    const file = photoFile.files[0];
+    const exifError = document.getElementById('exifError');
+
+    exifError.style.display = 'none';
+    if (!file) return;
+
+    EXIF.getData(file, function () {
+        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+
+        if (!exifDate) {
+            exifError.style.display = 'block';
+            return;
+        }
+
+        // EXIF format: YYYY:MM:DD HH:MM:SS
+        const datePart = exifDate.split(' ')[0];
+        const parts = datePart.split(':');
+
+        if (parts.length === 3) {
+            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+        } else {
+            exifError.style.display = 'block';
+        }
+    });
+});
 
 /* === ADD PHOTO HANDLING === */
 savePhotoBtn.onclick = () => {
