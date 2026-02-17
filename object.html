@@ -364,11 +364,15 @@
             <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
             <label for="photoFile">File:</label>
             <input type="file" id="photoFile" accept="image/*">
-<label for="photoDate">Date:</label>
+<label for="photoDate" style="display:flex; justify-content:space-between; align-items:center;">
+    <span>Date:</span>
+    <span>
+        <input type="checkbox" id="useExifDate"> Enter date from EXIF
+    </span>
+</label>
 <input type="text" id="photoDate" placeholder="YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD">
-            <div id="exifError"
-     style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
-    Unable to read photo date from EXIF. Please enter the date manually.
+<div id="exifError" style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
+    No EXIF data from chosen file, please enter manually.
 </div>
             <label for="photoDescription">Photo Description:</label>
             <textarea id="photoDescription" rows="3"></textarea>
@@ -746,6 +750,49 @@ savePhotoBtn.addEventListener('click', () => {
     const file = photoFile.files[0];
     const desc = photoDescription.value.trim();
     const dateStr = photoDate.value.trim(); // EXACTLY what user typed
+
+    const useExifDate = document.getElementById('useExifDate');
+const exifError = document.getElementById('exifError');
+
+photoFile.addEventListener('change', () => {
+    exifError.style.display = 'none';
+    if (!useExifDate.checked) return;
+
+    const file = photoFile.files[0];
+    if (!file) return;
+
+    EXIF.getData(file, function() {
+        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+        if (exifDate) {
+            // EXIF date is usually "YYYY:MM:DD HH:MM:SS"
+            const parts = exifDate.split(" ")[0].split(":"); 
+            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`; 
+        } else {
+            exifError.style.display = 'block';
+            photoDate.value = '';
+        }
+    });
+});
+
+// Also, if user ticks the box after file is already chosen
+useExifDate.addEventListener('change', () => {
+    exifError.style.display = 'none';
+    if (!useExifDate.checked) return;
+
+    const file = photoFile.files[0];
+    if (!file) return;
+
+    EXIF.getData(file, function() {
+        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+        if (exifDate) {
+            const parts = exifDate.split(" ")[0].split(":"); 
+            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+        } else {
+            exifError.style.display = 'block';
+            photoDate.value = '';
+        }
+    });
+});
 
     if (!file) {
         alert("Please select a photo.");
