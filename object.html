@@ -794,10 +794,11 @@ obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
 }
 
 /* === DISPLAY PHOTOS === */
-function displayPhotos() {
+function displayPhotos(currentObj) {
     const photosDiv = document.getElementById('photosDiv');
+    const objPhotos = currentObj.photos || [];
+
     photosDiv.innerHTML = '';
-    const objPhotos = obj.photos || [];
 
     if(objPhotos.length === 0){
         photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
@@ -811,8 +812,8 @@ function displayPhotos() {
         card.style.textAlign = 'center';
 
         const link = document.createElement('a');
-        link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photoId=${photo.id}`;
-        
+        link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(currentObj.name)}&photoId=${photo.id}`;
+
         const img = document.createElement('img');
         img.src = photo.dataUrl || '';
         img.alt = photo.description || '';
@@ -836,9 +837,8 @@ function displayPhotos() {
         photosDiv.appendChild(card);
     });
 }
-
 // Initial render
-displayPhotos();
+displayPhotos(obj);  // Refresh using the updated object
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
