@@ -625,6 +625,13 @@ if (obj.gradeListed) {
 
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
+    if(obj.photos && obj.photos.length > 0){
+obj.photos.forEach(photo => {
+    if(!photo.username) photo.username = "Anonymous";
+    if(!photo.views) photo.views = 0;
+});
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+}
     const photosDiv = document.getElementById('photosDiv');
     photosDiv.innerHTML = '';
     const objPhotos = obj.photos || [];
@@ -648,9 +655,9 @@ function displayPhotos() {
             img.style.borderRadius = "5px";
             img.style.cursor = "pointer";
 
-            img.onclick = () => {
-                window.location.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photo=${photo.id}`;
-            };
+img.onclick = () => {
+    window.location.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photo=${photo.id}`;
+};
 
             card.appendChild(img);
 
