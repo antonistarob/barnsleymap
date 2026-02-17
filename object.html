@@ -741,7 +741,7 @@ function displayPhotos() {
             dateDiv.style.fontSize = '12px';
             dateDiv.style.color = '#aaa';
             dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date;
+            dateDiv.textContent = photo.date.split('T')[0];
             card.appendChild(dateDiv);
         }
 
