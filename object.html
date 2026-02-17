@@ -760,24 +760,15 @@ function displayPhotos() {
         const parseDate = d => {
             if (!d) return 0;
 
-            // If range YYYY-YYYY, take first year
-            if (/^\d{4}-\d{4}$/.test(d)) return new Date(parseInt(d.split('-')[0]),0,1).getTime();
-
-            // If year-month YYYY-MM
-            if (/^\d{4}-\d{2}$/.test(d)) return new Date(parseInt(d.split('-')[0]), parseInt(d.split('-')[1])-1,1).getTime();
-
-            // If full date YYYY-MM-DD
+            if (/^\d{4}-\d{4}$/.test(d)) return new Date(parseInt(d.split('-')[0]), 0, 1).getTime();
+            if (/^\d{4}-\d{2}$/.test(d)) return new Date(parseInt(d.split('-')[0]), parseInt(d.split('-')[1]) - 1, 1).getTime();
             if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-                const parts = d.split('-');
-                return new Date(parseInt(parts[0]), parseInt(parts[1])-1, parseInt(parts[2])).getTime();
+                const [y, m, day] = d.split('-').map(n => parseInt(n));
+                return new Date(y, m - 1, day).getTime();
             }
-
-            // If single year YYYY
-            if (/^\d{4}$/.test(d)) return new Date(parseInt(d),0,1).getTime();
-
-            return 0; // fallback
+            if (/^\d{4}$/.test(d)) return new Date(parseInt(d), 0, 1).getTime();
+            return 0;
         };
-
         return parseDate(a.date) - parseDate(b.date);
     });
 
@@ -790,7 +781,8 @@ function displayPhotos() {
         card.style.textAlign = 'center';
 
         const img = document.createElement('img');
-        img.src = photo.dataUrl || photo.src;
+        // Use dataUrl first, fallback to src if older format
+        img.src = photo.dataUrl || photo.src || '';
         img.alt = photo.description || '';
         img.style.width = "150px";
         img.style.border = "1px solid #555";
@@ -806,7 +798,7 @@ function displayPhotos() {
             dateDiv.style.fontSize = '12px';
             dateDiv.style.color = '#aaa';
             dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date; // keep original format
+            dateDiv.textContent = photo.date;
             card.appendChild(dateDiv);
         }
 
@@ -814,45 +806,17 @@ function displayPhotos() {
     });
 }
 
-       photoFile.addEventListener('change', () => {
-    const file = photoFile.files[0];
-    const exifError = document.getElementById('exifError');
-
-    exifError.style.display = 'none';
-    if (!file) return;
-
-    EXIF.getData(file, function () {
-        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
-
-        if (!exifDate) {
-            exifError.style.display = 'block';
-            return;
-        }
-
-        // EXIF format: YYYY:MM:DD HH:MM:SS
-        const datePart = exifDate.split(' ')[0];
-        const parts = datePart.split(':');
-
-        if (parts.length === 3) {
-            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
-        } else {
-            exifError.style.display = 'block';
-        }
-    });
-});
-
 /* === ADD PHOTO HANDLING === */
-document.getElementById('savePhotoBtn').addEventListener('click', () => {
-    const fileInput = document.getElementById('photoFile');
-    const desc = document.getElementById('photoDescription').value.trim();
-    const dateStr = document.getElementById('photoDate').value.trim();
+savePhotoBtn.addEventListener('click', () => {
+    const file = photoFile.files[0];
+    const desc = photoDescription.value.trim();
+    const dateStr = photoDate.value.trim();
 
-    if (!fileInput.files.length) {
+    if (!file) {
         alert("Please select a photo.");
         return;
     }
 
-    // Acceptable formats
     const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}-\d{4}|\d{4})$/;
     if (dateStr && !dateRegex.test(dateStr)) {
         alert("Date must be YYYY-MM-DD, YYYY-MM, YYYY-YYYY, or YYYY");
@@ -862,7 +826,7 @@ document.getElementById('savePhotoBtn').addEventListener('click', () => {
     const reader = new FileReader();
     reader.onload = function(e) {
         const newPhoto = {
-            id: Date.now() + "_" + Math.floor(Math.random()*1000),
+            id: Date.now() + "_" + Math.floor(Math.random() * 1000),
             dataUrl: e.target.result,
             description: desc,
             date: dateStr || null,
@@ -870,17 +834,16 @@ document.getElementById('savePhotoBtn').addEventListener('click', () => {
             views: 0
         };
 
-        // Save to localStorage
-        let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-        const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
         if (!obj.photos) obj.photos = [];
         obj.photos.push(newPhoto);
+
+        streetObjects[streetName] = streetObjects[streetName].map(o => o.name === obj.name ? obj : o);
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
         closeAddPhoto();
-        location.reload();
+        displayPhotos(); // immediately refresh
     };
-    reader.readAsDataURL(fileInput.files[0]);
+    reader.readAsDataURL(file);
 });
 
 // Initial render
