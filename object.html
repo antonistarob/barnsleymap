@@ -247,7 +247,8 @@ const editGrade = document.getElementById('editGrade');
 const editListEntryNumber = document.getElementById('editListEntryNumber');
 const editDateListed = document.getElementById('editDateListed');
 const editDescription = document.getElementById('editDescription');
-const editCategory = document.getElementById('editCategory'); // new category dropdown
+const editCategory = document.getElementById('editCategory');
+editCategory.value = obj.category || '';
 
 const addPhotoBtn = document.getElementById('addPhotoBtn');
 const addPhotoPopup = document.getElementById('addPhotoPopup');
