@@ -278,25 +278,25 @@ flatpickr(editDateListed, {
     theme: "dark"
 });
 
-/* EDIT STREET */
+/* ADD OBJECT */
 editBtn.onclick = () => {
-    popupTitle.textContent = 'Edit Street';
-    popupNameLabel.textContent = 'Street Name:';
-    popupNumberLabel.textContent = 'District:';
-    editStreetName.value = streetName;
-    editDistrict.value = data.district || 'Town Centre';
-    editExisting.value = data.existing !== false ? 'Exists' : 'Doesn\'t exist';
-    editYearBuilt.value = data.yearBuilt || '';
-    editYearDemolished.value = data.yearDemolished || '';
-    editGradeListed.checked = data.gradeListed || false;
-    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
-    editGrade.value = data.grade || 'Grade I';
-    editListEntryNumber.value = data.listEntryNumber || '';
-    editDateListed.value = data.dateListed || '';
-    editDescription.value = data.description || '';
     editPopup.style.display = 'flex';
-    editPopup.dataset.mode = 'edit';
+    editObjectName.value = obj.name;
+    editObjectNumber.value = obj.number || '';
+    editStatus.value = obj.status || 'Exists';
+    editYearBuilt.value = obj.yearBuilt || '';
+    editYearDemolished.value = obj.yearDemolished || '';
+    editGradeListed.checked = obj.gradeListed || false;
+    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
+    editGrade.value = obj.grade || 'Grade I';
+    editListEntryNumber.value = obj.listEntryNumber || '';
+    editDateListed.value = obj.dateListed || '';
+    editDescription.value = obj.description || '';
+    editCategory.value = obj.category || '';
 };
+editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
+flatpickr(editDateListed, { altInput: true, altFormat: "d/m/Y", dateFormat: "Y-m-d", theme: "dark" });
+
 
 /* SAVE EDIT / ADD OBJECT */
 document.getElementById('saveEditStreet').onclick = () => {
