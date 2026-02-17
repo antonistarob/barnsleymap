@@ -366,11 +366,14 @@
         <label for="photoFile">File:</label>
         <input type="file" id="photoFile" accept="image/*">
 
-        <label for="photoDate">
-            Date:
-            <input type="checkbox" id="useExifDate" style="margin-left:10px;"> Enter date from EXIF
-        </label>
-        <input type="text" id="photoDate" placeholder="YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD">
+<label for="photoDate" style="display:flex; align-items:center; justify-content:space-between;">
+    Date:
+    <span style="display:flex; align-items:center;">
+        Enter date from EXIF
+        <input type="checkbox" id="useExifDate" style="margin-left:5px;">
+    </span>
+</label>
+<input type="text" id="photoDate" placeholder="YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD">
 
         <div id="exifError"
              style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
