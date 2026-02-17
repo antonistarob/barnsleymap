@@ -780,35 +780,35 @@
     function getCategoryIcon(category, status) {
         const iconUrl = categoryIcons[category] || categoryIcons['Townhouse'];
 
-        if (status === "Doesn't exist") {
-            // divIcon with black ring
-            return L.divIcon({
-                html: `
-                    <div style="
-                        width:36px;
-                        height:36px;
-                        border:3px rgba(0,0,0,0.5);
-                        border-radius:50%;
-                        display:flex;
-                        justify-content:center;
-                        align-items:center;
-                        background:transparent;">
-                        <img src="${iconUrl}" style="width:24px;height:24px;display:block;" />
-                    </div>`,
-                className: '',
-                iconSize: [36,36],
-                iconAnchor: [18,36],
-                popupAnchor: [0,-36]
-            });
-        } else {
-            // normal icon
-            return L.icon({
-                iconUrl,
-                iconSize: [32,32],
-                iconAnchor: [16,32],
-                popupAnchor: [0,-32]
-            });
-        }
+if (status === "Doesn't exist") {
+    // divIcon with semi-transparent black ring
+    return L.divIcon({
+        html: `
+            <div style="
+                width:36px;
+                height:36px;
+                border:3px solid rgba(0,0,0,0.5);
+                border-radius:50%;
+                display:flex;
+                justify-content:center;
+                align-items:center;
+                background:transparent;">
+                <img src="${iconUrl}" style="width:24px;height:24px;display:block;" />
+            </div>`,
+        className: '',
+        iconSize: [36,36],
+        iconAnchor: [18,36],
+        popupAnchor: [0,-36]
+    });
+} else {
+    // normal icon
+    return L.icon({
+        iconUrl,
+        iconSize: [32,32],
+        iconAnchor: [16,32],
+        popupAnchor: [0,-32]
+    });
+}
     }
 
     function initObjectMap() {
