@@ -783,45 +783,7 @@ if (photo.date) {
     });
 }
 
-/* === ADD PHOTO HANDLING === */
-
-/* === ADD PHOTO HANDLING === */
-savePhotoBtn.addEventListener('click', () => {
-    const file = photoFile.files[0];
-    const desc = photoDescription.value.trim();
-    const dateStr = photoDate.value.trim();
-
-    if (!file) { alert("Please select a photo."); return; }
-
-    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}-\d{4}|\d{4})$/;
-    if (dateStr && !dateRegex.test(dateStr)) {
-        alert("Date must be YYYY-MM-DD, YYYY-MM, YYYY-YYYY, or YYYY");
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const newPhoto = {
-            id: Date.now() + "_" + Math.floor(Math.random() * 1000),
-            dataUrl: e.target.result, // <- this ensures the actual image data is used
-            description: desc,
-            date: dateStr || null,
-            username: "Anonymous",
-            views: 0
-        };
-
-        if (!obj.photos) obj.photos = [];
-        obj.photos.push(newPhoto);
-
-        // Update object in storage
-        streetObjects[streetName] = streetObjects[streetName].map(o => o.name === obj.name ? obj : o);
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        closeAddPhoto();
-        displayPhotos();
-    };
-    reader.readAsDataURL(file);
-});
+<!DOCTYPE html>
 
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
