@@ -710,6 +710,40 @@ addPhotoBtn.onclick = () => {
     addPhotoPopup.style.display = 'none';
 }
 
+       savePhotoBtn.onclick = () => {
+    const file = photoFile.files[0];
+    if (!file) {
+        alert("Please select a photo.");
+        return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const dataUrl = e.target.result;
+        const dateValue = photoDate.value.trim();
+        const descriptionValue = photoDescription.value.trim();
+
+        if (!obj.photos) obj.photos = [];
+        obj.photos.push({
+            id: Date.now(),
+            dataUrl: dataUrl,
+            date: dateValue,
+            description: descriptionValue
+        });
+
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        displayPhotos();
+        closeAddPhoto();
+
+        // Clear fields for next time
+        photoFile.value = '';
+        photoDate.value = '';
+        photoDescription.value = '';
+        useExifDate.checked = false;
+    };
+    reader.readAsDataURL(file);
+};
+
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
     const photosDiv = document.getElementById('photosDiv');
