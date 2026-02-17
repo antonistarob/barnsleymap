@@ -797,17 +797,13 @@ mapBtn.onclick = () => {
     };
 
     /* OBJECT MAP ICONS */
-function getCategoryIcon(category, status, centered = false) {
-
+function getCategoryIcon(category, status, centerAnchor = false) {
     const iconUrl = categoryIcons[category] || categoryIcons['Townhouse'];
 
-    // sizes
     const size = 36;
-    const imgSize = 24;
-
-    const anchor = centered
-        ? [size / 2, size / 2]   // true center
-        : [size / 2, size];      // bottom-center
+    const anchor = centerAnchor
+        ? [size / 2, size / 2]   // ✅ CENTERED
+        : [size / 2, size];      // bottom (classic pin behaviour if ever needed)
 
     if (status === "Doesn't exist") {
         return L.divIcon({
@@ -821,7 +817,7 @@ function getCategoryIcon(category, status, centered = false) {
                     justify-content:center;
                     align-items:center;
                     background:transparent;">
-                    <img src="${iconUrl}" style="width:${imgSize}px;height:${imgSize}px;display:block;" />
+                    <img src="${iconUrl}" style="width:24px;height:24px;" />
                 </div>
             `,
             className: '',
@@ -831,11 +827,10 @@ function getCategoryIcon(category, status, centered = false) {
         });
     }
 
-    // normal object
     return L.icon({
         iconUrl,
         iconSize: [32, 32],
-        iconAnchor: centered ? [16, 16] : [16, 32],
+        iconAnchor: centerAnchor ? [16, 16] : [16, 32],
         popupAnchor: [0, -16]
     });
 }
@@ -868,7 +863,7 @@ function initObjectMap() {
             const marker = L.marker(
                 [o.lat, o.lng],
                 {
-                    icon: getCategoryIcon(o.category, o.status),
+icon: getCategoryIcon(o.category, o.status, true),
                     opacity: 1   // keep everything visible
                 }
             ).addTo(map);
