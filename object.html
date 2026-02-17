@@ -264,6 +264,32 @@
             opacity: 1;
             color: #eee;
         }
+
+        .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+.modal-box {
+    background: #1f1f1f;
+    padding: 15px;
+    border-radius: 6px;
+    width: 300px;
+}
+
+.modal-box input,
+.modal-box textarea {
+    width: 100%;
+    background: #2b2b2b;
+    color: #eee;
+    border: 1px solid #555;
+    padding: 5px;
+}
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -453,6 +479,21 @@
             </div>
         </div>
     </div>
+
+    <div id="addPhotoModal" class="modal" style="display:none;">
+    <div class="modal-box">
+        <h3>Add photo</h3>
+
+        <input type="file" id="photoFile" accept="image/*"><br><br>
+
+        <input type="date" id="photoDate"><br><br>
+
+        <textarea id="photoDescription" placeholder="Description"></textarea><br><br>
+
+        <button onclick="savePhoto()">Save</button>
+        <button onclick="closeAddPhoto()">Cancel</button>
+    </div>
+</div>
 
    <script>
     // Define icons for categories
