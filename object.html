@@ -701,8 +701,13 @@
             attribution: '&copy; OpenStreetMap contributors'
         }).addTo(editMap);
 
-        if (obj.lat && obj.lng)
-            editMarker = L.marker([lat, lng]).addTo(editMap);
+if (obj.lat && obj.lng) {
+    editMarker = L.marker(
+        [lat, lng],
+        {
+            icon: getCategoryIcon(obj.category, obj.status, true)
+        }
+    ).addTo(editMap);
 
         // Click to set marker
         editMap.on('click', e => {
@@ -777,40 +782,49 @@
     };
 
     /* OBJECT MAP ICONS */
-    function getCategoryIcon(category, status) {
-        const iconUrl = categoryIcons[category] || categoryIcons['Townhouse'];
+function getCategoryIcon(category, status, centered = false) {
 
-if (status === "Doesn't exist") {
-    // divIcon with semi-transparent black ring
-    return L.divIcon({
-        html: `
-            <div style="
-                width:36px;
-                height:36px;
-                border:3px solid rgba(0,0,0,0.6);
-                border-radius:50%;
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                background:transparent;">
-                <img src="${iconUrl}" style="width:24px;height:24px;display:block;" />
-            </div>`,
-        className: '',
-        iconSize: [36,36],
-        iconAnchor: [18,36],
-        popupAnchor: [0,-36]
-    });
-} else {
-    // normal icon
-    return L.icon({
-        iconUrl,
-        iconSize: [32,32],
-        iconAnchor: [16,32],
-        popupAnchor: [0,-32]
-    });
-}
+    const iconUrl = categoryIcons[category] || categoryIcons['Townhouse'];
+
+    // sizes
+    const size = 36;
+    const imgSize = 24;
+
+    const anchor = centered
+        ? [size / 2, size / 2]   // true center
+        : [size / 2, size];      // bottom-center
+
+    if (status === "Doesn't exist") {
+        return L.divIcon({
+            html: `
+                <div style="
+                    width:${size}px;
+                    height:${size}px;
+                    border:3px solid rgba(0,0,0,0.6);
+                    border-radius:50%;
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    background:transparent;">
+                    <img src="${iconUrl}" style="width:${imgSize}px;height:${imgSize}px;display:block;" />
+                </div>
+            `,
+            className: '',
+            iconSize: [size, size],
+            iconAnchor: anchor,
+            popupAnchor: [0, -size / 2]
+        });
     }
 
+    // normal object
+    return L.icon({
+        iconUrl,
+        iconSize: [32, 32],
+        iconAnchor: centered ? [16, 16] : [16, 32],
+        popupAnchor: [0, -16]
+    });
+}
+       
 function initObjectMap() {
     if (!obj.lat || !obj.lng) return;
 
