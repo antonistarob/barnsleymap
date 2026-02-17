@@ -557,7 +557,7 @@ function initObjectMap() {
 
     const map = L.map('objectMap', {
         minZoom: obj.zoomMin || 1,
-        maxZoom: obj.zoomMax || 20
+        maxZoom: obj.zoomMax || 18
     }).setView([obj.lat, obj.lng], obj.zoom || 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
