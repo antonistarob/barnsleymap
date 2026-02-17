@@ -71,54 +71,60 @@ h1 { margin-top:0; }
 </div>
 
 <!-- ADD / EDIT STREET / OBJECT POPUP -->
+<!-- EDIT OBJECT POPUP -->
 <div class="popup-overlay" id="editPopup">
-    <div class="popup">
-        <h3 id="popupTitle">Edit Street</h3>
-
-        <label id="popupNameLabel">Street Name:</label>
-        <input type="text" id="editStreetName">
-
-        <label id="popupNumberLabel">District:</label>
-        <input type="text" id="editDistrict">
-
-        <label>Year Built:</label>
-        <input type="text" id="editYearBuilt" placeholder="e.g. 1890">
-
-        <label>Year Demolished:</label>
-        <input type="text" id="editYearDemolished" placeholder="e.g. 1975">
-
-        <label>Status:</label>
-        <select id="editExisting">
-            <option value="Exists" selected>Exists</option>
-            <option value="Doesn't exist">Doesn't exist</option>
-            <option value="To be demolished">To be demolished</option>
-            <option value="Exists partially">Exists partially</option>
-            <option value="In construction">In construction</option>
-        </select>
-
-        <label>Grade Listed:</label>
-        <input type="checkbox" id="editGradeListed">
-        <div id="gradeOptions">
-            <label>Grade:</label>
-            <select id="editGrade">
-                <option value="Grade I">Grade I</option>
-                <option value="Grade II*">Grade II*</option>
-                <option value="Grade II">Grade II</option>
-            </select>
-            <label>List Entry Number:</label>
-            <input type="text" id="editListEntryNumber">
-            <label>Date first listed:</label>
-            <input type="text" id="editDateListed">
-        </div>
-
-        <label>Description:</label>
-        <textarea id="editDescription" rows="3"></textarea>
-
-        <div class="popup-buttons">
-            <button id="saveEditStreet" class="action-button">Save</button>
-            <button onclick="closeEdit()" class="action-button">Cancel</button>
-        </div>
+  <div class="popup">
+    <h3 id="popupTitle">Edit Object</h3>
+    <label id="popupNameLabel">Object Name:</label>
+    <input type="text" id="editObjectName" placeholder="e.g. Building nr 10">
+    <label id="popupNumberLabel">Number:</label>
+    <input type="text" id="editObjectNumber">
+    <label>Object Category:</label>
+    <select id="editCategory">
+      <option value="">--Select category--</option>
+      <option value="Townhouse">Townhouse</option>
+      <option value="Detached house">Detached house</option>
+      <option value="Semi-detached house">Semi-detached house</option>
+      <option value="Terraced house">Terraced house</option>
+      <option value="Villa">Villa</option>
+      <option value="Palace/Manor">Palace/Manor</option>
+      <option value="Cottage">Cottage</option>
+      <option value="Single-family house">Single-family house</option>
+      <option value="Apartment block">Apartment block</option>
+    </select>
+    <label>Status:</label>
+    <select id="editStatus">
+      <option value="Exists" selected>Exists</option>
+      <option value="Doesn't exist">Doesn't exist</option>
+      <option value="To be demolished">To be demolished</option>
+      <option value="Exists partially">Exists partially</option>
+      <option value="In construction">In construction</option>
+    </select>
+    <label>Year Built:</label>
+    <input type="text" id="editYearBuilt" placeholder="e.g. 1890">
+    <label>Year Demolished:</label>
+    <input type="text" id="editYearDemolished" placeholder="e.g. 1975">
+    <label>Grade Listed:</label>
+    <input type="checkbox" id="editGradeListed">
+    <div id="gradeOptions">
+      <label>Grade:</label>
+      <select id="editGrade">
+        <option value="Grade I">Grade I</option>
+        <option value="Grade II*">Grade II*</option>
+        <option value="Grade II">Grade II</option>
+      </select>
+      <label>List Entry Number:</label>
+      <input type="text" id="editListEntryNumber">
+      <label>Date first listed:</label>
+      <input type="text" id="editDateListed">
     </div>
+    <label>Description:</label>
+    <textarea id="editDescription" rows="3"></textarea>
+    <div class="popup-buttons">
+      <button id="saveEditObject" class="action-button">Save</button>
+      <button onclick="closeEdit()" class="action-button">Cancel</button>
+    </div>
+  </div>
 </div>
 
 <div class="popup-overlay" id="deletePopup">
