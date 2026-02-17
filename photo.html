@@ -83,6 +83,80 @@ h1 {
     border-color: #922b21;
     color: #e74c3c;
 }
+
+    /* MODAL */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 50;
+}
+
+.modal {
+    background: #1f1f1f;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 15px;
+    width: 320px;
+    color: #eee;
+}
+
+.modal h2 {
+    margin: 0 0 12px;
+    font-size: 18px;
+}
+
+.modal label {
+    font-size: 13px;
+    color: #bbb;
+}
+
+.modal input,
+.modal textarea {
+    width: 100%;
+    margin-top: 4px;
+    margin-bottom: 10px;
+    padding: 6px;
+    background: #2b2b2b;
+    border: 1px solid #555;
+    border-radius: 4px;
+    color: #eee;
+    font-family: Arial;
+    font-size: 13px;
+}
+
+.modal textarea {
+    resize: vertical;
+    min-height: 60px;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.modal-btn {
+    padding: 5px 10px;
+    font-size: 13px;
+    border-radius: 4px;
+    cursor: pointer;
+    border: 1px solid #555;
+    background: #2b2b2b;
+    color: #eee;
+}
+
+.modal-btn:hover {
+    background: #444;
+}
+
+.modal-btn.save {
+    border-color: #3c6;
+    color: #9f9;
+}
 </style>
 </head>
 
@@ -185,25 +259,63 @@ if (!obj || !obj.photos) {
     }
 }
 
-function editPhoto(photo) {
-    const newDesc = prompt("Edit description:", photo.description || "");
-    if (newDesc === null) return;
+// EDIT PHOTO MODAL -->
+<div class="modal-overlay" id="editPhotoModal">
+    <div class="modal">
+        <h2>Edit Photo</h2>
 
-    const newDate = prompt(
-        "Edit photo date (DD/MM/YYYY):",
-        formatDateGB(photo.date)
-    );
-    if (newDate === null) return;
+        <label>Date of photo (DD/MM/YYYY)</label>
+        <input type="text" id="editPhotoDate" placeholder="DD/MM/YYYY">
 
-    /* convert DD/MM/YYYY → ISO */
-    const [d, m, y] = newDate.split('/');
+        <label>Description</label>
+        <textarea id="editPhotoDescription"></textarea>
+
+        <div class="modal-actions">
+            <button class="modal-btn" onclick="closeEditModal()">Cancel</button>
+            <button class="modal-btn save" onclick="savePhotoEdits()">Save</button>
+        </div>
+    </div>
+</div>
+    
+let editingPhoto = null;
+
+function openEditPhoto(photo) {
+    editingPhoto = photo;
+
+    document.getElementById('editPhotoDescription').value =
+        photo.description || "";
+
+    document.getElementById('editPhotoDate').value =
+        formatDateGB(photo.date);
+
+    document.getElementById('editPhotoModal').style.display = 'flex';
+}
+
+function closeEditModal() {
+    editingPhoto = null;
+    document.getElementById('editPhotoModal').style.display = 'none';
+}
+
+function savePhotoEdits() {
+    if (!editingPhoto) return;
+
+    const desc = document.getElementById('editPhotoDescription').value.trim();
+    const dateStr = document.getElementById('editPhotoDate').value.trim();
+
+    const [d, m, y] = dateStr.split('/');
     if (!d || !m || !y) {
-        alert("Invalid date format.");
+        alert("Date must be DD/MM/YYYY");
         return;
     }
 
-    photo.description = newDesc.trim();
-    photo.date = new Date(`${y}-${m}-${d}`).toISOString();
+    const isoDate = new Date(`${y}-${m}-${d}`);
+    if (isNaN(isoDate)) {
+        alert("Invalid date");
+        return;
+    }
+
+    editingPhoto.description = desc;
+    editingPhoto.date = isoDate.toISOString();
 
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
     location.reload();
