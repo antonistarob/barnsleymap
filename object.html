@@ -48,6 +48,21 @@ h1 { margin-top:0; }
 #streetBox { border:2px solid #aaa; background:#333; padding:0px 100px; border-radius:6px; display:inline-block; font-size:20px; }
 #streetBox .object-link { color:#eee; text-decoration:none; }
 #streetBox .object-link:hover { text-decoration:underline; }
+
+.map-zoom-input {
+  width: 100%;
+  padding: 5px;
+  background: #2b2b2b;
+  color: #eee;
+  border: 1px solid #555;
+  border-radius: 5px;
+  box-sizing: border-box;
+  height: 28px; /* ensures all inputs are same height */
+}
+.map-zoom-input:disabled {
+  opacity: 1;
+  color: #eee;
+}
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -187,30 +202,33 @@ h1 { margin-top:0; }
 <div class="popup-overlay" id="mapPopup">
   <div class="popup" style="width:600px; max-width:95%;">
     <h3 style="text-align:center;">Edit Map Location</h3>
-    <p style="text-align:center; font-size:14px; margin-top:0;"> Click the map to set a location for the object. </p>
+    <p style="text-align:center; font-size:14px; margin-top:0;">
+      Click the map to set a location for the object.
+    </p>
     <div id="mapEdit" style="width:100%; height:350px; border:1px solid #555; border-radius:5px;"></div>
-<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:15px;">
-  <div style="display:flex; flex-direction:column; align-items:flex-start;">
-    <label style="margin-bottom:4px;">Zoom</label>
-    <input type="text" id="mapZoom" disabled
-      style="background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
-  </div>
-  <div style="display:flex; flex-direction:column; align-items:flex-start;">
-    <label style="margin-bottom:4px;">Zoom min.</label>
-    <input type="number" id="mapZoomMin" value="16" disabled
-      style="background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
-  </div>
-  <div style="display:flex; flex-direction:column; align-items:flex-start;">
-    <label style="margin-bottom:4px;">Zoom max.</label>
-    <input type="number" id="mapZoomMax" value="19" disabled
-      style="background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
-  </div>
-</div>
-<div class="popup-buttons" style="margin-top:20px; display:flex; justify-content:center; gap:10px;">
-  <button id="saveMapBtn" class="action-button">Save</button>
-  <button id="deleteMarkerBtn" class="action-button" style="background:#c0392b; border-color:#922b21; color:#fff;">Delete Marker</button>
-  <button onclick="closeMapPopup()" class="action-button">Cancel</button>
-</div>
+
+    <!-- Zoom inputs -->
+    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:15px;">
+      <div>
+        <label>Zoom</label>
+        <input type="text" id="mapZoom" disabled class="map-zoom-input">
+      </div>
+      <div>
+        <label>Zoom min.</label>
+        <input type="number" id="mapZoomMin" class="map-zoom-input" value="16" disabled>
+      </div>
+      <div>
+        <label>Zoom max.</label>
+        <input type="number" id="mapZoomMax" class="map-zoom-input" value="19" disabled>
+      </div>
+    </div>
+
+    <!-- Buttons -->
+    <div class="popup-buttons" style="margin-top:20px; justify-content:space-between; display:flex; align-items:center;">
+      <button id="saveMapBtn" class="action-button">Save</button>
+      <button id="deleteMarkerBtn" class="action-button" style="background:#c0392b; border-color:#922b21; color:#fff;">Delete Marker</button>
+      <button onclick="closeMapPopup()" class="action-button">Cancel</button>
+    </div>
   </div>
 </div>
 
@@ -480,52 +498,70 @@ savePhotoBtn.onclick = () => {
 };
 
 /* MAP EDIT */
-let editMap, editMarker;
-let tempLat = null, tempLng = null;
-mapBtn.onclick = () => { mapPopup.style.display = 'flex'; setTimeout(initEditMap, 100); }
-function closeMapPopup() {
-    mapPopup.style.display = 'none';
-    if (editMap) { editMap.remove(); editMap = null; editMarker = null; tempLat = null; tempLng = null; }
-}
+let editMap, editMarker, tempLat = null, tempLng = null;
+
 function initEditMap() {
-    if (editMap) return;
-    const lat = obj.lat || 53.552;
-    const lng = obj.lng || -1.478;
-    const zoom = obj.zoom || 16;
-    editMap = L.map('mapEdit').setView([lat, lng], zoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(editMap);
-    if (obj.lat && obj.lng) editMarker = L.marker([lat, lng]).addTo(editMap);
+  if (editMap) return;
+  const lat = obj.lat || 53.552;
+  const lng = obj.lng || -1.478;
+  const zoom = obj.zoom || 16;
 
-    // click handler (temp only)
-    editMap.on('click', e => {
-        if (editMarker) editMarker.remove();
-        editMarker = L.marker(e.latlng).addTo(editMap);
-        tempLat = e.latlng.lat;
-        tempLng = e.latlng.lng;
-    });
+  editMap = L.map('mapEdit', { minZoom: 16, maxZoom: 19 }).setView([lat, lng], zoom);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(editMap);
 
-    // zoom tracking
-    const zoomInput = document.getElementById('mapZoom');
-    zoomInput.value = editMap.getZoom();
-    editMap.on('zoomend', () => { zoomInput.value = editMap.getZoom(); });
+  if (obj.lat && obj.lng) {
+    editMarker = L.marker([lat, lng]).addTo(editMap);
+  }
 
+  // Click to set marker
+  editMap.on('click', e => {
+    if (editMarker) editMarker.remove();
+    editMarker = L.marker(e.latlng).addTo(editMap);
+    tempLat = e.latlng.lat;
+    tempLng = e.latlng.lng;
+    document.getElementById('mapZoom').value = editMap.getZoom();
+  });
+
+  // Track zoom
+  document.getElementById('mapZoom').value = editMap.getZoom();
+  editMap.on('zoomend', () => {
+    document.getElementById('mapZoom').value = editMap.getZoom();
+  });
+
+  // Lock min/max zoom
   document.getElementById('mapZoomMin').value = 16;
   document.getElementById('mapZoomMax').value = 19;
 }
+
 document.getElementById('saveMapBtn').onclick = () => {
-    if (tempLat === null || tempLng === null) { alert("Please click the map to set a location first."); return; }
-    obj.lat = tempLat;
-    obj.lng = tempLng;
-    obj.zoom = editMap.getZoom();
-    obj.zoomMin = Number(document.getElementById('mapZoomMin').value) || editMap.getMinZoom();
-    obj.zoomMax = Number(document.getElementById('mapZoomMax').value) || editMap.getMaxZoom();
+  if (!editMarker) { alert("Please click the map to set a location first."); return; }
+  obj.lat = tempLat;
+  obj.lng = tempLng;
+  obj.zoom = editMap.getZoom();
+  obj.zoomMin = 16;
+  obj.zoomMax = 19;
+  localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+  closeMapPopup();
+  mapNotSetText.style.display = 'none';
+  mapSection.style.display = 'block';
+  initObjectMap();
+};
+
+document.getElementById('deleteMarkerBtn').onclick = () => {
+  if (editMarker) {
+    editMarker.remove();
+    editMarker = null;
+    tempLat = null;
+    tempLng = null;
+    // Remove lat/lng from object
+    obj.lat = null;
+    obj.lng = null;
+    obj.zoom = null;
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    closeMapPopup();
-    mapNotSetText.style.display = 'none';
-    mapSection.style.display = 'block';
-    initObjectMap();
+    window.location.reload();
+  }
 };
 
 /* DISPLAY PHOTOS */
