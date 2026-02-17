@@ -454,399 +454,462 @@
         </div>
     </div>
 
-    <script>
-// Define icons for categories
-const categoryIcons = {
-    "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
-    "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
-    "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
-    "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
-    "Villa": "https://polska-org.pl/gfx/obj/05c.png",
-    "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
-    "Cottage": "https://polska-org.pl/gfx/category/500129.png",
-    "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
-    "Apartment block": "https://polska-org.pl/gfx/category/3258201.png",
-    "Church": "https://polska-org.pl/gfx/obj/06a.png"
-};
+   <script>
+    // Define icons for categories
+    const categoryIcons = {
+        "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
+        "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
+        "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
+        "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
+        "Villa": "https://polska-org.pl/gfx/obj/05c.png",
+        "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
+        "Cottage": "https://polska-org.pl/gfx/category/500129.png",
+        "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
+        "Apartment block": "https://polska-org.pl/gfx/category/3258201.png",
+        "Church": "https://polska-org.pl/gfx/obj/06a.png"
+    };
 
-// Get query params
-const qp = p => new URLSearchParams(location.search).get(p);
-const streetName = qp('street');
-const objectName = qp('object');
+    // Get query params
+    const qp = p => new URLSearchParams(location.search).get(p);
+    const streetName = qp('street');
+    const objectName = qp('object');
 
-/* ELEMENTS */
-const objectTitle = document.getElementById('objectTitle');
-const objectStreet = document.getElementById('objectStreet');
-const objectNumber = document.getElementById('objectNumber');
-const additionalInfo = document.getElementById('additionalInfo');
-const objectDescription = document.getElementById('objectDescription');
-const descriptionWrapper = document.getElementById('descriptionWrapper');
-const objectsTableBody = document.getElementById('objectsTableBody');
+    /* ELEMENTS */
+    const objectTitle = document.getElementById('objectTitle');
+    const objectStreet = document.getElementById('objectStreet');
+    const objectNumber = document.getElementById('objectNumber');
+    const additionalInfo = document.getElementById('additionalInfo');
+    const objectDescription = document.getElementById('objectDescription');
+    const descriptionWrapper = document.getElementById('descriptionWrapper');
+    const objectsTableBody = document.getElementById('objectsTableBody');
+    const editBtn = document.getElementById('editBtn');
+    const deleteBtn = document.getElementById('deleteBtn');
+    const editPopup = document.getElementById('editPopup');
+    const deletePopup = document.getElementById('deletePopup');
+    const deleteMessage = document.getElementById('deleteMessage');
+    const editObjectName = document.getElementById('editObjectName');
+    const editObjectNumber = document.getElementById('editObjectNumber');
+    const editStatus = document.getElementById('editStatus');
+    const editYearBuilt = document.getElementById('editYearBuilt');
+    const editYearDemolished = document.getElementById('editYearDemolished');
+    const editGradeListed = document.getElementById('editGradeListed');
+    const gradeOptions = document.getElementById('gradeOptions');
+    const editGrade = document.getElementById('editGrade');
+    const editListEntryNumber = document.getElementById('editListEntryNumber');
+    const editDateListed = document.getElementById('editDateListed');
+    const editDescription = document.getElementById('editDescription');
+    const editCategory = document.getElementById('editCategory');
+    const addPhotoBtn = document.getElementById('addPhotoBtn');
+    const addPhotoPopup = document.getElementById('addPhotoPopup');
+    const addPhotoTitle = document.getElementById('addPhotoTitle');
+    const addPhotoSubTitle = document.getElementById('addPhotoSubTitle');
+    const photoFile = document.getElementById('photoFile');
+    const photoDate = document.getElementById('photoDate');
+    const photoDescription = document.getElementById('photoDescription');
+    const savePhotoBtn = document.getElementById('savePhotoBtn');
+    const mapBtn = document.getElementById('mapBtn');
+    const mapPopup = document.getElementById('mapPopup');
+    const mapSection = document.getElementById('mapSection');
+    const mapNotSetText = document.getElementById('mapNotSetText');
+    const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
+    const saveMapBtn = document.getElementById('saveMapBtn');
 
-const editBtn = document.getElementById('editBtn');
-const deleteBtn = document.getElementById('deleteBtn');
-const editPopup = document.getElementById('editPopup');
-const deletePopup = document.getElementById('deletePopup');
-const deleteMessage = document.getElementById('deleteMessage');
+    /* LOAD DATA */
+    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+    const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
 
-const editObjectName = document.getElementById('editObjectName');
-const editObjectNumber = document.getElementById('editObjectNumber');
-const editStatus = document.getElementById('editStatus');
-const editYearBuilt = document.getElementById('editYearBuilt');
-const editYearDemolished = document.getElementById('editYearDemolished');
-const editGradeListed = document.getElementById('editGradeListed');
-const gradeOptions = document.getElementById('gradeOptions');
-const editGrade = document.getElementById('editGrade');
-const editListEntryNumber = document.getElementById('editListEntryNumber');
-const editDateListed = document.getElementById('editDateListed');
-const editDescription = document.getElementById('editDescription');
-const editCategory = document.getElementById('editCategory');
+    if (!obj) {
+        objectTitle.textContent = 'Object not found';
+        throw new Error('Object missing');
+    }
 
-const addPhotoBtn = document.getElementById('addPhotoBtn');
-const addPhotoPopup = document.getElementById('addPhotoPopup');
-const addPhotoTitle = document.getElementById('addPhotoTitle');
-const addPhotoSubTitle = document.getElementById('addPhotoSubTitle');
-const photoFile = document.getElementById('photoFile');
-const photoDate = document.getElementById('photoDate');
-const photoDescription = document.getElementById('photoDescription');
-const savePhotoBtn = document.getElementById('savePhotoBtn');
+    /* DISPLAY OBJECT */
+    objectTitle.textContent = obj.name;
+    objectStreet.textContent = streetName;
+    objectStreet.onclick = () => window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+    objectNumber.textContent = obj.number || '';
 
-const mapBtn = document.getElementById('mapBtn');
-const mapPopup = document.getElementById('mapPopup');
-const mapSection = document.getElementById('mapSection');
-const mapNotSetText = document.getElementById('mapNotSetText');
+    // Additional info
+    additionalInfo.innerHTML = '';
+    if (obj.status && obj.status !== 'Exists') {
+        additionalInfo.innerHTML += `<span><strong>Status:</strong> ${obj.status}</span><br>`;
+    }
+    if (obj.yearBuilt) {
+        additionalInfo.innerHTML += `<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
+    }
+    if (obj.yearDemolished) {
+        additionalInfo.innerHTML += `<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
+    }
+    if (obj.gradeListed) {
+        additionalInfo.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
+        if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
+        if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
+    }
 
-const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
-const saveMapBtn = document.getElementById('saveMapBtn');
+    // Description
+    objectDescription.textContent = obj.description || '';
+    descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
-/* LOAD DATA */
-let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
-if (!obj) {
-    objectTitle.textContent = 'Object not found';
-    throw new Error('Object missing');
-}
+    /* LEFT COLUMN */
+    objectsTableBody.innerHTML = '';
+    (streetObjects[streetName] || []).forEach(o => {
+        const row = document.createElement('tr');
 
-/* DISPLAY OBJECT */
-objectTitle.textContent = obj.name;
-objectStreet.textContent = streetName;
-objectStreet.onclick = () => window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
-objectNumber.textContent = obj.number || '';
+        const numberCell = document.createElement('td');
+        numberCell.textContent = o.number || '';
+        row.appendChild(numberCell);
 
-// Additional info
-additionalInfo.innerHTML = '';
-if (obj.status && obj.status !== 'Exists') additionalInfo.innerHTML += `<span><strong>Status:</strong> ${obj.status}</span><br>`;
-if (obj.yearBuilt) additionalInfo.innerHTML += `<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
-if (obj.yearDemolished) additionalInfo.innerHTML += `<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
-if (obj.gradeListed) {
-    additionalInfo.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
-    if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
-    if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
-}
+        const nameCell = document.createElement('td');
+        nameCell.textContent = o.name;
+        nameCell.classList.add('object-link');
+        nameCell.addEventListener('click', () => {
+            const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+            if (window.location.href === url) window.location.reload();
+            else window.location.href = url;
+        });
+        row.appendChild(nameCell);
 
-// Description
-objectDescription.textContent = obj.description || '';
-descriptionWrapper.style.display = obj.description ? 'block' : 'none';
-
-/* LEFT COLUMN */
-objectsTableBody.innerHTML = '';
-(streetObjects[streetName] || []).forEach(o => {
-    const row = document.createElement('tr');
-    const numberCell = document.createElement('td');
-    numberCell.textContent = o.number || '';
-    row.appendChild(numberCell);
-
-    const nameCell = document.createElement('td');
-    nameCell.textContent = o.name;
-    nameCell.classList.add('object-link');
-    nameCell.addEventListener('click', () => {
-        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-        if (window.location.href === url) window.location.reload();
-        else window.location.href = url;
+        objectsTableBody.appendChild(row);
     });
-    row.appendChild(nameCell);
-    objectsTableBody.appendChild(row);
-});
 
-/* EDIT OBJECT */
-editBtn.onclick = () => {
-    editPopup.style.display = 'flex';
-    editObjectName.value = obj.name;
-    editObjectNumber.value = obj.number || '';
-    editStatus.value = obj.status || 'Exists';
-    editYearBuilt.value = obj.yearBuilt || '';
-    editYearDemolished.value = obj.yearDemolished || '';
-    editGradeListed.checked = obj.gradeListed || false;
-    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
-    editGrade.value = obj.grade || 'Grade I';
-    editListEntryNumber.value = obj.listEntryNumber || '';
-    editDateListed.value = obj.dateListed || '';
-    editDescription.value = obj.description || '';
-    editCategory.value = obj.category || '';
-};
-editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
-flatpickr(editDateListed, { altInput: true, altFormat: "d/m/Y", dateFormat: "Y-m-d", theme: "dark" });
+    /* EDIT OBJECT */
+    editBtn.onclick = () => {
+        editPopup.style.display = 'flex';
+        editObjectName.value = obj.name;
+        editObjectNumber.value = obj.number || '';
+        editStatus.value = obj.status || 'Exists';
+        editYearBuilt.value = obj.yearBuilt || '';
+        editYearDemolished.value = obj.yearDemolished || '';
+        editGradeListed.checked = obj.gradeListed || false;
+        gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
+        editGrade.value = obj.grade || 'Grade I';
+        editListEntryNumber.value = obj.listEntryNumber || '';
+        editDateListed.value = obj.dateListed || '';
+        editDescription.value = obj.description || '';
+        editCategory.value = obj.category || '';
+    };
 
-// Save edit
-document.getElementById('saveEditObject').onclick = () => {
-    obj.name = editObjectName.value.trim() || obj.name;
-    obj.number = editObjectNumber.value.trim();
-    obj.status = editStatus.value;
-    obj.yearBuilt = editYearBuilt.value.trim();
-    obj.yearDemolished = editYearDemolished.value.trim();
-    obj.gradeListed = editGradeListed.checked;
-    obj.grade = editGrade.value;
-    obj.listEntryNumber = editListEntryNumber.value.trim();
-    obj.dateListed = editDateListed.value.trim();
-    obj.description = editDescription.value.trim();
-    obj.category = editCategory.value;
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}`;
-};
-function closeEdit() { editPopup.style.display = 'none'; }
+    editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
 
-/* DELETE OBJECT */
-deleteBtn.onclick = () => {
-    deleteMessage.innerHTML = `Are you sure you want to delete <b>${obj.name}</b>?`;
-    deletePopup.style.display = 'flex';
-};
-document.getElementById('cancelDelete').onclick = () => deletePopup.style.display = 'none';
-document.getElementById('confirmDelete').onclick = () => {
-    streetObjects[streetName] = (streetObjects[streetName] || []).filter(o => o.name !== obj.name);
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-};
+    flatpickr(editDateListed, {
+        altInput: true,
+        altFormat: "d/m/Y",
+        dateFormat: "Y-m-d",
+        theme: "dark"
+    });
 
-/* ADD PHOTO */
-addPhotoBtn.onclick = () => {
-    addPhotoTitle.textContent = `Adding photo(s) to:`;
-    addPhotoSubTitle.textContent = `${obj.name} ${obj.number || ''}`;
-    photoFile.value = '';
-    photoDate.value = '';
-    photoDescription.value = '';
-    addPhotoPopup.style.display = 'flex';
-};
-function closeAddPhoto() { addPhotoPopup.style.display = 'none'; }
-savePhotoBtn.onclick = () => {
-    const files = photoFile.files;
-    if (!files || files.length === 0) return alert("Please select at least one photo file.");
-    const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
-    if (objectIndex === -1) return alert("Object not found.");
-    if (!streetObjects[streetName][objectIndex].photos) streetObjects[streetName][objectIndex].photos = [];
-    let filesProcessed = 0;
-    for (let i = 0; i < files.length; i++) {
-        const reader = new FileReader();
-        reader.onload = function(e) {
-            streetObjects[streetName][objectIndex].photos.push({
-                name: files[i].name,
-                date: photoDate.value,
-                description: photoDescription.value,
-                dataUrl: e.target.result
+    // Save edit
+    document.getElementById('saveEditObject').onclick = () => {
+        obj.name = editObjectName.value.trim() || obj.name;
+        obj.number = editObjectNumber.value.trim();
+        obj.status = editStatus.value;
+        obj.yearBuilt = editYearBuilt.value.trim();
+        obj.yearDemolished = editYearDemolished.value.trim();
+        obj.gradeListed = editGradeListed.checked;
+        obj.grade = editGrade.value;
+        obj.listEntryNumber = editListEntryNumber.value.trim();
+        obj.dateListed = editDateListed.value.trim();
+        obj.description = editDescription.value.trim();
+        obj.category = editCategory.value;
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}`;
+    };
+
+    function closeEdit() {
+        editPopup.style.display = 'none';
+    }
+
+    /* DELETE OBJECT */
+    deleteBtn.onclick = () => {
+        deleteMessage.innerHTML = `Are you sure you want to delete <b>${obj.name}</b>?`;
+        deletePopup.style.display = 'flex';
+    };
+
+    document.getElementById('cancelDelete').onclick = () => deletePopup.style.display = 'none';
+    document.getElementById('confirmDelete').onclick = () => {
+        streetObjects[streetName] = (streetObjects[streetName] || []).filter(o => o.name !== obj.name);
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+    };
+
+    /* ADD PHOTO */
+    addPhotoBtn.onclick = () => {
+        addPhotoTitle.textContent = 'Adding photo(s) to:';
+        addPhotoSubTitle.textContent = `${obj.name} ${obj.number || ''}`;
+        photoFile.value = '';
+        photoDate.value = '';
+        photoDescription.value = '';
+        addPhotoPopup.style.display = 'flex';
+    };
+
+    function closeAddPhoto() {
+        addPhotoPopup.style.display = 'none';
+    }
+
+    savePhotoBtn.onclick = () => {
+        const files = photoFile.files;
+        if (!files || files.length === 0) return alert("Please select at least one photo file.");
+
+        const objectIndex = streetObjects[streetName].findIndex(o => o.name === objectName);
+        if (objectIndex === -1) return alert("Object not found.");
+
+        if (!streetObjects[streetName][objectIndex].photos)
+            streetObjects[streetName][objectIndex].photos = [];
+
+        let filesProcessed = 0;
+        for (let i = 0; i < files.length; i++) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                streetObjects[streetName][objectIndex].photos.push({
+                    name: files[i].name,
+                    date: photoDate.value,
+                    description: photoDescription.value,
+                    dataUrl: e.target.result
+                });
+                filesProcessed++;
+                if (filesProcessed === files.length) {
+                    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+                    Object.assign(obj, streetObjects[streetName][objectIndex]);
+                    closeAddPhoto();
+                    displayPhotos();
+                    alert(`${filesProcessed} photo(s) added!`);
+                }
+            };
+            reader.readAsDataURL(files[i]);
+        }
+    };
+
+ /* MAP EDIT */
+    let editMap, editMarker, tempLat = null, tempLng = null;
+
+    function initEditMap() {
+        if (editMap) return;
+
+        const lat = obj.lat || 53.552;
+        const lng = obj.lng || -1.478;
+
+        // Ensure zoom is within min/max
+        const zoomMin = 16;
+        const zoomMax = 19;
+        let zoom = obj.zoom || 16;
+        if (zoom < zoomMin) zoom = zoomMin;
+        if (zoom > zoomMax) zoom = zoomMax;
+
+        editMap = L.map('mapEdit', { minZoom: zoomMin, maxZoom: zoomMax }).setView([lat, lng], zoom);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(editMap);
+
+        if (obj.lat && obj.lng)
+            editMarker = L.marker([lat, lng]).addTo(editMap);
+
+        // Click to set marker
+        editMap.on('click', e => {
+            if (editMarker) editMarker.remove();
+            editMarker = L.marker(e.latlng).addTo(editMap);
+            tempLat = e.latlng.lat;
+            tempLng = e.latlng.lng;
+            document.getElementById('mapZoom').value = editMap.getZoom();
+        });
+
+        // Track zoom
+        document.getElementById('mapZoom').value = editMap.getZoom();
+        editMap.on('zoomend', () => {
+            document.getElementById('mapZoom').value = editMap.getZoom();
+        });
+
+        // Set min/max inputs
+        document.getElementById('mapZoomMin').value = zoomMin;
+        document.getElementById('mapZoomMax').value = zoomMax;
+
+        // Make sure all inputs are same height
+        const inputs = document.querySelectorAll('.map-zoom-input');
+        inputs.forEach(inp => inp.style.height = '28px');
+    }
+
+    /* MAP BUTTON */
+    mapBtn.onclick = () => {
+        mapPopup.style.display = 'flex';
+        initEditMap();
+    };
+
+    function closeMapPopup() {
+        mapPopup.style.display = 'none';
+    }
+
+    /* SAVE MAP */
+    saveMapBtn.onclick = () => {
+        if (!editMarker) {
+            alert("Please click the map to set a location first.");
+            return;
+        }
+
+        obj.lat = tempLat;
+        obj.lng = tempLng;
+        obj.zoom = editMap.getZoom();
+        obj.zoomMin = 16;
+        obj.zoomMax = 18;
+
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        closeMapPopup();
+        mapNotSetText.style.display = 'none';
+        mapSection.style.display = 'block';
+    };
+
+    /* DELETE MARKER */
+    deleteMarkerBtn.onclick = () => {
+        if (!editMarker) return alert("No marker to delete.");
+        editMarker.remove();
+        editMarker = null;
+        tempLat = null;
+        tempLng = null;
+
+        delete obj.lat;
+        delete obj.lng;
+        delete obj.zoom;
+        delete obj.zoomMin;
+        delete obj.zoomMax;
+
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        closeMapPopup();
+        location.reload();
+    };
+
+    /* OBJECT MAP ICONS */
+    function getCategoryIcon(category, status) {
+        const iconUrl = categoryIcons[category] || categoryIcons['Townhouse'];
+
+        if (status === "Doesn't exist") {
+            // divIcon with black ring
+            return L.divIcon({
+                html: `
+                    <div style="
+                        width:36px;
+                        height:36px;
+                        border:3px solid black;
+                        border-radius:50%;
+                        display:flex;
+                        justify-content:center;
+                        align-items:center;
+                        background:transparent;">
+                        <img src="${iconUrl}" style="width:24px;height:24px;display:block;" />
+                    </div>`,
+                className: '',
+                iconSize: [36,36],
+                iconAnchor: [18,36],
+                popupAnchor: [0,-36]
             });
-            filesProcessed++;
-            if (filesProcessed === files.length) {
-                localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-                Object.assign(obj, streetObjects[streetName][objectIndex]);
-                closeAddPhoto();
-                displayPhotos();
-                alert(`${filesProcessed} photo(s) added!`);
-            }
-        };
-        reader.readAsDataURL(files[i]);
-    }
-};
-
-/* MAP EDIT */
-let editMap, editMarker, tempLat = null, tempLng = null;
-
-function initEditMap() {
-    if (editMap) return;
-    const lat = obj.lat || 53.552;
-    const lng = obj.lng || -1.478;
-
-    // Ensure zoom is within min/max
-    const zoomMin = 16;
-    const zoomMax = 19;
-    let zoom = obj.zoom || 16;
-    if (zoom < zoomMin) zoom = zoomMin;
-    if (zoom > zoomMax) zoom = zoomMax;
-
-    editMap = L.map('mapEdit', { minZoom: zoomMin, maxZoom: zoomMax }).setView([lat, lng], zoom);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(editMap);
-
-    if (obj.lat && obj.lng) editMarker = L.marker([lat, lng]).addTo(editMap);
-
-    // Click to set marker
-    editMap.on('click', e => {
-        if (editMarker) editMarker.remove();
-        editMarker = L.marker(e.latlng).addTo(editMap);
-        tempLat = e.latlng.lat;
-        tempLng = e.latlng.lng;
-        document.getElementById('mapZoom').value = editMap.getZoom();
-    });
-
-    // Track zoom
-    document.getElementById('mapZoom').value = editMap.getZoom();
-    editMap.on('zoomend', () => {
-        document.getElementById('mapZoom').value = editMap.getZoom();
-    });
-
-    // Set min/max inputs
-    document.getElementById('mapZoomMin').value = zoomMin;
-    document.getElementById('mapZoomMax').value = zoomMax;
-
-    // Make sure all inputs are same height
-    const inputs = document.querySelectorAll('.map-zoom-input');
-    inputs.forEach(inp => inp.style.height = '28px');
-}
-/* MAP BUTTON */
-mapBtn.onclick = () => {
-    mapPopup.style.display = 'flex';
-    initEditMap();
-};
-function closeMapPopup() { mapPopup.style.display = 'none'; }
-
-/* SAVE MAP */
-saveMapBtn.onclick = () => {
-    if (!editMarker) { alert("Please click the map to set a location first."); return; }
-    obj.lat = tempLat;
-    obj.lng = tempLng;
-    obj.zoom = editMap.getZoom();
-    obj.zoomMin = 16;
-    obj.zoomMax = 18;
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    closeMapPopup();
-    mapNotSetText.style.display = 'none';
-    mapSection.style.display = 'block';
-    ();
-};
-
-/* DELETE MARKER */
-deleteMarkerBtn.onclick = () => {
-    if (!editMarker) return alert("No marker to delete.");
-    editMarker.remove();
-    editMarker = null;
-    tempLat = null;
-    tempLng = null;
-    delete obj.lat;
-    delete obj.lng;
-    delete obj.zoom;
-    delete obj.zoomMin;
-    delete obj.zoomMax;
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    closeMapPopup();
-    location.reload();
-};
-
-/* OBJECT MAP */
-function getCategoryIcon(category, status) {
-    const iconUrl = categoryIcons[category] || "https://polska-org.pl/gfx/category/500045.png";
-
-    // If object doesn't exist, wrap icon in a black ring
-    if (status === "Doesn't exist") {
-        return L.divIcon({
-            html: `
-                <div style="
-                    display:flex; 
-                    justify-content:center; 
-                    align-items:center;
-                    width:36px; 
-                    height:36px; 
-                    border:3px solid black; 
-                    border-radius:50%;
-                    background-color:transparent;
-                ">
-                    <img src="${iconUrl}" style="width:24px;height:24px;" />
-                </div>
-            `,
-            className: '', // no default styles
-            iconSize: [36,36],
-            iconAnchor: [18,36],
-            popupAnchor: [0,-36]
-        });
-    } else {
-        return L.icon({ 
-            iconUrl, 
-            iconSize: [32,32], 
-            iconAnchor: [16,32], 
-            popupAnchor: [0,-32] 
-        });
-    }
-}
-  
-function initObjectMap() {
-    if (!obj.lat || !obj.lng) return;
-
-    const mapDiv = document.getElementById('objectMap');
-    mapDiv.innerHTML = '';
-
-    // Initialize map centered on current object
-    const map = L.map('objectMap', { minZoom: obj.zoomMin || 16, maxZoom: obj.zoomMax || 18 })
-                  .setView([obj.lat, obj.lng], obj.zoom || 16);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    const objectsOnStreet = streetObjects[streetName] || [];
-
-    objectsOnStreet.forEach(o => {
-        if (!o.lat || !o.lng) return;
-
-        const isCurrent = o.name === obj.name;
-        const marker = L.marker([o.lat, o.lng], { 
-            icon: getCategoryIcon(o.category, o.status),
-            opacity: isCurrent ? 1 : 0.7
-        }).addTo(map);
-
-        marker.bindPopup(`<b>${o.name}</b>`);
-
-        if (!isCurrent) {
-            marker.on('click', () => {
-                window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+        } else {
+            // normal icon
+            return L.icon({
+                iconUrl,
+                iconSize: [32,32],
+                iconAnchor: [16,32],
+                popupAnchor: [0,-32]
             });
         }
-    });
+    }
 
-    // Zoom display
-    const zoomDiv = document.getElementById('objectMapZoom');
-    zoomDiv.style.display = 'block';
-    zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
-    map.on('zoomend', () => zoomDiv.textContent = `Zoom: ${map.getZoom()}`);
-}
+    function initObjectMap() {
+        if (!obj.lat || !obj.lng) return;
 
-/* DISPLAY PHOTOS */
-function displayPhotos() {
-    const photosDiv = document.getElementById('photosDiv');
-    photosDiv.innerHTML = '';
-    if (!obj.photos || obj.photos.length === 0) return photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
+        const mapDiv = document.getElementById('objectMap');
+        mapDiv.innerHTML = '';
 
-    obj.photos.sort((a,b) => new Date(a.date)-new Date(b.date));
-    obj.photos.forEach(photo => {
-        const box = document.createElement('div');
-        box.style = 'display:flex; flex-direction:column; align-items:center; margin:5px; width:200px; border:1px solid #555; padding:5px; border-radius:5px; background:#1f1f1f;';
-        const img = document.createElement('img');
-        img.src = photo.dataUrl; img.style = 'width:100%; height:auto; object-fit:cover; border-radius:3px;';
-        box.appendChild(img);
-        if(photo.date){ const d = document.createElement('div'); d.style='font-size:11px;color:#aaa;margin-top:3px;'; d.textContent=photo.date; box.appendChild(d);}
-        if(photo.description){ const d = document.createElement('div'); d.style='font-size:12px;margin-top:2px;'; d.textContent=photo.description; box.appendChild(d);}
-        photosDiv.appendChild(box);
-    });
-}
+        const map = L.map('objectMap', {
+            minZoom: obj.zoomMin || 16,
+            maxZoom: obj.zoomMax || 18
+        }).setView([obj.lat, obj.lng], obj.zoom || 16);
 
-displayPhotos();
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
 
-/* SHOW MAP IF SET */
-if(obj.lat && obj.lng){
-    mapNotSetText.style.display='none';
-    mapSection.style.display='block';
-    initObjectMap();
-}else{
-    mapNotSetText.style.display='block';
-    mapSection.style.display='none';
-}
+        const objectsOnStreet = streetObjects[streetName] || [];
+        objectsOnStreet.forEach(o => {
+            if (!o.lat || !o.lng) return;
+
+            const isCurrent = o.name === obj.name;
+            const marker = L.marker([o.lat, o.lng], {
+                icon: getCategoryIcon(o.category, o.status),
+                opacity: isCurrent ? 1 : 0.7
+            }).addTo(map);
+
+            marker.bindPopup(`<b>${o.name}</b>`);
+
+            if (!isCurrent) {
+                marker.on('click', () => {
+                    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+                });
+            }
+        });
+
+        // Zoom display
+        const zoomDiv = document.getElementById('objectMapZoom');
+        zoomDiv.style.display = 'block';
+        zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
+        map.on('zoomend', () => zoomDiv.textContent = `Zoom: ${map.getZoom()}`);
+    }
+
+    /* DISPLAY PHOTOS */
+    function displayPhotos() {
+        const photosDiv = document.getElementById('photosDiv');
+        photosDiv.innerHTML = '';
+
+        if (!obj.photos || obj.photos.length === 0) {
+            return photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
+        }
+
+        obj.photos.sort((a,b) => new Date(a.date) - new Date(b.date));
+
+        obj.photos.forEach(photo => {
+            const box = document.createElement('div');
+            box.style = `
+                display:flex;
+                flex-direction:column;
+                align-items:center;
+                margin:5px;
+                width:200px;
+                border:1px solid #555;
+                padding:5px;
+                border-radius:5px;
+                background:#1f1f1f;`;
+
+            const img = document.createElement('img');
+            img.src = photo.dataUrl;
+            img.style = 'width:100%; height:auto; object-fit:cover; border-radius:3px;';
+            box.appendChild(img);
+
+            if(photo.date){
+                const d = document.createElement('div');
+                d.style = 'font-size:11px;color:#aaa;margin-top:3px;';
+                d.textContent = photo.date;
+                box.appendChild(d);
+            }
+
+            if(photo.description){
+                const d = document.createElement('div');
+                d.style = 'font-size:12px;margin-top:2px;';
+                d.textContent = photo.description;
+                box.appendChild(d);
+            }
+
+            photosDiv.appendChild(box);
+        });
+    }
+
+    displayPhotos();
+
+    /* SHOW MAP IF SET */
+    if(obj.lat && obj.lng){
+        mapNotSetText.style.display = 'none';
+        mapSection.style.display = 'block';
+        initObjectMap();
+    } else {
+        mapNotSetText.style.display = 'block';
+        mapSection.style.display = 'none';
+    }
 </script>
 
 </body>
