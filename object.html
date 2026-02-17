@@ -567,7 +567,7 @@ function populateExifDate() {
     EXIF.getData(file, function() {
         const exifDate = EXIF.getTag(this, "DateTimeOriginal");
         if (exifDate) {
-            const parts = exifDate.split(" ")[0].split(":"); 
+            const parts = exifDate.split(" ")[0].split(":");
             photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
         } else {
             exifError.style.display = 'block';
@@ -576,17 +576,12 @@ function populateExifDate() {
     });
 }
 
-// Checkbox change
 useExifDate.addEventListener('change', () => {
     exifError.style.display = 'none';
-    if (!useExifDate.checked) {
-        photoDate.value = '';
-        return;
-    }
-    populateExifDate();
+    if (useExifDate.checked) populateExifDate();
+    else photoDate.value = '';
 });
 
-// File change (auto-fill if checkbox is checked)
 photoFile.addEventListener('change', () => {
     if (useExifDate.checked) populateExifDate();
 });
@@ -768,8 +763,10 @@ savePhotoBtn.onclick = () => {
     reader.onload = function(e) {
         const dataUrl = e.target.result;
 
-        // Update object directly in the array
+        // Ensure photos array exists
         if (!objArray[objIndex].photos) objArray[objIndex].photos = [];
+
+        // Add the new photo
         objArray[objIndex].photos.push({
             id: Date.now(),
             dataUrl,
@@ -781,16 +778,20 @@ savePhotoBtn.onclick = () => {
         streetObjects[streetName] = objArray;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-        // Update the global obj variable used in displayPhotos()
+        // Update the global obj variable for display
         obj = objArray[objIndex];
 
         console.log("DEBUG: Photo added. Total photos now:", obj.photos.length);
 
-        displayPhotos();  // Refresh photo section
-        closeAddPhoto();  // Close popup
-    }
+        // Refresh the photo section using the updated obj
+        displayPhotos(obj);
+
+        // Close popup and reset fields
+        closeAddPhoto();
+    };
+
     reader.readAsDataURL(file);
-}
+};
        
 /* === DISPLAY PHOTOS === */
 function displayPhotos(currentObj) {
@@ -799,7 +800,7 @@ function displayPhotos(currentObj) {
 
     photosDiv.innerHTML = '';
 
-    if(objPhotos.length === 0){
+    if (objPhotos.length === 0) {
         photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
         return;
     }
@@ -814,7 +815,7 @@ function displayPhotos(currentObj) {
         link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(currentObj.name)}&photoId=${photo.id}`;
 
         const img = document.createElement('img');
-        img.src = photo.dataUrl || '';
+        img.src = photo.dataUrl;
         img.alt = photo.description || '';
         img.style.width = "150px";
         img.style.border = "1px solid #555";
@@ -824,7 +825,7 @@ function displayPhotos(currentObj) {
         link.appendChild(img);
         card.appendChild(link);
 
-        if(photo.date){
+        if (photo.date) {
             const dateDiv = document.createElement('div');
             dateDiv.style.fontSize = '12px';
             dateDiv.style.color = '#aaa';
@@ -836,6 +837,7 @@ function displayPhotos(currentObj) {
         photosDiv.appendChild(card);
     });
 }
+
 // Initial render
 displayPhotos(obj);  // Refresh using the updated object
 
