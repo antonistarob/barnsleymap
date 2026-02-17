@@ -811,66 +811,59 @@ if (status === "Doesn't exist") {
 }
     }
 
-    function initObjectMap() {
-        if (!obj.lat || !obj.lng) return;
+function initObjectMap() {
+    if (!obj.lat || !obj.lng) return;
 
-        const mapDiv = document.getElementById('objectMap');
-        mapDiv.innerHTML = '';
+    const mapDiv = document.getElementById('objectMap');
+    mapDiv.innerHTML = '';
 
-        const map = L.map('objectMap', {
-            minZoom: obj.zoomMin || 16,
-            maxZoom: obj.zoomMax || 18
-        }).setView([obj.lat, obj.lng], obj.zoom || 16);
+    const map = L.map('objectMap', {
+        minZoom: obj.zoomMin || 16,
+        maxZoom: obj.zoomMax || 19
+    }).setView([obj.lat, obj.lng], obj.zoom || 16);
 
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-
-Object.keys(streetObjects).forEach(street => {
-    streetObjects[street].forEach(o => {
-
-        if (!o.lat || !o.lng) return;
-
-        const isCurrent =
-            street === streetName &&
-            o.name === obj.name;
-
-        const marker = L.marker(
-            [o.lat, o.lng],
-            {
-                icon: getCategoryIcon(o.category, o.status),
-                opacity: 1   // ← do NOT fade others
-            }
-        ).addTo(map);
-
-        marker.bindPopup(
-            `<b>${o.name}</b><br>${street}`
-        );
-
-        if (!isCurrent) {
-            marker.on('click', () => {
-                window.location.href =
-                    `object.html?street=${encodeURIComponent(street)}&object=${encodeURIComponent(o.name)}`;
-            });
-        }
-
-    });
-});
-    if (!o.lat || !o.lng) return;
-
-    const marker = L.marker([o.lat, o.lng], {
-        icon: getCategoryIcon(o.category, o.status),
-        opacity: 1 // make all markers fully visible
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    marker.bindPopup(`<b>${o.name}</b>`);
+    // 🔹 SHOW ALL OBJECTS FROM ALL STREETS
+    Object.keys(streetObjects).forEach(street => {
+        streetObjects[street].forEach(o => {
 
-    if (o.name !== obj.name) {
-        marker.on('click', () => {
-            window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+            if (!o.lat || !o.lng) return;
+
+            const isCurrent =
+                street === streetName &&
+                o.name === obj.name;
+
+            const marker = L.marker(
+                [o.lat, o.lng],
+                {
+                    icon: getCategoryIcon(o.category, o.status),
+                    opacity: 1
+                }
+            ).addTo(map);
+
+            marker.bindPopup(`<b>${o.name}</b><br>${street}`);
+
+            if (!isCurrent) {
+                marker.on('click', () => {
+                    window.location.href =
+                        `object.html?street=${encodeURIComponent(street)}&object=${encodeURIComponent(o.name)}`;
+                });
+            }
         });
-    }
-});
+    });
+
+    // 🔹 Zoom display
+    const zoomDiv = document.getElementById('objectMapZoom');
+    zoomDiv.style.display = 'block';
+    zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
+
+    map.on('zoomend', () => {
+        zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
+    });
+}
 
         // Zoom display
         const zoomDiv = document.getElementById('objectMapZoom');
