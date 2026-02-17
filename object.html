@@ -287,9 +287,7 @@ if (obj.gradeListed) {
     if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
     if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
-
-if (obj.category) additionalInfo.innerHTML += `<span><strong>Category:</strong> ${obj.category}</span><br>`;
-
+  
 // Description
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
