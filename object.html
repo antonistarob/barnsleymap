@@ -289,6 +289,50 @@
     border: 1px solid #555;
     padding: 5px;
 }
+
+        .object-card {
+    background: #1f1f1f;
+    border: 1px solid #444;
+    border-radius: 12px;
+    padding: 25px 30px;
+    max-width: 900px;
+    width: 100%;
+    margin: 100px auto 40px auto; /* center on page below fixed header */
+    text-align: center;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+}
+
+.object-card h1 {
+    margin-top: 0;
+    font-size: 28px;
+}
+
+.object-card #streetBox {
+    font-size: 20px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.object-card #additionalInfo {
+    margin: 10px 0;
+}
+
+.object-card #descriptionWrapper {
+    margin: 15px 0;
+}
+
+.object-card .buttons-container {
+    justify-content: center;
+    margin: 20px 0;
+}
+
+.object-card #photosSection {
+    margin-top: 20px;
+}
+
+.object-card #mapSection {
+    margin-top: 30px;
+}
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -319,7 +363,8 @@
         </table>
     </div>
 
-    <div class="main-content">
+<div class="main-content">
+    <div class="object-card">
         <h1 id="objectTitle"></h1>
         <p class="info-line" id="objectStreetLine">
             <span id="streetBox">
@@ -344,17 +389,18 @@
             <h3>Photos</h3>
             <div id="photosDiv"></div>
         </div>
-    </div>
 
-    <div id="mapSection">
-        <h3>Map Location</h3>
-        <div id="objectMap"></div>
-        <div id="objectMapZoom">Zoom:</div>
-    </div>
+        <div id="mapSection">
+            <h3>Map Location</h3>
+            <div id="objectMap"></div>
+            <div id="objectMapZoom">Zoom:</div>
+        </div>
 
-    <p id="mapNotSetText" style="text-align:center; color:#aaa; margin-top:30px;">
-        Map location not yet set, do this by clicking the <b>Map</b> button.
-    </p>
+        <p id="mapNotSetText" style="text-align:center; color:#aaa; margin-top:30px;">
+            Map location not yet set, do this by clicking the <b>Map</b> button.
+        </p>
+    </div>
+</div>
 
     <!-- POPUPS -->
     <!-- Add Photo -->
