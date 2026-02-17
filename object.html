@@ -764,45 +764,44 @@ function populateExifDate() {
 // SAVE PHOTO
 savePhotoBtn.onclick = () => {
     const file = photoFile.files[0];
-    console.log("DEBUG: file selected:", file);
-    console.log("DEBUG: obj loaded:", obj);
-
-    if (!file) {
+    if(!file) {
         alert("Please select a photo.");
         return;
     }
 
+    // Re-fetch object fresh from localStorage
+    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+    let objArray = streetObjects[streetName] || [];
+    let objIndex = objArray.findIndex(o => o.name === objectName);
+    if(objIndex === -1){
+        alert("Object not found in storage!");
+        return;
+    }
+    let obj = objArray[objIndex];
+
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function(e){
         const dataUrl = e.target.result;
-        const dateValue = photoDate.value.trim();
-        const descriptionValue = photoDescription.value.trim();
-
-        if (!obj.photos) obj.photos = [];
-
-        const newPhoto = {
+        if(!obj.photos) obj.photos = [];
+        obj.photos.push({
             id: Date.now(),
             dataUrl,
-            date: dateValue,
-            description: descriptionValue
-        };
-
-        obj.photos.push(newPhoto);
+            date: photoDate.value.trim(),
+            description: photoDescription.value.trim()
+        });
 
         // Save back to localStorage
-        const streetArr = streetObjects[streetName] || [];
-        const index = streetArr.findIndex(o => o.name === obj.name);
-        if (index !== -1) streetArr[index] = obj;
-        streetObjects[streetName] = streetArr;
+        objArray[objIndex] = obj;
+        streetObjects[streetName] = objArray;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-        console.log("DEBUG: photo added, total photos now:", obj.photos.length);
+        console.log("DEBUG: Photo added. Total photos now:", obj.photos.length);
 
-        displayPhotos();
-        closeAddPhoto();
-    };
+        displayPhotos();       // Refresh the photo section
+        closeAddPhoto();       // Close popup
+    }
     reader.readAsDataURL(file);
-};
+}
 
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
