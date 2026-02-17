@@ -556,17 +556,13 @@
 // Black calendar popup for photoDate (optional)
 flatpickr("#photoDate", {
     altInput: false,
-    dateFormat: "Y-m-d",  // only used internally for sorting
+    dateFormat: "Y-m-d",
     theme: "dark",
-    allowInput: true,      // user can type YYYY, YYYY-MM, etc
-    defaultDate: photoDate.value || null, // preserve typed value
+    allowInput: true, // let user type "2025" or "2025-2026"
+    defaultDate: null,
     onChange: function(selectedDates, dateStr) {
-        // Only store what the user typed
-        photoDate.value = dateStr || photoDate.value;
-    },
-    onReady: function(selectedDates, dateStr, instance) {
-        instance.calendarContainer.style.background = "#121212";
-        instance.calendarContainer.style.color = "#eee";
+        // Do NOT overwrite user input for partial dates
+        photoDate.value = photoDate.value.trim(); 
     }
 });
 
@@ -742,8 +738,10 @@ if (photo.date) {
     dateDiv.style.fontSize = '12px';
     dateDiv.style.color = '#aaa';
     dateDiv.style.marginTop = '4px';
-    // display exactly what user typed
-    dateDiv.textContent = photo.date;
+    
+    // Only show the raw string the user typed
+    dateDiv.textContent = photo.date.replace(/^(\d{4})-(0\d|1[0-2])-(0\d|[12]\d|3[01])$/, '$1-$2-$3') || photo.date;
+
     card.appendChild(dateDiv);
 }
 
