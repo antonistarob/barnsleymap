@@ -756,30 +756,36 @@ savePhotoBtn.onclick = () => {
 
     const reader = new FileReader();
     reader.onload = function(e) {
-// Ensure photos array exists
-if (!obj.photos) obj.photos = [];
+        const dataUrl = e.target.result;                   // <-- this is the image
+        const dateValue = photoDate.value.trim();          // <-- get date from input
+        const descriptionValue = photoDescription.value.trim(); // <-- get description
 
-// Add new photo
-const newPhoto = {
-    id: Date.now(),
-    dataUrl: dataUrl,
-    date: dateValue,
-    description: descriptionValue
-};
-obj.photos.push(newPhoto);
+        // Ensure photos array exists
+        if (!obj.photos) obj.photos = [];
 
-// Update the object inside streetObjects to make sure localStorage sees it
-const streetArr = streetObjects[streetName] || [];
-const index = streetArr.findIndex(o => o.name === obj.name);
-if (index !== -1) streetArr[index] = obj;
-streetObjects[streetName] = streetArr;
+        // Add new photo
+        const newPhoto = {
+            id: Date.now(),
+            dataUrl: dataUrl,
+            date: dateValue,
+            description: descriptionValue
+        };
+        obj.photos.push(newPhoto);
 
-localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-displayPhotos();
-closeAddPhoto();
+        // Update the object inside streetObjects to make sure localStorage sees it
+        const streetArr = streetObjects[streetName] || [];
+        const index = streetArr.findIndex(o => o.name === obj.name);
+        if (index !== -1) streetArr[index] = obj;
+        streetObjects[streetName] = streetArr;
+
+        // Save and refresh photos display
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        displayPhotos();
+        closeAddPhoto();
     };
     reader.readAsDataURL(file);
 };
+       
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
     const photosDiv = document.getElementById('photosDiv');
