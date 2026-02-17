@@ -781,6 +781,10 @@ savePhotoBtn.onclick = () => {
         streetObjects[streetName] = objArray;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
+// Refresh obj from localStorage
+let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+        
         console.log("DEBUG: Photo added. Total photos now:", obj.photos.length);
 
         displayPhotos();       // Refresh the photo section
