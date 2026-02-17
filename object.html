@@ -539,6 +539,7 @@ function initObjectMap() {
     const mapDiv = document.getElementById('objectMap');
     mapDiv.innerHTML = '';
 
+    // Initialize map centered on current object
     const map = L.map('objectMap', { minZoom: obj.zoomMin || 16, maxZoom: obj.zoomMax || 18 })
                   .setView([obj.lat, obj.lng], obj.zoom || 16);
 
@@ -546,8 +547,27 @@ function initObjectMap() {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    L.marker([obj.lat, obj.lng], {icon: getCategoryIcon(obj.category)}).addTo(map);
+    const objectsOnStreet = streetObjects[streetName] || [];
 
+    objectsOnStreet.forEach(o => {
+        if (!o.lat || !o.lng) return;
+
+        const isCurrent = o.name === obj.name;
+        const marker = L.marker([o.lat, o.lng], { 
+            icon: getCategoryIcon(o.category),
+            opacity: isCurrent ? 1 : 0.7
+        }).addTo(map);
+
+        marker.bindPopup(`<b>${o.name}</b>`);
+
+        if (!isCurrent) {
+            marker.on('click', () => {
+                window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+            });
+        }
+    });
+
+    // Zoom display
     const zoomDiv = document.getElementById('objectMapZoom');
     zoomDiv.style.display = 'block';
     zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
