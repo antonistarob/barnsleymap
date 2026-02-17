@@ -189,20 +189,23 @@ h1 { margin-top:0; }
     <h3 style="text-align:center;">Edit Map Location</h3>
     <p style="text-align:center; font-size:14px; margin-top:0;"> Click the map to set a location for the object. </p>
     <div id="mapEdit" style="width:100%; height:350px; border:1px solid #555; border-radius:5px;"></div>
-    <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:15px;">
-      <div>
-        <label>Zoom</label>
-        <input type="text" id="mapZoom" disabled>
-      </div>
-      <div>
-        <label>Zoom min.</label>
-        <input type="number" id="mapZoomMin">
-      </div>
-      <div>
-        <label>Zoom max.</label>
-        <input type="number" id="mapZoomMax">
-      </div>
-    </div>
+<div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:15px;">
+  <div>
+    <label>Zoom</label>
+    <input type="text" id="mapZoom" disabled
+      style="background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
+  </div>
+  <div>
+    <label>Zoom min.</label>
+    <input type="number" id="mapZoomMin" value="16" disabled
+      style="background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
+  </div>
+  <div>
+    <label>Zoom max.</label>
+    <input type="number" id="mapZoomMax" value="19" disabled
+      style="background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
+  </div>
+</div>
     <div class="popup-buttons" style="margin-top:20px;">
       <button id="saveMapBtn" class="action-button">Save</button>
       <button onclick="closeMapPopup()" class="action-button">Cancel</button>
@@ -481,8 +484,8 @@ function initEditMap() {
     zoomInput.value = editMap.getZoom();
     editMap.on('zoomend', () => { zoomInput.value = editMap.getZoom(); });
 
-    document.getElementById('mapZoomMin').value = obj.zoomMin || '';
-    document.getElementById('mapZoomMax').value = obj.zoomMax || '';
+  document.getElementById('mapZoomMin').value = 16;
+  document.getElementById('mapZoomMax').value = 19;
 }
 document.getElementById('saveMapBtn').onclick = () => {
     if (tempLat === null || tempLng === null) { alert("Please click the map to set a location first."); return; }
