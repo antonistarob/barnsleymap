@@ -586,9 +586,9 @@ photoFile.addEventListener('change', () => {
     if (useExifDate.checked) populateExifDate();
 });
 
-    /* LOAD DATA */
-    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-    const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+// LOAD DATA
+let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+let obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
 
     if (!obj) {
         objectTitle.textContent = 'Object not found';
