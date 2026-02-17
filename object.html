@@ -732,14 +732,23 @@ function displayPhotos() {
         };
         card.appendChild(img);
 
-        if (photo.date) {
-            const dateDiv = document.createElement('div');
-            dateDiv.style.fontSize = '12px';
-            dateDiv.style.color = '#aaa';
-            dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date; // raw string only, no T00:00:00.000Z
-            card.appendChild(dateDiv);
-        }
+if (photo.date) {
+    const dateDiv = document.createElement('div');
+    dateDiv.style.fontSize = '12px';
+    dateDiv.style.color = '#aaa';
+    dateDiv.style.marginTop = '4px';
+
+    // Show only the original format, remove the T00:00:00.000Z
+    let displayDate = photo.date;
+
+    // If it’s a full ISO string, trim time part
+    if (/^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}.\d{3}Z$/.test(displayDate)) {
+        displayDate = displayDate.split('T')[0]; // keep YYYY-MM-DD only
+    }
+
+    dateDiv.textContent = displayDate;
+    card.appendChild(dateDiv);
+}
 
         photosDiv.appendChild(card);
     });
