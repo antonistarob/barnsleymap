@@ -763,6 +763,9 @@ photoFile.addEventListener('change', () => {
 // Save photo
 savePhotoBtn.onclick = () => {
     const file = photoFile.files[0];
+    console.log("DEBUG: file selected:", file);
+    console.log("DEBUG: obj loaded:", obj);
+
     if (!file) {
         alert("Please select a photo.");
         return; // stops here if no file
@@ -774,37 +777,32 @@ savePhotoBtn.onclick = () => {
         const dateValue = photoDate.value.trim();
         const descriptionValue = photoDescription.value.trim();
 
-        // Make sure obj exists
         if (!obj) {
             alert("Object data not found!");
             return;
         }
 
-        // Ensure photos array exists
         if (!obj.photos) obj.photos = [];
 
-        // Add new photo
         const newPhoto = {
             id: Date.now(),
             dataUrl: dataUrl,
             date: dateValue,
             description: descriptionValue
         };
+
         obj.photos.push(newPhoto);
 
-        // Update localStorage
         const streetArr = streetObjects[streetName] || [];
         const index = streetArr.findIndex(o => o.name === obj.name);
         if (index !== -1) streetArr[index] = obj;
         streetObjects[streetName] = streetArr;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-        // Refresh UI
         displayPhotos();
         closeAddPhoto();
-
-        // Reset file input so same file can be added again if needed
         photoFile.value = '';
+        console.log("DEBUG: photo added, total photos now:", obj.photos.length);
     };
 
     reader.readAsDataURL(file);
