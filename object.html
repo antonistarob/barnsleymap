@@ -826,36 +826,6 @@ savePhotoBtn.addEventListener('click', () => {
         return;
     }
 
-    // Regex for allowed formats
-    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}-\d{4}|\d{4})$/;
-    if (dateStr && !dateRegex.test(dateStr)) {
-        alert("Date must be YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD");
-        return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const newPhoto = {
-            id: Date.now() + "_" + Math.floor(Math.random() * 1000),
-            dataUrl: e.target.result,
-            description: desc,
-            date: dateStr || null, // EXACTLY what user typed, no auto-correction
-            username: "Anonymous",
-            views: 0
-        };
-
-        if (!obj.photos) obj.photos = [];
-        obj.photos.push(newPhoto);
-
-        streetObjects[streetName] = streetObjects[streetName].map(o => o.name === obj.name ? obj : o);
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        closeAddPhoto();
-        displayPhotos(); // immediately refresh
-    };
-    reader.readAsDataURL(file);
-});
-
 // Initial render
 displayPhotos();
 
