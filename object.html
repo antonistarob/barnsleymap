@@ -500,10 +500,6 @@
         "Church": "https://polska-org.pl/gfx/obj/06a.png"
     };
 
-photoDate.addEventListener('focus', () => {
-    // only create calendar if not already created
-    if (document.getElementById('calendarPopup')) return;
-
     const calendar = document.createElement('input');
     calendar.type = 'text';
     calendar.id = 'calendarPopup';
@@ -523,22 +519,23 @@ photoDate.addEventListener('focus', () => {
 
     document.body.appendChild(calendar);
 
-    // Flatpickr calendar
-    flatpickr(calendar, {
-        altInput: false,
-        dateFormat: "Y-m-d",
-        theme: "dark",
-        defaultDate: null,
-        onChange: (selectedDates, dateStr) => {
-            photoDate.value = dateStr; // YYYY-MM-DD only if picked
-            document.body.removeChild(calendar);
-        },
-        onClose: () => {
-            if (document.getElementById('calendarPopup')) {
-                document.body.removeChild(calendar);
-            }
-        }
-    });
+// Black calendar popup for photoDate (optional)
+flatpickr("#photoDate", {
+    altInput: false,
+    dateFormat: "Y-m-d", // only for full date
+    theme: "dark",
+    allowInput: true, // allow typing YYYY, YYYY-YYYY, etc
+    defaultDate: null,
+    onChange: function(selectedDates, dateStr) {
+        // Only overwrite if user picked a full date
+        if (dateStr) photoDate.value = dateStr;
+    },
+    onReady: function(selectedDates, dateStr, instance) {
+        // Add dark theme styling manually if needed
+        instance.calendarContainer.style.background = "#121212";
+        instance.calendarContainer.style.color = "#eee";
+    }
+});
 
     calendar.focus();
 });
