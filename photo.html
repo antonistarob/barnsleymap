@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Photo Viewer</title>
+<style>
+    body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #121212;
+        color: #eee;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 20px;
+    }
+    img {
+        max-width: 90%;
+        max-height: 70vh;
+        object-fit: contain;
+        border: 2px solid #555;
+        border-radius: 8px;
+    }
+    #photoInfo {
+        margin-top: 15px;
+        width: 90%;
+        padding: 10px;
+        background: #1f1f1f;
+        border: 1px solid #555;
+        border-radius: 6px;
+        text-align: center;
+    }
+    a {
+        color: #aaa;
+        text-decoration: none;
+        margin-top: 10px;
+    }
+    a:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<a href="#" onclick="history.back()">← Back</a>
+<img id="photoDisplay" src="" alt="Photo">
+<div id="photoInfo"></div>
+
+<script>
+    // Get URL params
+    const params = new URLSearchParams(location.search);
+    const src = params.get('src');
+    const date = params.get('date');
+    const desc = params.get('desc');
+
+    const photoDisplay = document.getElementById('photoDisplay');
+    const photoInfo = document.getElementById('photoInfo');
+
+    photoDisplay.src = src || '';
+    photoInfo.innerHTML = `
+        ${date ? `<div><strong>Date:</strong> ${date}</div>` : ''}
+        ${desc ? `<div><strong>Description:</strong> ${desc}</div>` : ''}
+    `;
+</script>
+
+</body>
+</html>
