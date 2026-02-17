@@ -689,27 +689,28 @@ function displayPhotos() {
         return;
     }
 
-    // Helper to parse date strings
-    const parseDate = d => {
+    // Helper to parse date strings for sorting
+    const parseDateForSort = d => {
         if (!d) return 0;
-
-        if (/^\d{4}-\d{4}$/.test(d)) {
-            return new Date(parseInt(d.split('-')[0]), 0, 1).getTime();
-        }
-        if (/^\d{4}-\d{2}$/.test(d)) {
-            const [y, m] = d.split('-').map(n => parseInt(n));
-            return new Date(y, m - 1, 1).getTime();
-        }
+        // YYYY-YYYY (take first year)
+        if (/^\d{4}-\d{4}$/.test(d)) return parseInt(d.split('-')[0]);
+        // YYYY-MM-DD
         if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
             const [y, m, day] = d.split('-').map(n => parseInt(n));
             return new Date(y, m - 1, day).getTime();
         }
+        // YYYY-MM
+        if (/^\d{4}-\d{2}$/.test(d)) {
+            const [y, m] = d.split('-').map(n => parseInt(n));
+            return new Date(y, m - 1, 1).getTime();
+        }
+        // YYYY
         if (/^\d{4}$/.test(d)) return new Date(parseInt(d), 0, 1).getTime();
         return 0;
     };
 
-    // Sort photos by date
-    objPhotos.sort((a, b) => parseDate(a.date) - parseDate(b.date));
+    // Sort photos by parsed date
+    objPhotos.sort((a, b) => parseDateForSort(a.date) - parseDateForSort(b.date));
 
     objPhotos.forEach(photo => {
         if (!photo.id) photo.id = Date.now() + '_' + Math.floor(Math.random() * 1000);
@@ -736,7 +737,7 @@ function displayPhotos() {
             dateDiv.style.fontSize = '12px';
             dateDiv.style.color = '#aaa';
             dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date; // just show raw string
+            dateDiv.textContent = photo.date; // raw string only, no T00:00:00.000Z
             card.appendChild(dateDiv);
         }
 
