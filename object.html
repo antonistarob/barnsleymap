@@ -947,6 +947,15 @@ icon: getCategoryIcon(o.category, o.status, true),
             }
 
             photosDiv.appendChild(box);
+
+            const img = document.createElement('img');
+img.src = photo.src;
+img.style = 'width:100%; height:auto; object-fit:cover; border-radius:3px;';
+img.addEventListener('click', () => {
+    const url = `photo.html?src=${encodeURIComponent(photo.src)}&date=${encodeURIComponent(photo.date || '')}&desc=${encodeURIComponent(photo.description || '')}`;
+    window.location.href = url;
+});
+box.appendChild(img);
         });
     }
 
