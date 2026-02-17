@@ -211,6 +211,7 @@ const editStreetName = document.getElementById('editStreetName');
 const editDistrict = document.getElementById('editDistrict');
 const editExisting = document.getElementById('editExisting');
 const editStreetDescription = document.getElementById('editStreetDescription');
+const popupStreetName = document.getElementById('popupStreetName');
 
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
@@ -234,11 +235,6 @@ if(data.description){
 } else {
     descriptionWrapper.style.display = 'none';
 }
-
-    // logic for "Add Object to Race Street"
-<div id="popupSubTitle" style="font-size:13px; color:#aaa; margin-bottom:10px;">
-  Add Object to <strong id="popupStreetName"></strong>
-</div>
     
 // Display objects
 objectsTableBody.innerHTML = '';
@@ -260,6 +256,8 @@ objectsTableBody.innerHTML = '';
 // Add Object
 addObjectBtn.onclick = () => {
     editPopup.dataset.mode = 'addObject';
+    document.getElementById('popupTitle').textContent = 'Add Object';
+    popupStreetName.textContent = streetName;
     editObjectName.value = '';
     editObjectNumber.value = '';
     editCategory.value = '';
