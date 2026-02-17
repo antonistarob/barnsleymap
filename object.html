@@ -500,14 +500,47 @@
         "Church": "https://polska-org.pl/gfx/obj/06a.png"
     };
 
-       // Black calendar for Add Photo date
-flatpickr("#photoDate", {
-    altInput: true,        // shows user-friendly date
-    altFormat: "Y-m-d",    // YYYY-MM-DD in the popup
-    dateFormat: "Y-m-d",   // actual value stored
-    allowInput: true,       // allow typing custom formats
-    theme: "dark",          // black calendar
-    clickOpens: true,       // calendar opens on click
+photoDate.addEventListener('focus', () => {
+    // only create calendar if not already created
+    if (document.getElementById('calendarPopup')) return;
+
+    const calendar = document.createElement('input');
+    calendar.type = 'text';
+    calendar.id = 'calendarPopup';
+    calendar.style.position = 'absolute';
+    calendar.style.zIndex = 1000;
+    calendar.style.background = '#121212';
+    calendar.style.color = '#eee';
+    calendar.style.border = '1px solid #555';
+    calendar.style.borderRadius = '4px';
+    calendar.style.padding = '4px';
+
+    // position under the input
+    const rect = photoDate.getBoundingClientRect();
+    calendar.style.left = rect.left + 'px';
+    calendar.style.top = (rect.bottom + window.scrollY) + 'px';
+    calendar.style.width = rect.width + 'px';
+
+    document.body.appendChild(calendar);
+
+    // Flatpickr calendar
+    flatpickr(calendar, {
+        altInput: false,
+        dateFormat: "Y-m-d",
+        theme: "dark",
+        defaultDate: null,
+        onChange: (selectedDates, dateStr) => {
+            photoDate.value = dateStr; // YYYY-MM-DD only if picked
+            document.body.removeChild(calendar);
+        },
+        onClose: () => {
+            if (document.getElementById('calendarPopup')) {
+                document.body.removeChild(calendar);
+            }
+        }
+    });
+
+    calendar.focus();
 });
 
     // Get query params
