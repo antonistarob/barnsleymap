@@ -20,49 +20,38 @@ header h1 { margin:0; font-size:24px; }
 .object-link:hover { text-decoration:underline; }
 
 .main-content { margin-left:230px; padding:90px 20px 20px 20px; display:flex; flex-direction:column; align-items:center; text-align:center; max-width:900px; }
-h1 { margin-top:0; }
-#objectStreetLine { font-size:22px; margin-bottom:10px; }
+h1 { margin-top:0; text-align:center; }
+#objectStreetLine { font-size:22px; margin-bottom:10px; text-align:center; }
 .info-line { margin:5px 0; }
 .action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; margin:5px; }
 .action-button:hover { background:#444; }
 .buttons-container { display:flex; justify-content:center; flex-wrap:wrap; margin:20px 0; }
 
-#photosSection { margin-top:0px; width:100%; }
+#photosSection { margin-top:20px; width:100%; text-align:center; }
+#photosSection h3 { text-align:center; }
 #photosDiv { display:flex; flex-wrap:wrap; justify-content:center; }
 #photosDiv img { cursor:pointer; }
 
 .popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
-.popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%; border:1px solid #444; }
+.popup { background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:95%; border:1px solid #444; }
 .popup h3 { text-align:center; margin-top:0; }
 .popup label { display:block; margin-top:10px; }
 .popup input[type="text"], .popup textarea, .popup select { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
 .popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
-.popup-buttons { margin-top:20px; display:flex; justify-content:space-between; }
+.popup-buttons { margin-top:20px; display:flex; justify-content:space-between; flex-wrap:wrap; }
 
 #gradeOptions { display:none; margin-top:10px; }
 
-#mapSection { margin:30px 0; width:100%; }
+#mapSection { margin:30px 0; width:100%; text-align:center; }
 #objectMap { width:80%; height:400px; border:1px solid #555; border-radius:5px; margin:0 auto; }
 
-#objectTitle { border:2px solid #555; padding:10px 100px; border-radius:8px; background:#1f1f1f; margin-bottom:5px; display:inline-block; }
-#streetBox { border:2px solid #aaa; background:#333; padding:0px 100px; border-radius:6px; display:inline-block; font-size:20px; }
-#streetBox .object-link {text-decoration:none; }
+#objectTitle { border:2px solid #555; padding:10px 100px; border-radius:8px; background:#1f1f1f; margin-bottom:5px; display:inline-block; text-align:center; }
+#streetBox { border:2px solid #aaa; background:#333; padding:0px 100px; border-radius:6px; display:inline-block; font-size:20px; text-align:center; }
+#streetBox .object-link { text-decoration:none; }
 #streetBox .object-link:hover { text-decoration:underline; }
 
-.map-zoom-input {
-  width: 100%;
-  padding: 5px;
-  background: #2b2b2b;
-  color: #eee;
-  border: 1px solid #555;
-  border-radius: 5px;
-  box-sizing: border-box;
-  height: 28px;
-}
-.map-zoom-input:disabled {
-  opacity: 1;
-  color: #eee;
-}
+.map-zoom-input { width: 100%; padding: 5px; background: #2b2b2b; color: #eee; border: 1px solid #555; border-radius: 5px; box-sizing: border-box; height: 28px; }
+.map-zoom-input:disabled { opacity:1; color:#eee; }
 </style>
 
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -71,14 +60,13 @@ h1 { margin-top:0; }
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 </head>
-
 <body>
 <header>
   <h1><a href="index.html" class="header-link">Historical Interactive Map of Barnsley</a></h1>
 </header>
 
 <div class="left-column">
-  <h2 id="objectsHeader" style="text-align:center;">Objects on this street</h2>
+  <h2 style="text-align:center;">Objects on this street</h2>
   <table class="objects-table">
     <thead><tr><th>No.</th><th>Name</th></tr></thead>
     <tbody id="objectsTableBody"></tbody>
@@ -87,7 +75,7 @@ h1 { margin-top:0; }
 
 <div class="main-content">
   <h1 id="objectTitle"></h1>
-  <p class="info-line" id="objectStreetLine">
+  <p id="objectStreetLine">
     <span id="streetBox">
       <span id="objectStreet" class="object-link"></span>
       <span id="objectNumber" style="margin-left:5px;"></span>
@@ -97,57 +85,38 @@ h1 { margin-top:0; }
   <div id="additionalInfo"></div>
   <p id="descriptionWrapper"><strong>Description:</strong> <span id="objectDescription"></span></p>
 
-  <div style="margin:0px 0; text-align:center;">
+  <div class="buttons-container">
     <button id="addPhotoBtn" class="action-button">Add Photo</button>
     <button id="editBtn" class="action-button">Edit</button>
     <button id="mapBtn" class="action-button">Map</button>
     <button id="deleteBtn" class="action-button">Delete</button>
   </div>
 
-  <div id="photosSection" style="margin-top:20px; text-align:center;">
+  <div id="photosSection">
     <h3>Photos</h3>
-    <div id="photosDiv" style="display:flex; flex-wrap:wrap;"></div>
+    <div id="photosDiv"></div>
   </div>
 </div>
 
-<div id="mapSection" style="margin:30px 0; text-align:center; display:none;">
+<div id="mapSection" style="display:none;">
   <h3>Map Location</h3>
-  <div id="objectMap" style="width:60%; height:400px; border:1px solid #555; border-radius:5px;"></div>
-
-  <div id="objectMapZoom" 
-       style="color:#aaa; font-size:12px; margin-top:5px; text-align:left; width:60%; margin-left:auto; margin-right:auto; display:none;">
-    Zoom: 
-  </div>
+  <div id="objectMap"></div>
+  <div id="objectMapZoom" style="color:#aaa; font-size:12px; margin-top:5px; display:none;"></div>
 </div>
 
 <p id="mapNotSetText" style="text-align:center; color:#aaa; margin-top:30px;">
   Map location not yet set, do this by clicking the <b>Map</b> button.
 </p>
 
-<!-- POPUPS (Edit, Map, Delete, Add Photo) OMITTED FOR BREVITY -->
-<!-- Keep your popup HTML as in your original code -->
+<!-- POPUPS OMITTED FOR BREVITY (reuse your previous popup HTML) -->
 
 <script>
-// CATEGORY ICONS
-const categoryIcons = {
-    "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
-    "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
-    "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
-    "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
-    "Villa": "https://polska-org.pl/gfx/obj/05c.png",
-    "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
-    "Cottage": "https://polska-org.pl/gfx/category/500129.png",
-    "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
-    "Apartment block": "https://polska-org.pl/gfx/category/3258201.png",
-    "Church": "https://polska-org.pl/gfx/obj/06a.png"
-};
-
-// QUERY PARAMS
+// GET PARAMS
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
 const objectName = qp('object');
 
-/* ELEMENTS */
+// ELEMENTS
 const objectTitle = document.getElementById('objectTitle');
 const objectStreet = document.getElementById('objectStreet');
 const objectNumber = document.getElementById('objectNumber');
@@ -155,7 +124,6 @@ const additionalInfo = document.getElementById('additionalInfo');
 const objectDescription = document.getElementById('objectDescription');
 const descriptionWrapper = document.getElementById('descriptionWrapper');
 const objectsTableBody = document.getElementById('objectsTableBody');
-
 const editBtn = document.getElementById('editBtn');
 const mapBtn = document.getElementById('mapBtn');
 const mapSection = document.getElementById('mapSection');
@@ -164,125 +132,56 @@ const mapNotSetText = document.getElementById('mapNotSetText');
 // LOAD DATA
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
-if (!obj) {
-    objectTitle.textContent = 'Object not found';
-    throw new Error('Object missing');
-}
+if (!obj) { objectTitle.textContent='Object not found'; throw new Error('Object missing'); }
 
 // DISPLAY OBJECT
 objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
 objectStreet.onclick = () => window.location.href=`street.html?name=${encodeURIComponent(streetName)}`;
 objectNumber.textContent = obj.number || '';
-
-// ADDITIONAL INFO
 additionalInfo.innerHTML = '';
-if (obj.status && obj.status !== 'Exists') additionalInfo.innerHTML += `<span><strong>Status:</strong> ${obj.status}</span><br>`;
-if (obj.yearBuilt) additionalInfo.innerHTML += `<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
-if (obj.yearDemolished) additionalInfo.innerHTML += `<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
-if (obj.gradeListed) {
-    additionalInfo.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
-    if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
-    if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
+if(obj.status && obj.status!=='Exists') additionalInfo.innerHTML+=`<span><strong>Status:</strong> ${obj.status}</span><br>`;
+if(obj.yearBuilt) additionalInfo.innerHTML+=`<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
+if(obj.yearDemolished) additionalInfo.innerHTML+=`<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
+if(obj.gradeListed) {
+  additionalInfo.innerHTML+=`<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
+  if(obj.listEntryNumber) additionalInfo.innerHTML+=`<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
+  if(obj.dateListed) additionalInfo.innerHTML+=`<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
-
-// DESCRIPTION
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
 /* LEFT COLUMN */
-objectsTableBody.innerHTML = '';
-(streetObjects[streetName] || []).forEach(o => {
-    const row = document.createElement('tr');
-    const numberCell = document.createElement('td');
-    numberCell.textContent = o.number || '';
-    row.appendChild(numberCell);
-
-    const nameCell = document.createElement('td');
-    nameCell.textContent = o.name;
-    nameCell.classList.add('object-link');
-    nameCell.addEventListener('click', () => {
-        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-        if (window.location.href === url) window.location.reload();
-        else window.location.href = url;
-    });
-    row.appendChild(nameCell);
-    objectsTableBody.appendChild(row);
+objectsTableBody.innerHTML='';
+(streetObjects[streetName]||[]).forEach(o=>{
+  const row=document.createElement('tr');
+  const td1=document.createElement('td'); td1.textContent=o.number||''; row.appendChild(td1);
+  const td2=document.createElement('td'); td2.textContent=o.name; td2.classList.add('object-link');
+  td2.onclick=()=>window.location.href=`object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+  row.appendChild(td2); objectsTableBody.appendChild(row);
 });
 
-/* CATEGORY ICON FUNCTION */
-function getCategoryIcon(category, status) {
-    const iconUrl = categoryIcons[category] || 'https://polska-org.pl/gfx/category/3258201.png';
-    if (status === "Doesn't exist") {
-        return L.divIcon({
-            html: `
-            <div style="
-                width:36px;
-                height:36px;
-                border:3px solid black;
-                border-radius:50%;
-                display:flex;
-                justify-content:center;
-                align-items:center;
-                background:transparent;
-            ">
-                <img src="${iconUrl}" style="width:24px; height:24px; display:block;" />
-            </div>
-            `,
-            className: '',
-            iconSize: [36,36],
-            iconAnchor: [18,36],
-            popupAnchor: [0,-36]
-        });
-    } else {
-        return L.icon({
-            iconUrl,
-            iconSize: [32,32],
-            iconAnchor: [16,32],
-            popupAnchor: [0,-32]
-        });
-    }
+/* MAP ICONS */
+const categoryIcons = { "Townhouse":"https://polska-org.pl/gfx/category/500045.png","Detached house":"https://polska-org.pl/gfx/category/6216777.png","Semi-detached house":"https://polska-org.pl/gfx/category/500046.png","Terraced house":"https://polska-org.pl/gfx/category/500046.png","Villa":"https://polska-org.pl/gfx/obj/05c.png","Palace/Manor":"https://polska-org.pl/gfx/obj/05h.png","Cottage":"https://polska-org.pl/gfx/category/500129.png","Single-family house":"https://polska-org.pl/gfx/category/500129.png","Apartment block":"https://polska-org.pl/gfx/category/3258201.png","Church":"https://polska-org.pl/gfx/obj/06a.png"};
+
+function getCategoryIcon(category,status){
+  const iconUrl=categoryIcons[category]||'https://polska-org.pl/gfx/category/3258201.png';
+  if(status==="Doesn't exist") return L.divIcon({html:`<div style="width:36px;height:36px;border:3px solid black;border-radius:50%;display:flex;justify-content:center;align-items:center;background:transparent;"><img src="${iconUrl}" style="width:24px;height:24px;display:block;"/></div>`,className:'',iconSize:[36,36],iconAnchor:[18,36],popupAnchor:[0,-36]});
+  else return L.icon({iconUrl,iconSize:[32,32],iconAnchor:[16,32],popupAnchor:[0,-32]});
 }
 
-/* INIT OBJECT MAP */
-function initObjectMap() {
-    if (!obj.lat || !obj.lng) return;
-
-    const map = L.map('objectMap', { minZoom: obj.zoomMin || 16, maxZoom: obj.zoomMax || 18 })
-                  .setView([obj.lat, obj.lng], obj.zoom || 16);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '&copy; OpenStreetMap contributors'
-    }).addTo(map);
-
-    (streetObjects[streetName] || []).forEach(o => {
-        if (!o.lat || !o.lng) return;
-
-        const marker = L.marker([o.lat, o.lng], {
-            icon: getCategoryIcon(o.category, o.status),
-            opacity: o.name === obj.name ? 1 : 0.7
-        }).addTo(map);
-        marker.bindPopup(`<b>${o.name}</b>`);
-        if (o.name !== obj.name) marker.on('click', () => {
-            window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-        });
-    });
-
-    const zoomDiv = document.getElementById('objectMapZoom');
-    zoomDiv.style.display = 'block';
-    zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
-    map.on('zoomend', () => zoomDiv.textContent = `Zoom: ${map.getZoom()}`);
+/* INIT MAP */
+function initObjectMap(){
+  if(!obj.lat||!obj.lng)return;
+  const map=L.map('objectMap',{minZoom:obj.zoomMin||16,maxZoom:obj.zoomMax||18}).setView([obj.lat,obj.lng],obj.zoom||16);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'&copy; OpenStreetMap contributors'}).addTo(map);
+  (streetObjects[streetName]||[]).forEach(o=>{if(!o.lat||!o.lng)return; const marker=L.marker([o.lat,o.lng],{icon:getCategoryIcon(o.category,o.status),opacity:o.name===obj.name?1:0.7}).addTo(map); marker.bindPopup(`<b>${o.name}</b>`); if(o.name!==obj.name) marker.onclick=()=>window.location.href=`object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`; });
+  const zoomDiv=document.getElementById('objectMapZoom'); zoomDiv.style.display='block'; zoomDiv.textContent=`Zoom: ${map.getZoom()}`; map.on('zoomend',()=>zoomDiv.textContent=`Zoom: ${map.getZoom()}`);
 }
 
 /* SHOW MAP IF SET */
-if(obj.lat && obj.lng){
-    mapNotSetText.style.display='none';
-    mapSection.style.display='block';
-    initObjectMap();
-}else{
-    mapNotSetText.style.display='block';
-    mapSection.style.display='none';
-}
+if(obj.lat&&obj.lng){ mapNotSetText.style.display='none'; mapSection.style.display='block'; initObjectMap(); }
+else{ mapNotSetText.style.display='block'; mapSection.style.display='none'; }
 
 </script>
 </body>
