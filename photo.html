@@ -320,11 +320,13 @@ function savePhotoEdits() {
 
 // DELETE PHOTO
 function deletePhoto(photoId) {
-    if (!confirm("Delete this photo permanently?")) return;
+    if (!confirm("Are you sure you want to delete this photo?")) return;
 
+    // Remove photo from the object
     obj.photos = obj.photos.filter(p => p.id !== photoId);
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
+    // Redirect back to the object page
     window.location.href =
         `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}`;
 }
