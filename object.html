@@ -553,15 +553,20 @@
         throw new Error('Object missing');
     }
 
-// Initialize Flatpickr for the photoDate input
+// Black calendar popup for photoDate (Add Photo popup)
 flatpickr("#photoDate", {
     altInput: false,
-    allowInput: true,        // important: allows manual text entry
-    dateFormat: "Y-m-d",     // still valid if user enters full date
-    onChange: function(selectedDates, dateStr) {
-        // Don't overwrite what user typed manually
-        // Just keep the raw value in the input
+    allowInput: true,       // user can type freely
+    clickOpens: false,      // prevent calendar from opening
+    dateFormat: "Y-m-d",    // ignored, just needed for validation regex
+    onValueUpdate: function(selectedDates, dateStr) {
+        // Do nothing: keep user input exactly as typed
         photoDate.value = photoDate.value.trim();
+    },
+    onReady: function() {
+        // Remove calendar icon if present
+        const calendarInput = document.querySelector("#photoDate + .flatpickr-input");
+        if(calendarInput) calendarInput.style.display = "none";
     }
 });
 
@@ -757,30 +762,23 @@ if (photo.date) {
 savePhotoBtn.addEventListener('click', () => {
     const file = photoFile.files[0];
     const desc = photoDescription.value.trim();
-    const dateStr = photoDate.value.trim(); // keep exactly what user typed
-
-    if (!file) {
-        alert("Please select a photo.");
-        return;
-    }
-
-    // Validate allowed formats
-    const dateRegex = /^(\d{4}|\d{4}-\d{2}|\d{4}-\d{2}-\d{2}|\d{4}-\d{4})$/;
-    if (dateStr && !dateRegex.test(dateStr)) {
-        alert("Date must be YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD");
-        return;
-    }
+const dateStr = photoDate.value.trim();
+const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}-\d{4}|\d{4})$/;
+if (dateStr && !dateRegex.test(dateStr)) {
+    alert("Date must be YYYY-MM-DD, YYYY-MM, YYYY-YYYY, or YYYY");
+    return;
+}
 
     const reader = new FileReader();
     reader.onload = function(e) {
-        const newPhoto = {
-            id: Date.now() + "_" + Math.floor(Math.random() * 1000),
-            dataUrl: e.target.result,
-            description: desc,
-            date: dateStr || null,   // store exactly what user typed
-            username: "Anonymous",
-            views: 0
-        };
+       const newPhoto = {
+    id: Date.now() + "_" + Math.floor(Math.random() * 1000),
+    dataUrl: e.target.result,
+    description: desc,
+    date: dateStr || null, // <-- now exactly what user typed
+    username: "Anonymous",
+    views: 0
+};
 
         if (!obj.photos) obj.photos = [];
         obj.photos.push(newPhoto);
