@@ -453,7 +453,7 @@ function initEditMap() {
     const lng = obj.lng || -1.478;
     const zoom = obj.zoom || 16;
 
-    editMap = L.map('mapEdit', { minZoom: 16, maxZoom: 19 }).setView([lat, lng], zoom);
+    editMap = L.map('mapEdit', { minZoom: 16, : 19 }).setView([lat, lng], zoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(editMap);
@@ -474,7 +474,7 @@ function initEditMap() {
 
     document.getElementById('mapZoom').value = editMap.getZoom();
     document.getElementById('mapZoomMin').value = 16;
-    document.getElementById('mapZoomMax').value = 19;
+    document.getElementById('mapZoomMax').value = 18;
 }
 
 /* MAP BUTTON */
@@ -491,7 +491,7 @@ saveMapBtn.onclick = () => {
     obj.lng = tempLng;
     obj.zoom = editMap.getZoom();
     obj.zoomMin = 16;
-    obj.zoomMax = 19;
+    obj.zoomMax = 18;
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
     closeMapPopup();
     mapNotSetText.style.display = 'none';
@@ -527,7 +527,7 @@ function initObjectMap() {
     const mapDiv = document.getElementById('objectMap');
     mapDiv.innerHTML = '';
 
-    const map = L.map('objectMap', { minZoom: obj.zoomMin || 16, maxZoom: obj.zoomMax || 19 })
+    const map = L.map('objectMap', { minZoom: obj.zoomMin || 16, maxZoom: obj.zoomMax || 18 })
                   .setView([obj.lat, obj.lng], obj.zoom || 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
