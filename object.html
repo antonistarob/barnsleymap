@@ -451,15 +451,22 @@ function initEditMap() {
     if (editMap) return;
     const lat = obj.lat || 53.552;
     const lng = obj.lng || -1.478;
-    const zoom = obj.zoom || 16;
 
-    editMap = L.map('mapEdit', { minZoom: 16, : 19 }).setView([lat, lng], zoom);
+    // Ensure zoom is within min/max
+    const zoomMin = 16;
+    const zoomMax = 19;
+    let zoom = obj.zoom || 16;
+    if (zoom < zoomMin) zoom = zoomMin;
+    if (zoom > zoomMax) zoom = zoomMax;
+
+    editMap = L.map('mapEdit', { minZoom: zoomMin, maxZoom: zoomMax }).setView([lat, lng], zoom);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
     }).addTo(editMap);
 
     if (obj.lat && obj.lng) editMarker = L.marker([lat, lng]).addTo(editMap);
 
+    // Click to set marker
     editMap.on('click', e => {
         if (editMarker) editMarker.remove();
         editMarker = L.marker(e.latlng).addTo(editMap);
@@ -468,15 +475,20 @@ function initEditMap() {
         document.getElementById('mapZoom').value = editMap.getZoom();
     });
 
+    // Track zoom
+    document.getElementById('mapZoom').value = editMap.getZoom();
     editMap.on('zoomend', () => {
         document.getElementById('mapZoom').value = editMap.getZoom();
     });
 
-    document.getElementById('mapZoom').value = editMap.getZoom();
-    document.getElementById('mapZoomMin').value = 16;
-    document.getElementById('mapZoomMax').value = 18;
-}
+    // Set min/max inputs
+    document.getElementById('mapZoomMin').value = zoomMin;
+    document.getElementById('mapZoomMax').value = zoomMax;
 
+    // Make sure all inputs are same height
+    const inputs = document.querySelectorAll('.map-zoom-input');
+    inputs.forEach(inp => inp.style.height = '28px');
+}
 /* MAP BUTTON */
 mapBtn.onclick = () => {
     mapPopup.style.display = 'flex';
