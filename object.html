@@ -715,15 +715,16 @@ if (obj.gradeListed) {
         window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
     };
 
+/* === ADD PHOTO === */
 addPhotoBtn.onclick = () => {
     addPhotoPopup.style.display = 'flex';
     addPhotoTitle.textContent = `Adding photo(s) to:`;
     addPhotoSubTitle.textContent = obj.name;
 };
 
+// Close add photo popup
 function closeAddPhoto() {
     addPhotoPopup.style.display = 'none';
-    // Clear fields when closing
     photoFile.value = '';
     photoDate.value = '';
     photoDescription.value = '';
@@ -733,23 +734,6 @@ function closeAddPhoto() {
 cancelAddPhotoBtn.onclick = closeAddPhoto;
 
 // EXIF handling
-function populateExifDate() {
-    exifError.style.display = 'none';
-    const file = photoFile.files[0];
-    if (!file) return;
-
-    EXIF.getData(file, function() {
-        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
-        if (exifDate) {
-            const parts = exifDate.split(" ")[0].split(":"); 
-            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
-        } else {
-            exifError.style.display = 'block';
-            photoDate.value = '';
-        }
-    });
-}
-
 useExifDate.addEventListener('change', () => {
     exifError.style.display = 'none';
     if (useExifDate.checked) populateExifDate();
@@ -760,7 +744,24 @@ photoFile.addEventListener('change', () => {
     if (useExifDate.checked) populateExifDate();
 });
 
-// Save photo
+function populateExifDate() {
+    exifError.style.display = 'none';
+    const file = photoFile.files[0];
+    if (!file) return;
+
+    EXIF.getData(file, function() {
+        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+        if (exifDate) {
+            const parts = exifDate.split(" ")[0].split(":");
+            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+        } else {
+            exifError.style.display = 'block';
+            photoDate.value = '';
+        }
+    });
+}
+
+// SAVE PHOTO
 savePhotoBtn.onclick = () => {
     const file = photoFile.files[0];
     console.log("DEBUG: file selected:", file);
@@ -768,7 +769,7 @@ savePhotoBtn.onclick = () => {
 
     if (!file) {
         alert("Please select a photo.");
-        return; // stops here if no file
+        return;
     }
 
     const reader = new FileReader();
@@ -777,37 +778,32 @@ savePhotoBtn.onclick = () => {
         const dateValue = photoDate.value.trim();
         const descriptionValue = photoDescription.value.trim();
 
-        if (!obj) {
-            alert("Object data not found!");
-            return;
-        }
-
         if (!obj.photos) obj.photos = [];
 
         const newPhoto = {
             id: Date.now(),
-            dataUrl: dataUrl,
+            dataUrl,
             date: dateValue,
             description: descriptionValue
         };
 
         obj.photos.push(newPhoto);
 
+        // Save back to localStorage
         const streetArr = streetObjects[streetName] || [];
         const index = streetArr.findIndex(o => o.name === obj.name);
         if (index !== -1) streetArr[index] = obj;
         streetObjects[streetName] = streetArr;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
+        console.log("DEBUG: photo added, total photos now:", obj.photos.length);
+
         displayPhotos();
         closeAddPhoto();
-        photoFile.value = '';
-        console.log("DEBUG: photo added, total photos now:", obj.photos.length);
     };
-
     reader.readAsDataURL(file);
 };
-       
+
 /* === DISPLAY PHOTOS === */
 function displayPhotos() {
     const photosDiv = document.getElementById('photosDiv');
@@ -819,49 +815,50 @@ function displayPhotos() {
         return;
     }
 
-objPhotos.forEach(photo => {
-    const card = document.createElement('div');
-    card.style.display = 'inline-block';
-    card.style.margin = '5px';
-    card.style.textAlign = 'center';
+    objPhotos.forEach(photo => {
+        const card = document.createElement('div');
+        card.style.display = 'inline-block';
+        card.style.margin = '5px';
+        card.style.textAlign = 'center';
 
-    const img = document.createElement('img');
-    img.src = photo.dataUrl || ''; 
-    img.alt = photo.description || '';
-    img.style.width = "150px";
-    img.style.border = "1px solid #555";
-    img.style.borderRadius = "5px";
-    img.style.cursor = "pointer";
+        const img = document.createElement('img');
+        img.src = photo.dataUrl || '';
+        img.alt = photo.description || '';
+        img.style.width = "150px";
+        img.style.border = "1px solid #555";
+        img.style.borderRadius = "5px";
+        img.style.cursor = "pointer";
 
-    // OPEN LIGHTBOX
-    img.onclick = () => {
-        lightbox.style.display = 'flex';
-        lightboxImg.src = photo.dataUrl;
-        let captionText = '';
-        if(photo.date) captionText += `${photo.date.split('T')[0]}`;
-        if(photo.description) captionText += (captionText ? ' — ' : '') + photo.description;
-        lightboxCaption.textContent = captionText;
-    };
+        // OPEN LIGHTBOX
+        img.onclick = () => {
+            lightbox.style.display = 'flex';
+            lightboxImg.src = photo.dataUrl;
+            let captionText = '';
+            if(photo.date) captionText += photo.date; // safe
+            if(photo.description) captionText += (captionText ? ' — ' : '') + photo.description;
+            lightboxCaption.textContent = captionText;
+        };
 
-    card.appendChild(img);
+        card.appendChild(img);
 
-if (photo.date) {
-    const dateDiv = document.createElement('div');
-    dateDiv.style.fontSize = '12px';
-    dateDiv.style.color = '#aaa';
-    dateDiv.style.marginTop = '4px';
-    // show the date as entered, don't split by 'T'
-    dateDiv.textContent = photo.date;
-    card.appendChild(dateDiv);
+        // Date display
+        if(photo.date){
+            const dateDiv = document.createElement('div');
+            dateDiv.style.fontSize = '12px';
+            dateDiv.style.color = '#aaa';
+            dateDiv.style.marginTop = '4px';
+            dateDiv.textContent = photo.date; // safe
+            card.appendChild(dateDiv);
+        }
+
+        photosDiv.appendChild(card);
+    });
+
+    // LIGHTBOX CLOSE
+    lightboxClose.onclick = () => { lightbox.style.display = 'none'; }
+    lightbox.onclick = (e) => { if(e.target === lightbox) lightbox.style.display = 'none'; }
 }
 
-    photosDiv.appendChild(card);
-});
-
-// LIGHTBOX CLOSE
-lightboxClose.onclick = () => { lightbox.style.display = 'none'; }
-lightbox.onclick = (e) => { if(e.target === lightbox) lightbox.style.display = 'none'; }
-    
 // Initial render
 displayPhotos();
 
