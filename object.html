@@ -358,30 +358,34 @@
 
     <!-- POPUPS -->
     <!-- Add Photo -->
-    <div class="popup-overlay" id="addPhotoPopup">
-        <div class="popup" style="width:450px; max-width:95%;">
-            <h3 id="addPhotoTitle" style="text-align:center;">Adding photo(s) to:</h3>
-            <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
-            <label for="photoFile">File:</label>
-            <input type="file" id="photoFile" accept="image/*">
-<label for="photoDate" style="display:flex; justify-content:space-between; align-items:center;">
-    <span>Date:</span>
-    <span>
-        <input type="checkbox" id="useExifDate"> Enter date from EXIF
-    </span>
-</label>
-<input type="text" id="photoDate" placeholder="YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD">
-<div id="exifError" style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
-    No EXIF data from chosen file, please enter manually.
-</div>
-            <label for="photoDescription">Photo Description:</label>
-            <textarea id="photoDescription" rows="3"></textarea>
-            <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
-                <button id="savePhotoBtn" class="action-button" style="margin-right:10px;">Add Photo</button>
-                <button onclick="closeAddPhoto()" class="action-button">Cancel</button>
-            </div>
+<div class="popup-overlay" id="addPhotoPopup">
+    <div class="popup" style="width:450px; max-width:95%;">
+        <h3 id="addPhotoTitle" style="text-align:center;">Adding photo(s) to:</h3>
+        <p id="addPhotoSubTitle" style="text-align:center; font-size:14px; margin-top:0;"></p>
+
+        <label for="photoFile">File:</label>
+        <input type="file" id="photoFile" accept="image/*">
+
+        <label for="photoDate">
+            Date:
+            <input type="checkbox" id="useExifDate" style="margin-left:10px;"> Enter date from EXIF
+        </label>
+        <input type="text" id="photoDate" placeholder="YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD">
+
+        <div id="exifError"
+             style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
+            No EXIF data from chosen file, please enter manually
+        </div>
+
+        <label for="photoDescription">Photo Description:</label>
+        <textarea id="photoDescription" rows="3"></textarea>
+
+        <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
+            <button id="savePhotoBtn" class="action-button" style="margin-right:10px;">Add Photo</button>
+            <button onclick="closeAddPhoto()" class="action-button">Cancel</button>
         </div>
     </div>
+</div>
 
     <!-- Edit Object -->
     <div class="popup-overlay" id="editPopup">
@@ -547,6 +551,41 @@
     const mapNotSetText = document.getElementById('mapNotSetText');
     const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
     const saveMapBtn = document.getElementById('saveMapBtn');
+
+       const useExifDate = document.getElementById('useExifDate');
+const exifError = document.getElementById('exifError');
+
+function populateExifDate() {
+    exifError.style.display = 'none';
+    const file = photoFile.files[0];
+    if (!file) return;
+
+    EXIF.getData(file, function() {
+        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
+        if (exifDate) {
+            const parts = exifDate.split(" ")[0].split(":"); 
+            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
+        } else {
+            exifError.style.display = 'block';
+            photoDate.value = '';
+        }
+    });
+}
+
+// Checkbox change
+useExifDate.addEventListener('change', () => {
+    exifError.style.display = 'none';
+    if (!useExifDate.checked) {
+        photoDate.value = '';
+        return;
+    }
+    populateExifDate();
+});
+
+// File change (auto-fill if checkbox is checked)
+photoFile.addEventListener('change', () => {
+    if (useExifDate.checked) populateExifDate();
+});
 
     /* LOAD DATA */
     let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
@@ -749,29 +788,37 @@ if (photo.date) {
 savePhotoBtn.addEventListener('click', () => {
     const file = photoFile.files[0];
     const desc = photoDescription.value.trim();
-    const dateStr = photoDate.value.trim(); // EXACTLY what user typed
+    const dateStr = photoDate.value.trim();
 
-    const useExifDate = document.getElementById('useExifDate');
-const exifError = document.getElementById('exifError');
+    if (!file) { alert("Please select a photo."); return; }
 
-photoFile.addEventListener('change', () => {
-    exifError.style.display = 'none';
-    if (!useExifDate.checked) return;
+    const dateRegex = /^(\d{4}-\d{2}-\d{2}|\d{4}-\d{2}|\d{4}-\d{4}|\d{4})$/;
+    if (dateStr && !dateRegex.test(dateStr)) {
+        alert("Date must be YYYY-MM-DD, YYYY-MM, YYYY-YYYY, or YYYY");
+        return;
+    }
 
-    const file = photoFile.files[0];
-    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const newPhoto = {
+            id: Date.now() + "_" + Math.floor(Math.random() * 1000),
+            dataUrl: e.target.result,
+            description: desc,
+            date: dateStr || null,
+            username: "Anonymous",
+            views: 0
+        };
 
-    EXIF.getData(file, function() {
-        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
-        if (exifDate) {
-            // EXIF date is usually "YYYY:MM:DD HH:MM:SS"
-            const parts = exifDate.split(" ")[0].split(":"); 
-            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`; 
-        } else {
-            exifError.style.display = 'block';
-            photoDate.value = '';
-        }
-    });
+        if (!obj.photos) obj.photos = [];
+        obj.photos.push(newPhoto);
+
+        streetObjects[streetName] = streetObjects[streetName].map(o => o.name === obj.name ? obj : o);
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+        closeAddPhoto();
+        displayPhotos();
+    };
+    reader.readAsDataURL(file);
 });
 
 // Also, if user ticks the box after file is already chosen
