@@ -632,14 +632,49 @@ function displayPhotos() {
         photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
     } else {
         objPhotos.forEach(photo => {
+            // Create container
+            const container = document.createElement('div');
+            container.style.margin = '5px';
+            container.style.textAlign = 'center';
+            container.style.width = '150px';
+
+            // Create image
             const img = document.createElement('img');
             img.src = photo.dataUrl || photo.src; // Base64 or URL
             img.alt = photo.description || '';
             img.style.width = "150px";
-            img.style.margin = "5px";
             img.style.border = "1px solid #555";
             img.style.borderRadius = "5px";
-            photosDiv.appendChild(img);
+            img.style.cursor = "pointer";
+
+            // Click to open in new tab or popup
+            img.onclick = () => {
+                const win = window.open();
+                win.document.write(`<img src="${img.src}" style="max-width:100%; display:block; margin:auto;">`);
+            };
+
+            container.appendChild(img);
+
+            // Add date
+            if(photo.date) {
+                const dateEl = document.createElement('div');
+                dateEl.textContent = photo.date;
+                dateEl.style.fontSize = '12px';
+                dateEl.style.color = '#aaa';
+                dateEl.style.marginTop = '3px';
+                container.appendChild(dateEl);
+            }
+
+            // Add description
+            if(photo.description) {
+                const descEl = document.createElement('div');
+                descEl.textContent = photo.description;
+                descEl.style.fontSize = '12px';
+                descEl.style.color = '#ccc';
+                container.appendChild(descEl);
+            }
+
+            photosDiv.appendChild(container);
         });
     }
 }
