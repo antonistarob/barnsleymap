@@ -256,6 +256,8 @@ const categoryIcons = {
     "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
     "Apartment block": "https://polska-org.pl/gfx/category/3258201.png"
 };
+
+// Get query params
 const qp = p => new URLSearchParams(location.search).get(p);
 const streetName = qp('street');
 const objectName = qp('object');
@@ -302,6 +304,9 @@ const mapPopup = document.getElementById('mapPopup');
 const mapSection = document.getElementById('mapSection');
 const mapNotSetText = document.getElementById('mapNotSetText');
 
+const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
+const saveMapBtn = document.getElementById('saveMapBtn');
+
 /* LOAD DATA */
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
@@ -310,57 +315,6 @@ if (!obj) {
     throw new Error('Object missing');
 }
 
-const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
-deleteMarkerBtn.onclick = () => {
-    if (!editMarker) {
-        alert("No marker to delete.");
-        return;
-    }
-    // Remove marker from map
-    editMap.removeLayer(editMarker);
-    editMarker = null;
-    tempLat = null;
-    tempLng = null;
-
-    // Remove marker from object data
-    delete obj.lat;
-    delete obj.lng;
-    delete obj.zoom;
-    delete obj.zoomMin;
-    delete obj.zoomMax;
-
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-    // Close popup and refresh page
-    closeMapPopup();
-    location.reload();
-};
-  
-// Function to create Leaflet icon
-function getCategoryIcon(category) {
-    const iconUrl = categoryIcons[category] || "https://polska-org.pl/gfx/category/500045.png"; // fallback
-
-    // Create a temporary image to get natural size
-    const img = new Image();
-    img.src = iconUrl;
-
-    // Default size if not loaded yet
-    let width = 32;
-    let height = 32;
-
-    img.onload = () => {
-        const aspect = img.naturalWidth / img.naturalHeight;
-        height = width / aspect;
-    }
-
-    return L.icon({
-        iconUrl: iconUrl,
-        iconSize: [width, height],    // width fixed, height proportional
-        iconAnchor: [width/2, height],
-        popupAnchor: [0, -height + 5]
-    });
-}
-  
 /* DISPLAY OBJECT */
 objectTitle.textContent = obj.name;
 objectStreet.textContent = streetName;
@@ -377,7 +331,7 @@ if (obj.gradeListed) {
     if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
     if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
-  
+
 // Description
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
@@ -395,11 +349,8 @@ objectsTableBody.innerHTML = '';
     nameCell.classList.add('object-link');
     nameCell.addEventListener('click', () => {
         const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-        if (window.location.href === url) {
-            window.location.reload();
-        } else {
-            window.location.href = url;
-        }
+        if (window.location.href === url) window.location.reload();
+        else window.location.href = url;
     });
     row.appendChild(nameCell);
     objectsTableBody.appendChild(row);
@@ -419,15 +370,14 @@ editBtn.onclick = () => {
     editListEntryNumber.value = obj.listEntryNumber || '';
     editDateListed.value = obj.dateListed || '';
     editDescription.value = obj.description || '';
-    editCategory.value = obj.category || ''; // set current category
+    editCategory.value = obj.category || '';
 };
 editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
 flatpickr(editDateListed, { altInput: true, altFormat: "d/m/Y", dateFormat: "Y-m-d", theme: "dark" });
 
-/* SAVE EDIT OBJECT */
+// Save edit
 document.getElementById('saveEditObject').onclick = () => {
-    const newName = editObjectName.value.trim() || obj.name;
-    obj.name = newName;
+    obj.name = editObjectName.value.trim() || obj.name;
     obj.number = editObjectNumber.value.trim();
     obj.status = editStatus.value;
     obj.yearBuilt = editYearBuilt.value.trim();
@@ -437,9 +387,9 @@ document.getElementById('saveEditObject').onclick = () => {
     obj.listEntryNumber = editListEntryNumber.value.trim();
     obj.dateListed = editDateListed.value.trim();
     obj.description = editDescription.value.trim();
-    obj.category = editCategory.value; // save category
+    obj.category = editCategory.value;
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(newName)}`;
+    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}`;
 };
 function closeEdit() { editPopup.style.display = 'none'; }
 
@@ -448,7 +398,7 @@ deleteBtn.onclick = () => {
     deleteMessage.innerHTML = `Are you sure you want to delete <b>${obj.name}</b>?`;
     deletePopup.style.display = 'flex';
 };
-document.getElementById('cancelDelete').onclick = () => { deletePopup.style.display = 'none'; };
+document.getElementById('cancelDelete').onclick = () => deletePopup.style.display = 'none';
 document.getElementById('confirmDelete').onclick = () => {
     streetObjects[streetName] = (streetObjects[streetName] || []).filter(o => o.name !== obj.name);
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
@@ -485,9 +435,6 @@ savePhotoBtn.onclick = () => {
             if (filesProcessed === files.length) {
                 localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
                 Object.assign(obj, streetObjects[streetName][objectIndex]);
-                photoFile.value = '';
-                photoDate.value = '';
-                photoDescription.value = '';
                 closeAddPhoto();
                 displayPhotos();
                 alert(`${filesProcessed} photo(s) added!`);
@@ -501,130 +448,87 @@ savePhotoBtn.onclick = () => {
 let editMap, editMarker, tempLat = null, tempLng = null;
 
 function initEditMap() {
-  if (editMap) return;
-  const lat = obj.lat || 53.552;
-  const lng = obj.lng || -1.478;
-  const zoom = obj.zoom || 16;
+    if (editMap) return;
+    const lat = obj.lat || 53.552;
+    const lng = obj.lng || -1.478;
+    const zoom = obj.zoom || 16;
 
-  editMap = L.map('mapEdit', { minZoom: 16, maxZoom: 19 }).setView([lat, lng], zoom);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(editMap);
+    editMap = L.map('mapEdit', { minZoom: 16, maxZoom: 19 }).setView([lat, lng], zoom);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(editMap);
 
-  if (obj.lat && obj.lng) {
-    editMarker = L.marker([lat, lng]).addTo(editMap);
-  }
+    if (obj.lat && obj.lng) editMarker = L.marker([lat, lng]).addTo(editMap);
 
-  // Click to set marker
-  editMap.on('click', e => {
-    if (editMarker) editMarker.remove();
-    editMarker = L.marker(e.latlng).addTo(editMap);
-    tempLat = e.latlng.lat;
-    tempLng = e.latlng.lng;
+    editMap.on('click', e => {
+        if (editMarker) editMarker.remove();
+        editMarker = L.marker(e.latlng).addTo(editMap);
+        tempLat = e.latlng.lat;
+        tempLng = e.latlng.lng;
+        document.getElementById('mapZoom').value = editMap.getZoom();
+    });
+
+    editMap.on('zoomend', () => {
+        document.getElementById('mapZoom').value = editMap.getZoom();
+    });
+
     document.getElementById('mapZoom').value = editMap.getZoom();
-  });
-
-  // Track zoom
-  document.getElementById('mapZoom').value = editMap.getZoom();
-  editMap.on('zoomend', () => {
-    document.getElementById('mapZoom').value = editMap.getZoom();
-  });
-
-  // Lock min/max zoom
-  document.getElementById('mapZoomMin').value = 16;
-  document.getElementById('mapZoomMax').value = 19;
+    document.getElementById('mapZoomMin').value = 16;
+    document.getElementById('mapZoomMax').value = 19;
 }
 
-document.getElementById('saveMapBtn').onclick = () => {
-  if (!editMarker) { alert("Please click the map to set a location first."); return; }
-  obj.lat = tempLat;
-  obj.lng = tempLng;
-  obj.zoom = editMap.getZoom();
-  obj.zoomMin = 16;
-  obj.zoomMax = 19;
-  localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-  closeMapPopup();
-  mapNotSetText.style.display = 'none';
-  mapSection.style.display = 'block';
-  initObjectMap();
+/* MAP BUTTON */
+mapBtn.onclick = () => {
+    mapPopup.style.display = 'flex';
+    initEditMap();
+};
+function closeMapPopup() { mapPopup.style.display = 'none'; }
+
+/* SAVE MAP */
+saveMapBtn.onclick = () => {
+    if (!editMarker) { alert("Please click the map to set a location first."); return; }
+    obj.lat = tempLat;
+    obj.lng = tempLng;
+    obj.zoom = editMap.getZoom();
+    obj.zoomMin = 16;
+    obj.zoomMax = 19;
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    closeMapPopup();
+    mapNotSetText.style.display = 'none';
+    mapSection.style.display = 'block';
+    initObjectMap();
 };
 
-document.getElementById('deleteMarkerBtn').onclick = () => {
-  if (editMarker) {
+/* DELETE MARKER */
+deleteMarkerBtn.onclick = () => {
+    if (!editMarker) return alert("No marker to delete.");
     editMarker.remove();
     editMarker = null;
     tempLat = null;
     tempLng = null;
-    // Remove lat/lng from object
-    obj.lat = null;
-    obj.lng = null;
-    obj.zoom = null;
+    delete obj.lat;
+    delete obj.lng;
+    delete obj.zoom;
+    delete obj.zoomMin;
+    delete obj.zoomMax;
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    window.location.reload();
-  }
+    closeMapPopup();
+    location.reload();
 };
 
-/* DISPLAY PHOTOS */
-function displayPhotos() {
-    const photosDiv = document.getElementById('photosDiv');
-    photosDiv.innerHTML = '';
-    if (!obj.photos || obj.photos.length === 0) {
-        photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
-        return;
-    }
-    obj.photos.sort((a,b) => new Date(a.date)-new Date(b.date));
-    obj.photos.forEach(photo => {
-        const photoBox = document.createElement('div');
-        photoBox.style.display='flex';
-        photoBox.style.flexDirection='column';
-        photoBox.style.alignItems='center';
-        photoBox.style.margin='5px';
-        photoBox.style.width='200px';
-        photoBox.style.border='1px solid #555';
-        photoBox.style.padding='5px';
-        photoBox.style.borderRadius='5px';
-        photoBox.style.background='#1f1f1f';
-
-        const img = document.createElement('img');
-        img.src = photo.dataUrl;
-        img.style.width='100%';
-        img.style.height='auto';
-        img.style.objectFit='cover';
-        img.style.borderRadius='3px';
-        photoBox.appendChild(img);
-
-        if (photo.date) {
-            const dateText = document.createElement('div');
-            dateText.style.fontSize='11px';
-            dateText.style.color='#aaa';
-            dateText.style.marginTop='3px';
-            dateText.textContent = photo.date;
-            photoBox.appendChild(dateText);
-        }
-
-        if (photo.description) {
-            const descText = document.createElement('div');
-            descText.style.fontSize='12px';
-            descText.style.marginTop='2px';
-            descText.textContent = photo.description;
-            photoBox.appendChild(descText);
-        }
-
-        photosDiv.appendChild(photoBox);
-    });
-}
-
 /* OBJECT MAP */
+function getCategoryIcon(category) {
+    const iconUrl = categoryIcons[category] || "https://polska-org.pl/gfx/category/500045.png";
+    return L.icon({ iconUrl, iconSize: [32,32], iconAnchor: [16,32], popupAnchor: [0,-32] });
+}
 function initObjectMap() {
     if (!obj.lat || !obj.lng) return;
 
     const mapDiv = document.getElementById('objectMap');
     mapDiv.innerHTML = '';
 
-    const map = L.map('objectMap', {
-        minZoom: obj.zoomMin || 1,
-        maxZoom: obj.zoomMax || 18
-    }).setView([obj.lat, obj.lng], obj.zoom || 16);
+    const map = L.map('objectMap', { minZoom: obj.zoomMin || 16, maxZoom: obj.zoomMax || 19 })
+                  .setView([obj.lat, obj.lng], obj.zoom || 16);
 
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         attribution: '&copy; OpenStreetMap contributors'
@@ -632,27 +536,43 @@ function initObjectMap() {
 
     L.marker([obj.lat, obj.lng], {icon: getCategoryIcon(obj.category)}).addTo(map);
 
-    // Show zoom div under map
     const zoomDiv = document.getElementById('objectMapZoom');
-    zoomDiv.style.display = 'block';        // show it
-    zoomDiv.textContent = `Zoom: ${map.getZoom()}`;  // set current zoom
+    zoomDiv.style.display = 'block';
+    zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
+    map.on('zoomend', () => zoomDiv.textContent = `Zoom: ${map.getZoom()}`);
+}
 
-    map.on('zoomend', () => {
-        zoomDiv.textContent = `Zoom: ${map.getZoom()}`;
+/* DISPLAY PHOTOS */
+function displayPhotos() {
+    const photosDiv = document.getElementById('photosDiv');
+    photosDiv.innerHTML = '';
+    if (!obj.photos || obj.photos.length === 0) return photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
+
+    obj.photos.sort((a,b) => new Date(a.date)-new Date(b.date));
+    obj.photos.forEach(photo => {
+        const box = document.createElement('div');
+        box.style = 'display:flex; flex-direction:column; align-items:center; margin:5px; width:200px; border:1px solid #555; padding:5px; border-radius:5px; background:#1f1f1f;';
+        const img = document.createElement('img');
+        img.src = photo.dataUrl; img.style = 'width:100%; height:auto; object-fit:cover; border-radius:3px;';
+        box.appendChild(img);
+        if(photo.date){ const d = document.createElement('div'); d.style='font-size:11px;color:#aaa;margin-top:3px;'; d.textContent=photo.date; box.appendChild(d);}
+        if(photo.description){ const d = document.createElement('div'); d.style='font-size:12px;margin-top:2px;'; d.textContent=photo.description; box.appendChild(d);}
+        photosDiv.appendChild(box);
     });
 }
 
 displayPhotos();
 
-  /* SHOW MAP IF LOCATION ALREADY SET */
-if (obj.lat && obj.lng) {
-    mapNotSetText.style.display = 'none';
-    mapSection.style.display = 'block';
+/* SHOW MAP IF SET */
+if(obj.lat && obj.lng){
+    mapNotSetText.style.display='none';
+    mapSection.style.display='block';
     initObjectMap();
-} else {
-    mapNotSetText.style.display = 'block';
-    mapSection.style.display = 'none';
+}else{
+    mapNotSetText.style.display='block';
+    mapSection.style.display='none';
 }
 </script>
+
 </body>
 </html>
