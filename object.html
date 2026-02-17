@@ -689,28 +689,27 @@ function displayPhotos() {
         return;
     }
 
-    // Sort photos by date
-   objPhotos.sort((a, b) => parseDate(a.date) - parseDate(b.date));
-const parseDate = d => {
-    if (!d) return 0;
+    // Helper to parse date strings
+    const parseDate = d => {
+        if (!d) return 0;
 
-    if (/^\d{4}-\d{4}$/.test(d)) {
-        // "2023-2025" → use start year
-        return new Date(parseInt(d.split('-')[0]), 0, 1).getTime();
-    }
-    if (/^\d{4}-\d{2}$/.test(d)) {
-        const [y, m] = d.split('-').map(n => parseInt(n));
-        return new Date(y, m - 1, 1).getTime();
-    }
-    if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
-        const [y, m, day] = d.split('-').map(n => parseInt(n));
-        return new Date(y, m - 1, day).getTime();
-    }
-    if (/^\d{4}$/.test(d)) return new Date(parseInt(d), 0, 1).getTime();
-    return 0;
-};
-        return parseDate(a.date) - parseDate(b.date);
-    });
+        if (/^\d{4}-\d{4}$/.test(d)) {
+            return new Date(parseInt(d.split('-')[0]), 0, 1).getTime();
+        }
+        if (/^\d{4}-\d{2}$/.test(d)) {
+            const [y, m] = d.split('-').map(n => parseInt(n));
+            return new Date(y, m - 1, 1).getTime();
+        }
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d)) {
+            const [y, m, day] = d.split('-').map(n => parseInt(n));
+            return new Date(y, m - 1, day).getTime();
+        }
+        if (/^\d{4}$/.test(d)) return new Date(parseInt(d), 0, 1).getTime();
+        return 0;
+    };
+
+    // Sort photos by date
+    objPhotos.sort((a, b) => parseDate(a.date) - parseDate(b.date));
 
     objPhotos.forEach(photo => {
         if (!photo.id) photo.id = Date.now() + '_' + Math.floor(Math.random() * 1000);
@@ -721,7 +720,6 @@ const parseDate = d => {
         card.style.textAlign = 'center';
 
         const img = document.createElement('img');
-        // Use dataUrl first, fallback to src if older format
         img.src = photo.dataUrl || photo.src || '';
         img.alt = photo.description || '';
         img.style.width = "150px";
@@ -733,17 +731,14 @@ const parseDate = d => {
         };
         card.appendChild(img);
 
-if (photo.date) {
-    const dateDiv = document.createElement('div');
-    dateDiv.style.fontSize = '12px';
-    dateDiv.style.color = '#aaa';
-    dateDiv.style.marginTop = '4px';
-    
-    // Only show the raw string the user typed
-    dateDiv.textContent = photo.date.replace(/^(\d{4})-(0\d|1[0-2])-(0\d|[12]\d|3[01])$/, '$1-$2-$3') || photo.date;
-
-    card.appendChild(dateDiv);
-}
+        if (photo.date) {
+            const dateDiv = document.createElement('div');
+            dateDiv.style.fontSize = '12px';
+            dateDiv.style.color = '#aaa';
+            dateDiv.style.marginTop = '4px';
+            dateDiv.textContent = photo.date; // just show raw string
+            card.appendChild(dateDiv);
+        }
 
         photosDiv.appendChild(card);
     });
