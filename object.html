@@ -510,6 +510,7 @@ saveMapBtn.onclick = () => {
     closeMapPopup();
     mapNotSetText.style.display = 'none';
     mapSection.style.display = 'block';
+    ();
 };
 
 /* DELETE MARKER */
@@ -530,35 +531,37 @@ deleteMarkerBtn.onclick = () => {
 };
 
 /* OBJECT MAP */
+function getCategoryIcon(category, status) {
+    const iconUrl = categoryIcons[category] || "https://polska-org.pl/gfx/category/500045.png";
+
+    // If object doesn't exist, wrap icon in a black ring
     if (status === "Doesn't exist") {
-        // divIcon with black ring
         return L.divIcon({
             html: `
                 <div style="
-                    width:36px;
-                    height:36px;
-                    border:3px solid black;
-                    border-radius:50%;
-                    display:flex;
-                    justify-content:center;
+                    display:flex; 
+                    justify-content:center; 
                     align-items:center;
-                    background:transparent;
+                    width:36px; 
+                    height:36px; 
+                    border:3px solid black; 
+                    border-radius:50%;
+                    background-color:transparent;
                 ">
-                    <img src="${iconUrl}" style="width:24px; height:24px; display:block;" />
+                    <img src="${iconUrl}" style="width:24px;height:24px;" />
                 </div>
             `,
-            className: '', // remove default divIcon class
+            className: '', // no default styles
             iconSize: [36,36],
             iconAnchor: [18,36],
             popupAnchor: [0,-36]
         });
     } else {
-        // normal icon
-        return L.icon({
-            iconUrl,
-            iconSize: [32,32],
-            iconAnchor: [16,32],
-            popupAnchor: [0,-32]
+        return L.icon({ 
+            iconUrl, 
+            iconSize: [32,32], 
+            iconAnchor: [16,32], 
+            popupAnchor: [0,-32] 
         });
     }
 }
@@ -583,10 +586,11 @@ function initObjectMap() {
         if (!o.lat || !o.lng) return;
 
         const isCurrent = o.name === obj.name;
-  const marker = L.marker([o.lat, o.lng], { 
-      icon: getCategoryIcon(o.category, o.status),
-      opacity: isCurrent ? 1 : 0.7
-  }).addTo(map);
+        const marker = L.marker([o.lat, o.lng], { 
+            icon: getCategoryIcon(o.category, o.status),
+            opacity: isCurrent ? 1 : 0.7
+        }).addTo(map);
+
         marker.bindPopup(`<b>${o.name}</b>`);
 
         if (!isCurrent) {
