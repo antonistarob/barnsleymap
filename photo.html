@@ -22,9 +22,7 @@ h1 { text-align: center; margin-bottom: 20px; }
 <div id="photoContainer"></div>
 
 <script>
-function getQueryParam(p) { 
-    return new URLSearchParams(location.search).get(p); 
-}
+function getQueryParam(p) { return new URLSearchParams(location.search).get(p); }
 
 const streetName = getQueryParam('street');
 const objectName = getQueryParam('object');
@@ -34,68 +32,35 @@ const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
 const container = document.getElementById('photoContainer');
 
-container.innerHTML = ''; // Clear container first
-
 if(!obj || !obj.photos || obj.photos.length === 0){
-    container.innerHTML = '<p style="color:#aaa; text-align:center;">No photos found.</p>';
+    container.innerHTML = '<p style="color:#aaa;">No photos found.</p>';
 } else {
     const photo = obj.photos.find(p => p.id === photoId);
     if(!photo){
-        container.innerHTML = '<p style="color:#aaa; text-align:center;">Photo not found.</p>';
+        container.innerHTML = '<p style="color:#aaa;">Photo not found.</p>';
     } else {
-        // Increment views
+        // increment views
         photo.views = (photo.views || 0) + 1;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-        // Photo Card
         const card = document.createElement('div');
         card.className = 'photo-card';
-        card.style.textAlign = 'center';
-        card.style.marginTop = '30px';
 
-        // Image
         const img = document.createElement('img');
         img.src = photo.dataUrl || photo.src;
         img.alt = photo.description || '';
-        img.style.maxWidth = '90%';
-        img.style.border = '1px solid #555';
-        img.style.borderRadius = '5px';
-        img.style.cursor = 'pointer';
-
-        img.onclick = () => {
-            const win = window.open();
-            win.document.write(`<img src="${img.src}" style="max-width:100%; display:block; margin:auto;">`);
-        };
-
+        // removed onclick — photo no longer clickable
         card.appendChild(img);
 
-        // Info Box
         const info = document.createElement('div');
         info.className = 'photo-info';
-        info.style.background = '#1f1f1f';
-        info.style.padding = '10px';
-        info.style.borderRadius = '6px';
-        info.style.border = '1px solid #555';
-        info.style.color = '#ccc';
-        info.style.fontSize = '14px';
-        info.style.display = 'inline-block';
-        info.style.textAlign = 'left';
-        info.style.marginTop = '10px';
-        info.style.maxWidth = '600px';
 
-        if(photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
-        if(photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${photo.date}</div>`;
-        if(photo.id){
-            const dateAdded = new Date(parseInt(photo.id.split('_')[0]));
-            info.innerHTML += `<div><strong>Date added:</strong> ${dateAdded.toLocaleDateString()}</div>`;
-        }
-        if(photo.username) info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
-        info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
+        if(photo.date) info.innerHTML += `${photo.date}<br>`;  // just show the date under photo
 
-        // Directory with clickable links
+        // directory with clickable links
         info.innerHTML += `<div><strong>Directory:</strong> 
-            <a href="street.html?name=${encodeURIComponent(streetName)}" style="color:#aaa;text-decoration:underline;">${streetName}</a> &gt; 
-            <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}" style="color:#aaa;text-decoration:underline;">${objectName}</a>
+            <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; 
+            <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
         </div>`;
 
         card.appendChild(info);
