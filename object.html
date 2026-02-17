@@ -758,6 +758,26 @@ function displayPhotos() {
         return;
     }
 
+    // Sort photos by date (works with YYYY, YYYY-YYYY, YYYY-MM, YYYY-MM-DD)
+    objPhotos.sort((a, b) => {
+        const parseDate = d => {
+            if (!d) return 0;
+            // Take the first year/month/day available
+            const parts = d.split('-');
+            const year = parseInt(parts[0]) || 0;
+
+            // If second part is > 12, treat as range end and ignore for sorting
+            let month = 1, day = 1;
+            if (parts.length > 1) {
+                if (parseInt(parts[1]) <= 12) month = parseInt(parts[1]);
+                else month = 1; // range end ignored
+            }
+            if (parts.length > 2) day = parseInt(parts[2]);
+            return new Date(year, month - 1, day).getTime();
+        };
+        return parseDate(a.date) - parseDate(b.date);
+    });
+
     objPhotos.forEach(photo => {
         // ensure photo has an ID
         if (!photo.id) photo.id = Date.now() + '_' + Math.floor(Math.random() * 1000);
@@ -780,23 +800,15 @@ function displayPhotos() {
         };
         card.appendChild(img);
 
-// Only show the photo date below the image
-if (photo.date) {
-    const dateDiv = document.createElement('div');
-    dateDiv.style.fontSize = '12px';
-    dateDiv.style.color = '#aaa';
-    dateDiv.style.marginTop = '4px';
-
-    // Format date as DD/MM/YYYY
-    const d = new Date(photo.date);
-    if (!isNaN(d)) {
-        dateDiv.textContent = d.toLocaleDateString('en-GB'); // e.g., 17/02/2026
-    } else {
-        dateDiv.textContent = photo.date; // fallback if invalid
-    }
-
-    card.appendChild(dateDiv);
-}
+        // Only show the photo date below the image
+        if (photo.date) {
+            const dateDiv = document.createElement('div');
+            dateDiv.style.fontSize = '12px';
+            dateDiv.style.color = '#aaa';
+            dateDiv.style.marginTop = '4px';
+            dateDiv.textContent = photo.date; // show exactly as entered
+            card.appendChild(dateDiv);
+        }
 
         photosDiv.appendChild(card);
     });
