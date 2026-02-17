@@ -206,10 +206,11 @@ h1 { margin-top:0; }
       style="background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:5px; padding:5px; width:100%;">
   </div>
 </div>
-    <div class="popup-buttons" style="margin-top:20px;">
-      <button id="saveMapBtn" class="action-button">Save</button>
-      <button onclick="closeMapPopup()" class="action-button">Cancel</button>
-    </div>
+<div class="popup-buttons" style="margin-top:20px; display:flex; justify-content:center; gap:10px;">
+  <button id="saveMapBtn" class="action-button">Save</button>
+  <button id="deleteMarkerBtn" class="action-button" style="background:#c0392b; border-color:#922b21; color:#fff;">Delete Marker</button>
+  <button onclick="closeMapPopup()" class="action-button">Cancel</button>
+</div>
   </div>
 </div>
 
@@ -291,6 +292,32 @@ if (!obj) {
     throw new Error('Object missing');
 }
 
+const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
+deleteMarkerBtn.onclick = () => {
+    if (!editMarker) {
+        alert("No marker to delete.");
+        return;
+    }
+    // Remove marker from map
+    editMap.removeLayer(editMarker);
+    editMarker = null;
+    tempLat = null;
+    tempLng = null;
+
+    // Remove marker from object data
+    delete obj.lat;
+    delete obj.lng;
+    delete obj.zoom;
+    delete obj.zoomMin;
+    delete obj.zoomMax;
+
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+    // Close popup and refresh page
+    closeMapPopup();
+    location.reload();
+};
+  
 // Function to create Leaflet icon
 function getCategoryIcon(category) {
     const iconUrl = categoryIcons[category] || "https://polska-org.pl/gfx/category/500045.png"; // fallback
