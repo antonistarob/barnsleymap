@@ -549,46 +549,45 @@
             I am the owner and hold the copyright for this photograph
         </label>
 
-<div id="photoSourceSection" style="margin-top:10px;">
-    <label for="photoSourceInput">Source:</label>
-    <div style="display:flex; gap:5px; align-items:center; margin-top:5px;">
-        <input 
-            type="text" 
-            id="photoSourceInput" 
-            list="photoSourceList" 
-            placeholder="Select a source..." 
-            style="flex:1; padding:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;"
-        >
-        <datalist id="photoSourceList">
-            <option value="Archive / Library"></option>
-            <option value="Auction site"></option>
-            <option value="Personal collection"></option>
-        </datalist>
-        <button type="button" id="addSourceBtn" class="action-button" style="padding:5px 10px; font-size:12px;">Add</button>
-    </div>
-</div>
-
-            <div style="margin-top:10px; text-align:left;">
-                <label class="rights-option">
-                    <input type="radio" name="photoRights" value="permission">
-                    <span>I declare that I have obtained explicit permission from the copyright holder of the photograph to upload it on this site.</span>
-                </label>
-
-                <label class="rights-option">
-                    <input type="radio" name="photoRights" value="postcard">
-                    <span>I declare that the photograph comes from my personal collection or a public auction, and I have the right to upload it online.</span>
-                </label>
-
-                <label class="rights-option">
-                    <input type="radio" name="photoRights" value="expired">
-                    <span>The photograph is over 70 years old and copyright has expired under UK law.</span>
-                </label>
-
-                <label class="rights-option">
-                    <input type="radio" name="photoRights" value="public">
-                    <span>This photograph is marked as public domain or under a license permitting reuse (CC0, CC BY, GNU FDL).</span>
-                </label>
+        <div id="photoSourceSection" style="margin-top:10px;">
+            <label for="photoSourceInput">Source:</label>
+            <div style="display:flex; gap:5px; align-items:center; margin-top:5px;">
+                <input 
+                    type="text" 
+                    id="photoSourceInput" 
+                    list="photoSourceList" 
+                    placeholder="Select a source..." 
+                    style="flex:1; padding:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;"
+                >
+                <datalist id="photoSourceList">
+                    <option value="Archive / Library"></option>
+                    <option value="Auction site"></option>
+                    <option value="Personal collection"></option>
+                </datalist>
+                <button type="button" id="addSourceBtn" class="action-button" style="padding:5px 10px; font-size:12px;">Add</button>
             </div>
+        </div>
+
+        <div style="margin-top:10px; text-align:left;">
+            <label class="rights-option">
+                <input type="radio" name="photoRights" value="permission">
+                <span>I declare that I have obtained explicit permission from the copyright holder of the photograph to upload it on this site.</span>
+            </label>
+
+            <label class="rights-option">
+                <input type="radio" name="photoRights" value="postcard">
+                <span>I declare that the photograph comes from my personal collection or a public auction, and I have the right to upload it online.</span>
+            </label>
+
+            <label class="rights-option">
+                <input type="radio" name="photoRights" value="expired">
+                <span>The photograph is over 70 years old and copyright has expired under UK law.</span>
+            </label>
+
+            <label class="rights-option">
+                <input type="radio" name="photoRights" value="public">
+                <span>This photograph is marked as public domain or under a license permitting reuse (CC0, CC BY, GNU FDL).</span>
+            </label>
         </div>
 
         <!-- ✅ Buttons MUST be inside the popup, at the very bottom -->
