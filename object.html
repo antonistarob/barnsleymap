@@ -142,34 +142,23 @@
             cursor: pointer;
         }
 
-        .popup-overlay {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.7);
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-        }
-
-.popup {
-    background: #1f1f1f;
-    padding: 25px;
-    border-radius: 10px;
-    width: 90%;
-    max-width: 650px;  /* max width, but responsive */
-    border: 1px solid #444;
-    box-sizing: border-box;
+.popup-overlay {
+    display: none;              /* hidden by default */
+    position: fixed;
+    inset: 0;                   /* top:0; right:0; bottom:0; left:0 */
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;              /* flex to center */
+    justify-content: center;    /* center horizontally */
+    align-items: center;        /* center vertically */
+    z-index: 1000;
 }
 
 .popup-buttons {
     margin-top: 20px;
     display: flex;
-    justify-content: center;  /* center buttons */
-    gap: 10px;
-    flex-wrap: wrap;
-    width: 100%;
-    box-sizing: border-box;
+    justify-content: center;    /* center buttons */
+    gap: 10px;                  /* space between buttons */
+    flex-wrap: wrap;            /* wrap if narrow */
 }
 
         .popup h3 {
