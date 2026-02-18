@@ -243,11 +243,10 @@
 #statusBar {
     border: 2px solid #555;
     border-top: none;             /* merge with title */
-    border-bottom: none;          /* merge with street box */
-    border-radius: 0;             /* no rounding for middle */
+    border-radius: 0px 0px 8px 8px; /* only top corners rounded */
     background-color: rgba(192, 57, 43, 0.2); /* default exists/other color will override */
     padding: 6px 100px;           /* same horizontal padding as title/street */
-    margin: 0;                    
+    margin-top: -2px;                    
     display: inline-block;
     text-align: center;
     font-weight: bold;
