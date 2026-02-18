@@ -239,6 +239,21 @@
     text-align: center;
 }
 
+     /* Status box */
+#statusBar {
+    border: 2px solid #555;
+    border-top: none;             /* merge with title */
+    border-bottom: none;          /* merge with street box */
+    border-radius: 0;             /* no rounding for middle */
+    background-color: rgba(192, 57, 43, 0.2); /* default exists/other color will override */
+    padding: 6px 100px;           /* same horizontal padding as title/street */
+    margin: 0;                    
+    display: inline-block;
+    text-align: center;
+    font-weight: bold;
+    box-sizing: border-box;
+}
+
 #streetBox {
     border: 2px solid #555;
     border-top: none;          /* remove top border to merge with title */
@@ -420,20 +435,6 @@
     text-align: center;
 }
 
-#statusBar {
-    width: 100%;                /* same as title/address */
-    height: 25px;   
-    padding: 3px 0;
-    margin: 5px auto 15px auto;
-    border-radius: 6px;        /* match title corners */
-    border: 2px solid transparent; /* border color will change dynamically */
-    text-align: center;
-    font-size: 16px;            /* smaller font to fit */
-    display: none;             /* hidden by default */
-    color: #fff;               /* text color */
-    box-sizing: border-box;
-}
-
 #statusBar[data-status="Doesn't exist"] {
     border-color: rgba(192, 57, 43, 0.2);
     background-color: rgba(192, 57, 43, 0.05);
@@ -486,6 +487,7 @@
 <div class="main-content">
     <div class="object-card">
 <h1 id="objectTitle"></h1>
+<div id="statusBar"><span id="statusText"></span></div>
 <p class="info-line" id="objectStreetLine">
     <span id="streetBox">
         <span id="objectStreet" class="object-link"></span>
