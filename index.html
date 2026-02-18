@@ -283,6 +283,44 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors',
     maxZoom: 20
 }).addTo(map);
+
+// --- Street List Logic (click to go to street.html) ---
+function refreshStreetList() {
+    streetList.innerHTML = '';
+    streets.sort((a,b)=>a.localeCompare(b));
+    streets.forEach(street => {
+        const li = document.createElement('li');
+        li.textContent = street;
+        li.addEventListener('click', () => {
+            const streetParam = encodeURIComponent(street);
+            window.location.href = 'street.html?name=' + streetParam;
+        });
+        streetList.appendChild(li);
+    });
+}
+refreshStreetList();
+
+// --- Object Markers on Map ---
+let objectsData = JSON.parse(localStorage.getItem('objectsData')) || {};
+
+for (let objName in objectsData) {
+    const obj = objectsData[objName];
+    if(obj.latitude && obj.longitude){ // ensure coords exist
+        const marker = L.marker([obj.latitude, obj.longitude]).addTo(map);
+        
+        // Popup content (similar to object.html)
+        let popupContent = `<strong>${objName}</strong><br>
+                            Type: ${obj.type || 'N/A'}<br>
+                            Status: ${obj.status || 'N/A'}<br>
+                            ${obj.description ? obj.description + '<br>' : ''}`;
+        
+        if(obj.photo){ // if photo exists
+            popupContent += `<img src="${obj.photo}" alt="${objName}" style="width:100%; max-width:200px; margin-top:5px;">`;
+        }
+        
+        marker.bindPopup(popupContent);
+    }
+}
 </script>
 </body>
 </html>
