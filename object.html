@@ -245,11 +245,16 @@
     border-top: none;             /* merge with title */
     border-radius: 0px 0px 8px 8px; /* only top corners rounded */
     background-color: rgba(192, 57, 43, 0.2); /* default exists/other color will override */
-    padding: 6px 100px;           /* same horizontal padding as title/street */
-    margin-top: -4px;                    
+    padding: 12px 100px;           /* same horizontal padding as title/street */
+    margin-top: -6px;                    
     display: inline-block;
     text-align: center;
     box-sizing: border-box;
+
+    /* Vertical text adjustment */
+    line-height: 1.2;                /* controls spacing inside the box */
+    padding-bottom: 0px;            /* push text up from bottom */
+}
 }
 
 #streetBox {
