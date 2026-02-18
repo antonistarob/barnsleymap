@@ -546,17 +546,23 @@
         </label>
 
 <div id="photoSourceSection" style="margin-top:10px;">
-    <label for="photoSourceSelect">Source:</label>
+    <label for="photoSourceInput">Source:</label>
     <div style="display:flex; gap:5px; align-items:center; margin-top:5px;">
-        <select id="photoSourceSelect" style="flex:1; padding:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;">
-            <option value="">--Select source--</option>
-            <option value="Archive/library">Archive / Library</option>
-            <option value="Auction site">Auction site</option>
-            <option value="Website">Website</option>
-            <option value="Personal collection">Personal collection</option>
-        </select>
+        <input 
+            type="text" 
+            id="photoSourceInput" 
+            list="photoSourceList" 
+            placeholder="Type or select a source..." 
+            style="flex:1; padding:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;"
+        >
+        <datalist id="photoSourceList">
+            <option value="Archive / Library"></option>
+            <option value="Auction site"></option>
+            <option value="Personal collection"></option>
+        </datalist>
         <button type="button" id="addSourceBtn" class="action-button" style="padding:5px 10px; font-size:12px;">Add</button>
     </div>
+</div>
 
             <div style="margin-top:10px; text-align:left;">
                 <label class="rights-option">
