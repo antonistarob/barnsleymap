@@ -239,6 +239,16 @@
     text-align: center;
 }
 
+/* Icon inside title */
+#objectIcon {
+    position: absolute;         /* left of title box without pushing text */
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 32px;
+    height: 32px;
+}
+
      /* Status box */
 #statusBar {
     border: 2px solid #555;
@@ -488,7 +498,10 @@
 
 <div class="main-content">
     <div class="object-card">
-<h1 id="objectTitle"></h1>
+<h1 id="objectTitle">
+    <img id="objectIcon" src="" alt="Category Icon">
+    <span id="objectTitleText"></span>
+</h1>
 <div id="statusBar"><span id="statusText"></span></div>
 
 <p class="info-line" id="objectStreetLine">
@@ -960,6 +973,10 @@ objectNumber.textContent = obj.number || "";
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
+    // Remove old grade info if it exists
+const oldGradeDiv = document.getElementById('gradeInfo');
+if (oldGradeDiv) oldGradeDiv.remove();
+
 // Only update grade listing info, leave yearContainer untouched
 const gradeInfoDiv = document.createElement('div');
 gradeInfoDiv.id = "gradeInfo";
@@ -971,12 +988,16 @@ if (obj.gradeListed) {
     if (obj.dateListed) gradeInfoDiv.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
 
-// Remove old grade info if it exists
-const oldGradeDiv = document.getElementById('gradeInfo');
-if (oldGradeDiv) oldGradeDiv.remove();
-
 // Append new grade info
 additionalInfo.appendChild(gradeInfoDiv);
+
+// Set the title text
+document.getElementById('objectTitleText').textContent = obj.name;
+
+// Set the category icon
+const iconSrc = categoryIcons[obj.category] || ''; // fallback if undefined
+document.getElementById('objectIcon').src = iconSrc;
+document.getElementById('objectIcon').alt = obj.category || '';
 
 // Update the years
 updateYearContainer(obj);
