@@ -336,6 +336,23 @@
 .object-card #mapSection {
     margin-top: 30px;
 }
+
+        #descriptionWrapper {
+    width: 90%;
+    margin: 20px auto;
+    padding: 15px 18px;
+    background: #1a1a1a;
+    border: 1px solid #333;
+    border-radius: 6px;
+    box-sizing: border-box;
+}
+
+#objectDescription {
+    text-align: left;
+    line-height: 1.5;
+    color: #ddd;
+    white-space: pre-wrap;
+}
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -376,10 +393,9 @@
             </span>
         </p>
         <div id="additionalInfo"></div>
-        <p id="descriptionWrapper">
-            <strong>Description:</strong>
-            <span id="objectDescription"></span>
-        </p>
+<div id="descriptionWrapper">
+    <div id="objectDescription"></div>
+</div>
 
         <div class="buttons-container">
             <button id="addPhotoBtn" class="action-button">Add Photo</button>
