@@ -23,116 +23,43 @@
         width: 100%;
         box-sizing: border-box;
     }
-    header h1 {
-        margin: 0;
-        font-size: 24px;
-        color: #fff;
-    }
+    header h1 { margin:0; font-size:24px; color:#fff; }
     .auth-buttons button {
-        margin-left: 10px;
-        padding: 5px 10px;
-        cursor: pointer;
-        background-color: #333;
-        color: #eee;
-        border: 1px solid #555;
-        border-radius: 5px;
+        margin-left:10px; padding:5px 10px; cursor:pointer;
+        background:#333; color:#eee; border:1px solid #555; border-radius:5px;
     }
-    .auth-buttons button:hover {
-        background-color: #444;
-    }
-    section {
-        padding: 0 20px;
-    }
-    h2 {
-        margin-top: 30px;
-        font-size: 20px;
-        color: #fff;
-    }
-    button {
-        cursor: pointer;
-        background-color: #333;
-        color: #eee;
-        border: 1px solid #555;
-        border-radius: 5px;
-        padding: 5px 10px;
-    }
-    button:hover {
-        background-color: #444;
-    }
-    #addStreetBtn {
-        margin-left: 15px;
-    }
-    ul#streetList {
-        list-style: none;
-        padding: 0;
-        margin-top: 10px;
-    }
+    .auth-buttons button:hover { background:#444; }
+
+    section { padding: 0 20px; }
+    h2 { margin-top:30px; font-size:20px; color:#fff; }
+    button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:5px 10px; }
+    button:hover { background:#444; }
+
+    #addStreetBtn { margin-left:15px; }
+    ul#streetList { list-style:none; padding:0; margin-top:10px; }
     ul#streetList li {
-        background: #1f1f1f;
-        margin-bottom: 5px;
-        padding: 10px;
-        border-radius: 5px;
-        color: #eee;
-        border: 1px solid #333;
-        cursor: pointer;
+        background:#1f1f1f; margin-bottom:5px; padding:10px; border-radius:5px;
+        color:#eee; border:1px solid #333; cursor:pointer;
     }
+
     .popup-overlay {
-        display: none;
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.7);
-        justify-content: center;
-        align-items: center;
-        z-index: 1000;
+        display:none; position:fixed; top:0; left:0; width:100%; height:100%;
+        background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000;
     }
     .popup {
-        background: #1f1f1f;
-        padding: 25px;
-        border-radius: 10px;
-        width: 400px;
-        max-width: 90%;
-        box-sizing: border-box;
-        color: #eee;
-        border: 1px solid #444;
+        background:#1f1f1f; padding:25px; border-radius:10px; width:400px; max-width:90%;
+        box-sizing:border-box; color:#eee; border:1px solid #444;
     }
-    .popup h3 {
-        text-align: center;
-        font-weight: bold;
-        margin-top: 0;
-        color: #fff;
+    .popup h3 { text-align:center; margin-top:0; color:#fff; }
+    .popup label { display:block; margin-top:10px; }
+    .popup input[type="text"], .popup textarea, .popup select {
+        width:100%; padding:5px; margin-top:5px; box-sizing:border-box;
+        background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;
     }
-    .popup label {
-        display: block;
-        margin-top: 10px;
-    }
-    .popup input[type="text"],
-    .popup textarea,
-    .popup select {
-        width: 100%;
-        padding: 5px;
-        margin-top: 5px;
-        box-sizing: border-box;
-        background-color: #2b2b2b;
-        color: #eee;
-        border: 1px solid #555;
-        border-radius: 5px;
-    }
-    .popup input[type="checkbox"] {
-        transform: scale(1.2);
-        margin-right: 5px;
-    }
-    .popup-buttons {
-        margin-top: 15px;
-        display: flex;
-        justify-content: space-between;
-    }
-    #map {
-        height: 600px;
-        margin-top: 20px;
-        border-radius: 10px;
-        border: 1px solid #333;
-    }
+    .popup input[type="checkbox"] { transform:scale(1.2); margin-right:5px; }
+    .popup-buttons { margin-top:15px; display:flex; justify-content:space-between; }
+
+    #map { height:600px; margin-top:20px; border-radius:10px; border:1px solid #333; }
 </style>
 </head>
 <body>
@@ -146,17 +73,17 @@
 </header>
 
 <section>
-<h2 style="display: flex; align-items: center; gap: 10px;">
+<h2 style="display:flex; align-items:center; gap:10px;">
     <span>Streets</span>
     <button id="addStreetBtn">Add Street</button>
     <input type="text" id="streetSearch" placeholder="Search streets..." style="flex:1; padding:5px; border-radius:5px; border:1px solid #555; background-color:#2b2b2b; color:#eee;">
 </h2>
-    <ul id="streetList"></ul>
+<ul id="streetList"></ul>
 </section>
 
 <div class="popup-overlay" id="popupOverlay">
     <div class="popup">
-        <h3 id="popupTitle">Add Street</h3>
+        <h3>Add Street</h3>
         <label for="streetName">Street Name:</label>
         <input type="text" id="streetName">
 
@@ -165,13 +92,7 @@
             <option value="Town Centre">Town Centre</option>
         </select>
 
-        <label>Status:</label>
-        <select id="status">
-            <option value="Exists" selected>Exists</option>
-            <option value="Doesn't exist">Doesn't exist</option>
-            <option value="To be demolished">To be demolished</option>
-        </select>
-
+        <label><input type="checkbox" id="existing" checked> Existing</label>
         <label for="description">Description:</label>
         <textarea id="description" rows="3"></textarea>
 
@@ -195,132 +116,85 @@ const cancelStreet = document.getElementById('cancelStreet');
 const saveStreet = document.getElementById('saveStreet');
 const streetList = document.getElementById('streetList');
 const streetSearch = document.getElementById('streetSearch');
-const popupTitle = document.getElementById('popupTitle');
 
 let streets = JSON.parse(localStorage.getItem('streets')) || [];
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
+let objectsData = JSON.parse(localStorage.getItem('objectsData')) || {};
 
-// CLEANUP ORPHAN STREETS
+// Cleanup orphan streets
 streets = streets.filter(name => streetsData[name]);
 localStorage.setItem('streets', JSON.stringify(streets));
 
-// Refresh list
 function refreshStreetList() {
     streetList.innerHTML = '';
-    streets.sort((a,b) => a.localeCompare(b));
-    streets.forEach(street => {
+    streets.sort((a,b)=>a.localeCompare(b)).forEach(street=>{
         const li = document.createElement('li');
         li.textContent = street;
-        li.addEventListener('click', () => editStreet(street));
-        streetList.appendChild(li);
-    });
-}
-
-// Open popup for editing or adding
-function editStreet(street=null) {
-    popupOverlay.style.display = 'flex';
-    if(street) {
-        popupTitle.textContent = 'Edit Street';
-        document.getElementById('streetName').value = street;
-        const data = streetsData[street];
-        document.getElementById('district').value = data.district || '';
-        document.getElementById('status').value = data.existing || 'Exists';
-        document.getElementById('description').value = data.description || '';
-        saveStreet.dataset.editing = street;
-    } else {
-        popupTitle.textContent = 'Add Street';
-        document.getElementById('streetName').value = '';
-        document.getElementById('district').value = '';
-        document.getElementById('status').value = 'Exists';
-        document.getElementById('description').value = '';
-        delete saveStreet.dataset.editing;
-    }
-}
-
-addStreetBtn.addEventListener('click', () => editStreet());
-cancelStreet.addEventListener('click', () => popupOverlay.style.display = 'none');
-
-saveStreet.addEventListener('click', () => {
-    const name = document.getElementById('streetName').value.trim();
-    const district = document.getElementById('district').value.trim();
-    const existing = document.getElementById('status').value;
-    const description = document.getElementById('description').value.trim();
-    if(!name) return;
-
-    // If editing, remove old key if name changed
-    const editing = saveStreet.dataset.editing;
-    if(editing && editing !== name) {
-        delete streetsData[editing];
-        streets = streets.filter(s => s !== editing);
-    }
-
-    if(!streets.includes(name)) streets.push(name);
-    streetsData[name] = { district, existing, description };
-    localStorage.setItem('streets', JSON.stringify(streets));
-    localStorage.setItem('streetsData', JSON.stringify(streetsData));
-    refreshStreetList();
-    popupOverlay.style.display = 'none';
-});
-
-// LIVE SEARCH
-streetSearch.addEventListener('input', () => {
-    const query = streetSearch.value.trim().toLowerCase();
-    const filtered = streets.filter(s => s.toLowerCase().includes(query)).sort((a,b) => a.localeCompare(b));
-    streetList.innerHTML = '';
-    filtered.forEach(street => {
-        const li = document.createElement('li');
-        li.textContent = street;
-        li.addEventListener('click', () => editStreet(street));
-        streetList.appendChild(li);
-    });
-});
-
-refreshStreetList();
-
-// --- Map ---
-const map = L.map('map').setView([53.5526, -1.4787], 14);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors',
-    maxZoom: 20
-}).addTo(map);
-
-// --- Street List Logic (click to go to street.html) ---
-function refreshStreetList() {
-    streetList.innerHTML = '';
-    streets.sort((a,b)=>a.localeCompare(b));
-    streets.forEach(street => {
-        const li = document.createElement('li');
-        li.textContent = street;
-        li.addEventListener('click', () => {
-            const streetParam = encodeURIComponent(street);
-            window.location.href = 'street.html?name=' + streetParam;
+        li.addEventListener('click', ()=> {
+            // Clicking a street navigates to street.html
+            window.location.href = 'street.html?name=' + encodeURIComponent(street);
         });
         streetList.appendChild(li);
     });
 }
 refreshStreetList();
 
-// --- Object Markers on Map ---
-let objectsData = JSON.parse(localStorage.getItem('objectsData')) || {};
+// Popup handlers
+addStreetBtn.addEventListener('click', ()=>popupOverlay.style.display='flex');
+cancelStreet.addEventListener('click', ()=>popupOverlay.style.display='none');
 
-for (let objName in objectsData) {
-    const obj = objectsData[objName];
-    if(obj.latitude && obj.longitude){ // ensure coords exist
-        const marker = L.marker([obj.latitude, obj.longitude]).addTo(map);
-        
-        // Popup content (similar to object.html)
-        let popupContent = `<strong>${objName}</strong><br>
-                            Type: ${obj.type || 'N/A'}<br>
-                            Status: ${obj.status || 'N/A'}<br>
-                            ${obj.description ? obj.description + '<br>' : ''}`;
-        
-        if(obj.photo){ // if photo exists
-            popupContent += `<img src="${obj.photo}" alt="${objName}" style="width:100%; max-width:200px; margin-top:5px;">`;
-        }
-        
-        marker.bindPopup(popupContent);
+saveStreet.addEventListener('click', ()=>{
+    const name = document.getElementById('streetName').value.trim();
+    const district = document.getElementById('district').value.trim();
+    const existing = document.getElementById('existing').checked;
+    const description = document.getElementById('description').value.trim();
+    if(name!==''){
+        streets.push(name);
+        localStorage.setItem('streets', JSON.stringify(streets));
+        streetsData[name]={ district, existing, description };
+        localStorage.setItem('streetsData', JSON.stringify(streetsData));
+        refreshStreetList();
     }
-}
+    document.getElementById('streetName').value='';
+    document.getElementById('district').value='';
+    document.getElementById('existing').checked=true;
+    document.getElementById('description').value='';
+    popupOverlay.style.display='none';
+});
+
+// Live search
+streetSearch.addEventListener('input', ()=>{
+    const query = streetSearch.value.trim().toLowerCase();
+    const filtered = streets.filter(name=>name.toLowerCase().includes(query)).sort((a,b)=>a.localeCompare(b));
+    streetList.innerHTML='';
+    filtered.forEach(street=>{
+        const li=document.createElement('li');
+        li.textContent=street;
+        li.addEventListener('click', ()=>window.location.href='street.html?name='+encodeURIComponent(street));
+        streetList.appendChild(li);
+    });
+});
+
+// Map
+const map = L.map('map').setView([53.5526,-1.4787],14);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
+    attribution:'&copy; OpenStreetMap contributors',
+    maxZoom:20
+}).addTo(map);
+
+// Add object markers
+Object.keys(objectsData).forEach(objName=>{
+    const obj = objectsData[objName];
+    if(obj.lat && obj.lng){ // must have coordinates
+        let popupContent = `<strong>${objName}</strong><br>`;
+        if(obj.status) popupContent += `<em>Status:</em> ${obj.status}<br>`;
+        if(obj.description) popupContent += `<p>${obj.description}</p>`;
+        if(obj.photo){
+            popupContent += `<img src="${obj.photo}" alt="${objName}" style="max-width:150px;max-height:100px;">`;
+        }
+        L.marker([obj.lat,obj.lng]).addTo(map).bindPopup(popupContent);
+    }
+});
 </script>
 </body>
 </html>
