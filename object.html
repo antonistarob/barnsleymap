@@ -355,21 +355,21 @@
 }
 
 #yearContainer {
-    display: flex;                  /* horizontal row */
-    justify-content: space-between; /* left/right alignment */
-    align-items: center;            /* vertical centering */
-    width: 100%;                     /* same width as title/address */
-    margin: 10px auto;              /* center container horizontally */
+    display: flex;
+    justify-content: space-between;  /* Year Built left, Year Demolished right */
+    align-items: center;
+    width: 90%;
+    margin: 10px auto;
     padding: 5px 10px;
     border: 1px solid #555;
     border-radius: 6px;
     box-sizing: border-box;
     font-size: 16px;
-    background: #1f1f1f;           /* optional */
+    background: #1f1f1f;
 }
 
-#yearContainer span {
-    display: inline-block;          /* make spans respect flex positioning */
+#yearContainer > div {
+    display: inline-block;          /* ensure flex items behave correctly */
 }
 
 #statusBar {
@@ -448,8 +448,8 @@
         </p>
 <div id="additionalInfo">
 <div id="yearContainer">
-    <span id="yearBuiltDisplay"></span>
-    <span id="yearDemolishedDisplay"></span>
+    <div id="yearBuiltDisplay"></div>
+    <div id="yearDemolishedDisplay"></div>
 </div>
 </div>
 <div id="descriptionWrapper">
