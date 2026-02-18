@@ -356,7 +356,7 @@
 
 #yearContainer {
     display: flex;
-    justify-content: space-between;  /* Year Built left, Year Demolished right */
+    justify-content: space-between;  /* left and right edges */
     align-items: center;
     width: 90%;
     margin: 10px auto;
@@ -742,8 +742,6 @@ descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
 // Additional info
 additionalInfo.innerHTML = '';
-if (obj.yearBuilt) additionalInfo.innerHTML += `<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
-if (obj.yearDemolished) additionalInfo.innerHTML += `<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
 if (obj.gradeListed) {
     additionalInfo.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
     if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
