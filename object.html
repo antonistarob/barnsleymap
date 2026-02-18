@@ -724,13 +724,7 @@ let obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
         throw new Error('Object missing');
     }
 
-if(obj.yearBuilt || obj.yearDemolished) {
-    yearContainer.style.display = 'flex';
-    yearBuiltDisplay.textContent = obj.yearBuilt ? `Year Built: ${obj.yearBuilt}` : '';
-    yearDemolishedDisplay.textContent = obj.yearDemolished ? `Year Demolished: ${obj.yearDemolished}` : '';
-} else {
-    yearContainer.style.display = 'none';
-}
+updateYearContainer(obj);
 
 function updateYearContainer(currentObj) {
     if (currentObj.yearBuilt || currentObj.yearDemolished) {
