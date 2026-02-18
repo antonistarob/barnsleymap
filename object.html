@@ -960,20 +960,26 @@ function updateYearContainer(currentObj) {
 updateYearContainer(obj);
        
 /* DISPLAY OBJECT */
-// Set basic info
-objectTitle.textContent = obj.name;
-// With this:
+
+// Set the object title text (keep the icon intact)
+document.getElementById('objectTitleText').textContent = obj.name;
+
+// Set the street link
 objectStreet.innerHTML = ''; // clear previous content
 const streetLink = document.createElement('a');
 streetLink.href = `street.html?name=${encodeURIComponent(streetName)}`;
 streetLink.textContent = streetName;
 streetLink.classList.add('object-link'); // keep hover style
 objectStreet.appendChild(streetLink);
+
+// Set number
 objectNumber.textContent = obj.number || "";
+
+// Set description
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
-    // Remove old grade info if it exists
+// Remove old grade info if it exists
 const oldGradeDiv = document.getElementById('gradeInfo');
 if (oldGradeDiv) oldGradeDiv.remove();
 
@@ -991,9 +997,6 @@ if (obj.gradeListed) {
 // Append new grade info
 additionalInfo.appendChild(gradeInfoDiv);
 
-// Set the title text
-document.getElementById('objectTitleText').textContent = obj.name;
-
 // Set the category icon
 const iconSrc = categoryIcons[obj.category] || ''; // fallback if undefined
 document.getElementById('objectIcon').src = iconSrc;
@@ -1002,30 +1005,27 @@ document.getElementById('objectIcon').alt = obj.category || '';
 // Update the years
 updateYearContainer(obj);
 
-    objectDescription.textContent = obj.description || '';
-    descriptionWrapper.style.display = obj.description ? 'block' : 'none';
+/* LEFT COLUMN */
+objectsTableBody.innerHTML = '';
+(streetObjects[streetName] || []).forEach(o => {
+    const row = document.createElement('tr');
 
-    /* LEFT COLUMN */
-    objectsTableBody.innerHTML = '';
-    (streetObjects[streetName] || []).forEach(o => {
-        const row = document.createElement('tr');
+    const numberCell = document.createElement('td');
+    numberCell.textContent = o.number || '';
+    row.appendChild(numberCell);
 
-        const numberCell = document.createElement('td');
-        numberCell.textContent = o.number || '';
-        row.appendChild(numberCell);
-
-        const nameCell = document.createElement('td');
-        nameCell.textContent = o.name;
-        nameCell.classList.add('object-link');
-        nameCell.addEventListener('click', () => {
-            const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
-            if (window.location.href === url) window.location.reload();
-            else window.location.href = url;
-        });
-        row.appendChild(nameCell);
-
-        objectsTableBody.appendChild(row);
+    const nameCell = document.createElement('td');
+    nameCell.textContent = o.name;
+    nameCell.classList.add('object-link');
+    nameCell.addEventListener('click', () => {
+        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+        if (window.location.href === url) window.location.reload();
+        else window.location.href = url;
     });
+    row.appendChild(nameCell);
+
+    objectsTableBody.appendChild(row);
+});
 
     /* EDIT OBJECT */
     editBtn.onclick = () => {
