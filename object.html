@@ -246,7 +246,7 @@
     border-radius: 0px 0px 8px 8px; /* only top corners rounded */
     background-color: rgba(192, 57, 43, 0.2); /* default exists/other color will override */
     padding: 6px 100px;           /* same horizontal padding as title/street */
-    margin-top: -2px;                    
+    margin-top: -4px;                    
     display: inline-block;
     text-align: center;
     font-weight: bold;
@@ -255,13 +255,14 @@
 
 #streetBox {
     border: 2px solid #555;
-    border-top: none;          /* remove top border to merge with title */
-    border-radius: 0 0 8px 8px; /* only bottom corners rounded */
+    border-top: none;          /* remove top border to merge with status */
+    border-bottom: none;       /* remove bottom border */
+    border-radius: 0 0 8px 8px; /* keep bottom corners rounded visually */
     background: #1f1f1f;
     padding: 4px 100px;
-    margin-top: 0;             /* remove any top margin */
+    margin-top: 0;             
     display: block;
-     font-size: 16px;      /* smaller text for street */
+    font-size: 16px;      
 }
 
         #streetBox .object-link {
