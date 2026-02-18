@@ -347,6 +347,41 @@
     box-sizing: border-box;
 }
 
+        .rights-option {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 10px;
+    margin-bottom: 5px;
+    background: #2b2b2b;
+    border: 1px solid #555;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.rights-option:hover {
+    background: #333;
+}
+
+.rights-option input[type="radio"] {
+    margin-top: 3px;
+    cursor: pointer;
+}
+
+.rights-option span {
+    line-height: 1.4;
+    font-size: 14px;
+}
+
+        .rights-option input[type="radio"]:checked + span {
+    font-weight: bold;
+}
+
+.rights-option:has(input[type="radio"]:checked) {
+    border-color: #aaa;
+    background: #3a3a3a;
+}
+
 #objectDescription {
     text-align: left;
     line-height: 1.5;
@@ -515,34 +550,36 @@
     <label for="photoSource">Source:</label>
     <input type="text" id="photoSource" placeholder="e.g. website, archive, auction site">
 
-    <div style="margin-top:10px; text-align:left;">
-        <label style="display:block; margin-bottom:5px;">
-            <input type="radio" name="photoRights" value="permission">
+<div style="margin-top:10px; text-align:left;">
+
+    <label class="rights-option">
+        <input type="radio" name="photoRights" value="permission">
+        <span>
             I declare that I have been given the right to upload this photo from the owner of the photograph, or the owner of the website it's on, to upload the photograph on this site.
-        </label>
+        </span>
+    </label>
 
-        <label>
-            <input type="radio" name="photoRights" value="postcard">
-            I declare that the added scan of the postcard comes from my own collection, or an auction site.
-        </label>
+    <label class="rights-option">
+        <input type="radio" name="photoRights" value="postcard">
+        <span>
+            I declare that the added postcard comes from my own collection, or an auction site.
+        </span>
+    </label>
 
-        <label>
-            <input type="radio" name="photoRights" value="expired">
+    <label class="rights-option">
+        <input type="radio" name="photoRights" value="expired">
+        <span>
             The photo rights have expired. This applies to materials after 70 years.
-        </label>
+        </span>
+    </label>
 
-        <label>
-            <input type="radio" name="photoRights" value="public">
+    <label class="rights-option">
+        <input type="radio" name="photoRights" value="public">
+        <span>
             Photograph on public domain. Creative Commons (Public Domain, CC0), GNU Free Documentation License (GNU FDL)
-        </label>
-    </div>
-</div>
+        </span>
+    </label>
 
-        <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
-            <button id="savePhotoBtn" class="action-button" type="button" style="margin-right:10px;">Add Photo</button>
-            <button id="cancelAddPhotoBtn" class="action-button">Cancel</button>
-        </div>
-    </div>
 </div>
 
     <!-- Edit Object -->
