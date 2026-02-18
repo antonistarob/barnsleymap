@@ -552,7 +552,7 @@
             type="text" 
             id="photoSourceInput" 
             list="photoSourceList" 
-            placeholder="Type or select a source..." 
+            placeholder="Select a source..." 
             style="flex:1; padding:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;"
         >
         <datalist id="photoSourceList">
@@ -1004,25 +1004,37 @@ photoOwnerCheckbox.addEventListener('change', () => {
 });
 
 // Add new source dynamically
+const photoSourceInput = document.getElementById('photoSourceInput');
+const photoSourceList = document.getElementById('photoSourceList');
 const addSourceBtn = document.getElementById('addSourceBtn');
 
+// Add new source manually
 addSourceBtn.addEventListener('click', () => {
     const newSource = prompt("Enter a new source name:");
     if (!newSource) return;
 
     // Prevent duplicates
-    const exists = Array.from(photoSourceSelect.options)
+    const exists = Array.from(photoSourceList.options)
         .some(opt => opt.value.toLowerCase() === newSource.toLowerCase());
     if (exists) {
         alert("This source already exists in the list.");
+        photoSourceInput.value = newSource;
         return;
     }
 
     const option = document.createElement('option');
     option.value = newSource;
-    option.textContent = newSource;
-    photoSourceSelect.appendChild(option);
-    photoSourceSelect.value = newSource; // auto-select the new one
+    photoSourceList.appendChild(option);
+    photoSourceInput.value = newSource;
+});
+
+// Validate input on blur (click out of input)
+photoSourceInput.addEventListener('blur', () => {
+    const inputValue = photoSourceInput.value.trim();
+    const isValid = Array.from(photoSourceList.options)
+        .some(opt => opt.value === inputValue);
+    
+    if (!isValid) photoSourceInput.value = ''; // clear if invalid
 });
 
 // SAVE PHOTO
