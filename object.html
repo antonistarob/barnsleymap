@@ -142,23 +142,34 @@
             cursor: pointer;
         }
 
+        .popup {
+    background: #1f1f1f;
+    padding: 20px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 650px;      /* not too wide */
+    display: flex;
+    flex-direction: column; /* stack all inputs and labels */
+    box-sizing: border-box;
+}
+
 .popup-overlay {
-    display: none;              /* hidden by default */
+    display: none;
     position: fixed;
-    inset: 0;                   /* top:0; right:0; bottom:0; left:0 */
-    background: rgba(0, 0, 0, 0.7);
-    display: flex;              /* flex to center */
-    justify-content: center;    /* center horizontally */
-    align-items: center;        /* center vertically */
+    inset: 0;              /* full screen */
+    background: rgba(0,0,0,0.7);
+    display: flex;
+    justify-content: center; 
+    align-items: center;    
     z-index: 1000;
 }
 
 .popup-buttons {
-    margin-top: 20px;
+    margin-top: 15px;
     display: flex;
-    justify-content: center;    /* center buttons */
-    gap: 10px;                  /* space between buttons */
-    flex-wrap: wrap;            /* wrap if narrow */
+    justify-content: flex-end; /* or center if you prefer */
+    gap: 10px;
+    flex-wrap: wrap;           /* wrap on small screens */
 }
 
         .popup h3 {
@@ -512,7 +523,7 @@
 <!-- Add Photo -->
 <div class="popup-overlay" id="addPhotoPopup">
     <div class="popup">
-        <h3 id="addPhotoTitle">Adding photo to:</h3>
+        <h3>Adding photo to:</h3>
         <p id="addPhotoSubTitle" style="font-size:14px; margin-top:0;"></p>
 
         <label for="photoFile">File:</label>
