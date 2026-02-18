@@ -229,24 +229,23 @@
 /* Object title box */
 #objectTitle {
     border: 2px solid #555;
-    border-radius: 8px 8px 8px 8px; /* rounded top corners only */
-    border-bottom: none;         /* remove top border to “merge” with title */
-    padding: 10px 100px 10px 100px;
+    border-bottom: none;       /* remove bottom border to merge with street */
+    border-radius: 8px 8px 0 0; /* only top corners rounded */
     background: #1f1f1f;
+    padding: 10px 100px;
+    margin-bottom: 0;          /* remove default gap below title */
     display: inline-block;
     text-align: center;
 }
 
-/* Street/address box connected under title */
 #streetBox {
     border: 2px solid #555;
-    border-radius: 0 0 8px 8px; /* rounded bottom corners only */
+    border-top: none;          /* remove top border to merge with title */
+    border-radius: 0 0 8px 8px; /* only bottom corners rounded */
     background: #1f1f1f;
-    padding: 5px 100px;
+    padding: 10px 100px;
+    margin-top: 0;             /* remove any top margin */
     display: inline-block;
-    font-size: 20px;
-    text-align: center;
-    margin-top: 0; /* remove spacing between title and address */
 }
 
         #streetBox .object-link {
