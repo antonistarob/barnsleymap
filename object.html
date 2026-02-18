@@ -392,7 +392,12 @@
                 <span id="objectNumber" style="margin-left:5px;"></span>
             </span>
         </p>
-        <div id="additionalInfo"></div>
+<div id="additionalInfo">
+    <div id="yearContainer" style="display:none; justify-content: space-between; width: 90%; margin: 10px auto;">
+        <span id="yearBuiltDisplay"></span>
+        <span id="yearDemolishedDisplay"></span>
+    </div>
+</div>
 <div id="descriptionWrapper">
     <div id="objectDescription"></div>
 </div>
@@ -623,6 +628,18 @@
 
        const useExifDate = document.getElementById('useExifDate');
 const exifError = document.getElementById('exifError');
+
+       const yearContainer = document.getElementById('yearContainer');
+const yearBuiltDisplay = document.getElementById('yearBuiltDisplay');
+const yearDemolishedDisplay = document.getElementById('yearDemolishedDisplay');
+
+if(obj.yearBuilt || obj.yearDemolished) {
+    yearContainer.style.display = 'flex';
+    yearBuiltDisplay.textContent = obj.yearBuilt ? `Year Built: ${obj.yearBuilt}` : '';
+    yearDemolishedDisplay.textContent = obj.yearDemolished ? `Year Demolished: ${obj.yearDemolished}` : '';
+} else {
+    yearContainer.style.display = 'none';
+}
 
 function populateExifDate() {
     exifError.style.display = 'none';
