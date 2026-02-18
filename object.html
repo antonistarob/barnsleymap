@@ -1074,20 +1074,25 @@ console.log("DEBUG: File selected:", file.name, file.size);
     }
 
     const reader = new FileReader();
-    reader.onload = function(e) {
-        console.log("DEBUG: FileReader.onload fired");
-        const dataUrl = e.target.result;
+reader.onload = function(e) {
+    const dataUrl = e.target.result;
 
-        // Ensure photos array exists
-        if (!objArray[objIndex].photos) objArray[objIndex].photos = [];
+    if (!objArray[objIndex].photos) objArray[objIndex].photos = [];
 
-        // Add the new photo
-        objArray[objIndex].photos.push({
-            id: Date.now(),
-            filename: file.name,
-            date: photoDate.value.trim(),
-            description: photoDescription.value.trim()
-        });
+    objArray[objIndex].photos.push({
+        id: Date.now(),
+        dataUrl: dataUrl,              // store the actual image
+        date: photoDate.value.trim(),
+        description: photoDescription.value.trim()
+    });
+
+    streetObjects[streetName] = objArray;
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+    obj = objArray[objIndex];
+    displayPhotos(obj);
+    closeAddPhoto();
+};
 
         // Save back to localStorage
         streetObjects[streetName] = objArray;
