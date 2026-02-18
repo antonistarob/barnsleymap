@@ -545,9 +545,18 @@
             I am the owner and hold the copyright for this photograph
         </label>
 
-        <div id="photoSourceSection" style="margin-top:10px;">
-            <label for="photoSource">Source:</label>
-            <input type="text" id="photoSource" placeholder="e.g. website, archive, auction site">
+<div id="photoSourceSection" style="margin-top:10px;">
+    <label for="photoSourceSelect">Source:</label>
+    <div style="display:flex; gap:5px; align-items:center; margin-top:5px;">
+        <select id="photoSourceSelect" style="flex:1; padding:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;">
+            <option value="">--Select source--</option>
+            <option value="Archive/library">Archive / Library</option>
+            <option value="Auction site">Auction site</option>
+            <option value="Website">Website</option>
+            <option value="Personal collection">Personal collection</option>
+        </select>
+        <button type="button" id="addSourceBtn" class="action-button" style="padding:5px 10px; font-size:12px;">Add</button>
+    </div>
 
             <div style="margin-top:10px; text-align:left;">
                 <label class="rights-option">
@@ -973,18 +982,41 @@ function populateExifDate() {
     });
 }
 
-       const photoOwnerCheckbox = document.getElementById('photoOwnerCheckbox');
+// Photo owner checkbox logic
+const photoOwnerCheckbox = document.getElementById('photoOwnerCheckbox');
 const photoSourceSection = document.getElementById('photoSourceSection');
-const photoSourceInput = document.getElementById('photoSource');
+const photoSourceSelect = document.getElementById('photoSourceSelect');
 
 photoOwnerCheckbox.addEventListener('change', () => {
     if (photoOwnerCheckbox.checked) {
         photoSourceSection.style.display = 'none';
-        photoSourceInput.value = '';
+        photoSourceSelect.value = ''; // clear selection
         document.querySelectorAll('input[name="photoRights"]').forEach(r => r.checked = false);
     } else {
         photoSourceSection.style.display = 'block';
     }
+});
+
+// Add new source dynamically
+const addSourceBtn = document.getElementById('addSourceBtn');
+
+addSourceBtn.addEventListener('click', () => {
+    const newSource = prompt("Enter a new source name:");
+    if (!newSource) return;
+
+    // Prevent duplicates
+    const exists = Array.from(photoSourceSelect.options)
+        .some(opt => opt.value.toLowerCase() === newSource.toLowerCase());
+    if (exists) {
+        alert("This source already exists in the list.");
+        return;
+    }
+
+    const option = document.createElement('option');
+    option.value = newSource;
+    option.textContent = newSource;
+    photoSourceSelect.appendChild(option);
+    photoSourceSelect.value = newSource; // auto-select the new one
 });
 
 // SAVE PHOTO
