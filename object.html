@@ -965,10 +965,6 @@ useExifDate.addEventListener('change', () => {
     else photoDate.value = '';
 });
 
-photoFile.addEventListener('change', () => {
-    if (useExifDate.checked) populateExifDate();
-});
-
 function populateExifDate() {
     exifError.style.display = 'none';
     const file = photoFile.files[0];
@@ -1155,7 +1151,7 @@ function displayPhotos(currentObj) {
         link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(currentObj.name)}&photoId=${photo.id}`;
 
         const img = document.createElement('img');
-        img.src = `photos/${photo.filename}`;   // ✅ HERE
+        img.src = photo.dataUrl;   // ✅ use dataUrl, not photo.filename
         img.alt = photo.description || '';
         img.style.width = "150px";
         img.style.border = "1px solid #555";
