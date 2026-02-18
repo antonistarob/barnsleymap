@@ -356,20 +356,18 @@
 
 #yearContainer {
     display: flex;
-    justify-content: space-between;  /* left and right edges */
+    justify-content: center;     /* center the years horizontally */
+    gap: 20px;                  /* spacing between "Year Built" and "Year Demolished" */
     align-items: center;
-    width: 90%;
-    margin: 10px auto;
-    padding: 5px 10px;
-    border: 1px solid #555;
-    border-radius: 6px;
-    box-sizing: border-box;
+    margin: 10px auto;           /* vertical spacing only */
+    padding: 0;                  /* optional, remove padding if you want closer */
     font-size: 16px;
-    background: #1f1f1f;
+    background: none;            /* remove background if you want transparent */
 }
 
 #yearContainer > div {
-    display: inline-block;          /* ensure flex items behave correctly */
+    display: inline-block;
+    text-align: center;
 }
 
 #statusBar {
