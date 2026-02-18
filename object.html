@@ -354,15 +354,22 @@
     white-space: pre-wrap;
 }
 
-        #yearContainer {
-    display: flex;
-    justify-content: space-between;  /* Left/right alignment */
-    align-items: center;             /* Vertically center */
-    width: 90%;
-    margin: 10px auto;
-    font-size: 16px;
-    color: #ddd;
+#yearContainer {
+    display: flex;                   /* arrange children in a row */
+    justify-content: space-between;   /* left/right alignment */
+    align-items: center;             /* vertically center text */
+    width: 90%;                       /* match title/address width */
+    margin: 10px auto;               /* center container horizontally */
+    padding: 5px 10px;
+    border: 1px solid #555;
+    border-radius: 6px;
     box-sizing: border-box;
+    font-size: 16px;
+    background: #1f1f1f;             /* optional: match object card background */
+}
+
+#yearContainer span {
+    display: inline-block;
 }
 
 #statusBar {
