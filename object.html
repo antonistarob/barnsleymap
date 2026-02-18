@@ -691,18 +691,27 @@
             <label>Grade Listed:</label>
             <input type="checkbox" id="editGradeListed">
 
-            <div id="gradeOptions">
-                <label>Grade:</label>
-                <select id="editGrade">
-                    <option value="Grade I">Grade I</option>
-                    <option value="Grade II*">Grade II*</option>
-                    <option value="Grade II">Grade II</option>
-                </select>
-                <label>List Entry Number:</label>
-                <input type="text" id="editListEntryNumber">
-                <label>Date first listed:</label>
-                <input type="text" id="editDateListed">
-            </div>
+<div id="gradeOptions">
+    <label>Grade:</label>
+    <select id="editGrade">
+        <option value="Grade I">Grade I</option>
+        <option value="Grade II*">Grade II*</option>
+        <option value="Grade II">Grade II</option>
+    </select>
+
+    <!-- Wrap these two on the same line -->
+    <div class="listing-info-container" style="display: flex; gap: 20px; align-items: center; margin-top: 10px; margin-bottom: 10px;">
+        <div class="list-entry-number">
+            <label for="editListEntryNumber">List Entry Number:</label>
+            <input type="text" id="editListEntryNumber">
+        </div>
+
+        <div class="date-first-listed">
+            <label for="editDateListed">Date first listed:</label>
+            <input type="text" id="editDateListed">
+        </div>
+    </div>
+</div>
 
             <label>Description:</label>
             <textarea id="editDescription" rows="3"></textarea>
