@@ -241,12 +241,9 @@
 
 /* Icon inside title */
 #objectIcon {
-    position: absolute;         /* left of title box without pushing text */
-    left: 10px;
-    top: 50%;
-    transform: translateY(-50%);
     width: 32px;
     height: 32px;
+    flex-shrink: 0;              /* prevent icon from shrinking */
 }
 
      /* Status box */
