@@ -769,6 +769,10 @@ const exifError = document.getElementById('exifError');
 const yearBuiltDisplay = document.getElementById('yearBuiltDisplay');
 const yearDemolishedDisplay = document.getElementById('yearDemolishedDisplay');
 
+       const photoOwnerCheckbox = document.getElementById('photoOwnerCheckbox');
+const photoSourceSection = document.getElementById('photoSourceSection');
+const photoSourceInput = document.getElementById('photoSourceInput');
+const photoSourceList = document.getElementById('photoSourceList')
 
 function populateExifDate() {
     exifError.style.display = 'none';
@@ -795,12 +799,13 @@ useExifDate.addEventListener('change', () => {
 
 // LOAD DATA
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-let obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+let objArray = streetObjects[streetName] || [];
+let obj = objArray.find(o => o.name === objectName);
 
-    if (!obj) {
-        objectTitle.textContent = 'Object not found';
-        throw new Error('Object missing');
-    }
+if(!obj){
+    document.querySelector('.main-content').innerHTML = '<h2 style="text-align:center;color:#c0392b;">Object not found</h2>';
+    throw new Error('Object missing');
+}
 
 function updateYearContainer(currentObj) {
     const hasBuilt = currentObj.yearBuilt && currentObj.yearBuilt.trim() !== '';
@@ -958,33 +963,7 @@ function closeAddPhoto() {
 }
 cancelAddPhotoBtn.onclick = closeAddPhoto;
 
-// EXIF handling
-useExifDate.addEventListener('change', () => {
-    exifError.style.display = 'none';
-    if (useExifDate.checked) populateExifDate();
-    else photoDate.value = '';
-});
-
-function populateExifDate() {
-    exifError.style.display = 'none';
-    const file = photoFile.files[0];
-    if (!file) return;
-
-    EXIF.getData(file, function() {
-        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
-        if (exifDate) {
-            const parts = exifDate.split(" ")[0].split(":");
-            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
-        } else {
-            exifError.style.display = 'block';
-            photoDate.value = '';
-        }
-    });
-}
-
 // Photo owner checkbox logic
-const photoOwnerCheckbox = document.getElementById('photoOwnerCheckbox');
-const photoSourceSection = document.getElementById('photoSourceSection');
 const photoSourceSelect = document.getElementById('photoSourceSelect');
 
 photoOwnerCheckbox.addEventListener('change', () => {
@@ -1006,8 +985,6 @@ photoOwnerCheckbox.addEventListener('change', () => {
 });
 
 // Add new source dynamically
-const photoSourceInput = document.getElementById('photoSourceInput');
-const photoSourceList = document.getElementById('photoSourceList');
 const addSourceBtn = document.getElementById('addSourceBtn');
 
 // Add new source manually
@@ -1050,17 +1027,17 @@ savePhotoBtn.onclick = () => {
     }
 
     // Ownership / rights validation
-    if (!photoOwnerCheckbox.checked) {
-        const selectedRight = document.querySelector('input[name="photoRights"]:checked');
-if (!photoSourceInput.value.trim()) {
-    alert("Please enter the photo source.");
-    return;
-}
-if (!selectedRight) {
-    alert("Please select a rights declaration.");
-    return;
-}
+if (!photoOwnerCheckbox.checked) {
+    const selectedRight = document.querySelector('input[name="photoRights"]:checked');
+    if (!photoSourceInput.value.trim()) {
+        alert("Please enter the photo source.");
+        return;
     }
+    if (!selectedRight) {
+        alert("Please select a rights declaration.");
+        return;
+    }
+}
     
 console.log("DEBUG: File selected:", file.name, file.size);
     
@@ -1093,22 +1070,6 @@ reader.onload = function(e) {
     displayPhotos(obj);
     closeAddPhoto();
 };
-
-        // Save back to localStorage
-        streetObjects[streetName] = objArray;
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        // Update the global obj variable for display
-        obj = objArray[objIndex];
-
-        console.log("DEBUG: Photo added. Total photos now:", obj.photos.length);
-
-        // Refresh the photo section using the updated obj
-        displayPhotos(obj);
-
-        // Close popup and reset fields
-        closeAddPhoto();
-    };
 
     reader.readAsDataURL(file);
 };
@@ -1230,14 +1191,29 @@ displayPhotos(obj);  // Refresh using the updated object
     mapBtn.onclick = ()=>{ mapPopup.style.display='flex'; initEditMap(); };
     function closeMapPopup(){ mapPopup.style.display='none'; }
 
-    saveMapBtn.onclick = () => {
-        if(!editMarker){ alert("Please click the map to set a location first."); return; }
-        obj.lat=tempLat; obj.lng=tempLng; obj.zoom=editMap.getZoom(); obj.zoomMin=16; obj.zoomMax=18;
+saveMapBtn.onclick = () => {
+    if(!editMarker){
+        alert("Please click the map to set a location first.");
+        return;
+    }
+    obj.lat = tempLat;
+    obj.lng = tempLng;
+    obj.zoom = editMap.getZoom();
+    obj.zoomMin = 16;
+    obj.zoomMax = 19;
+
+    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+    let objArray = streetObjects[streetName] || [];
+    let objIndex = objArray.findIndex(o => o.name === objectName);
+    if(objIndex !== -1){
+        objArray[objIndex] = obj;
+        streetObjects[streetName] = objArray;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        alert("Map location saved.");
         closeMapPopup();
-        mapNotSetText.style.display='none'; mapSection.style.display='block';
-        initObjectMap();
-    };
+        initMap(); // optional: refresh main map if you have one
+    }
+};
 
     deleteMarkerBtn.onclick = () => {
         if(!editMarker) return alert("No marker to delete.");
