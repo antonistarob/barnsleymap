@@ -505,6 +505,39 @@
         <label for="photoDescription">Photo Description:</label>
         <textarea id="photoDescription" rows="3"></textarea>
 
+<label style="margin-top:15px;">
+    <input type="checkbox" id="photoOwnerCheckbox">
+    I am the owner of this photo
+</label>
+
+<div id="photoSourceSection" style="display:none; margin-top:10px;">
+
+    <label for="photoSource">Source:</label>
+    <input type="text" id="photoSource" placeholder="e.g. website, archive, auction site">
+
+    <div style="margin-top:10px; text-align:left;">
+        <label>
+            <input type="radio" name="photoRights" value="permission">
+            I declare that I have been given the right to upload this photo from the owner of the photograph, or the owner of the website it's on, to upload the photograph on this site.
+        </label><br><br>
+
+        <label>
+            <input type="radio" name="photoRights" value="postcard">
+            I declare that the added scan of the postcard comes from my own collection, or an auction site.
+        </label><br><br>
+
+        <label>
+            <input type="radio" name="photoRights" value="expired">
+            The photo rights have expired. This applies to materials after 70 years.
+        </label><br><br>
+
+        <label>
+            <input type="radio" name="photoRights" value="public">
+            Photograph on public domain. Creative Commons (Public Domain, CC0), GNU Free Documentation License (GNU FDL)
+        </label>
+    </div>
+</div>
+
         <div class="popup-buttons" style="justify-content:center; margin-top:20px;">
             <button id="savePhotoBtn" class="action-button" type="button" style="margin-right:10px;">Add Photo</button>
             <button id="cancelAddPhotoBtn" class="action-button">Cancel</button>
@@ -898,15 +931,43 @@ function populateExifDate() {
     });
 }
 
+       const photoOwnerCheckbox = document.getElementById('photoOwnerCheckbox');
+const photoSourceSection = document.getElementById('photoSourceSection');
+const photoSourceInput = document.getElementById('photoSource');
+
+photoOwnerCheckbox.addEventListener('change', () => {
+    if (photoOwnerCheckbox.checked) {
+        photoSourceSection.style.display = 'none';
+        photoSourceInput.value = '';
+        document.querySelectorAll('input[name="photoRights"]').forEach(r => r.checked = false);
+    } else {
+        photoSourceSection.style.display = 'block';
+    }
+});
+
 // SAVE PHOTO
 savePhotoBtn.onclick = () => {
     console.log("DEBUG: Add Photo button clicked");
+
     const file = photoFile.files[0];
     if (!file) {
         alert("Please select a photo.");
         return;
     }
 
+    // Ownership / rights validation
+    if (!photoOwnerCheckbox.checked) {
+        const selectedRight = document.querySelector('input[name="photoRights"]:checked');
+if (!photoSourceInput.value.trim()) {
+    alert("Please enter the photo source.");
+    return;
+}
+if (!selectedRight) {
+    alert("Please select a rights declaration.");
+    return;
+}
+    }
+    
 console.log("DEBUG: File selected:", file.name, file.size);
     
     // Re-fetch object fresh from localStorage
