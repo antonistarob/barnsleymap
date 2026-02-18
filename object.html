@@ -940,6 +940,8 @@ function closeAddPhoto() {
     exifError.style.display = 'none';
     photoOwnerCheckbox.checked = false;
     photoSourceSection.style.display = 'none';
+    // Reset all rights radio buttons
+    document.querySelectorAll('input[name="photoRights"]').forEach(r => r.checked = false);
 }
 cancelAddPhotoBtn.onclick = closeAddPhoto;
 
