@@ -735,7 +735,6 @@ descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
 // Additional info
 additionalInfo.innerHTML = '';
-if (obj.status && obj.status !== 'Exists') additionalInfo.innerHTML += `<span><strong>Status:</strong> ${obj.status}</span><br>`;
 if (obj.yearBuilt) additionalInfo.innerHTML += `<span><strong>Year Built:</strong> ${obj.yearBuilt}</span><br>`;
 if (obj.yearDemolished) additionalInfo.innerHTML += `<span><strong>Year Demolished:</strong> ${obj.yearDemolished}</span><br>`;
 if (obj.gradeListed) {
