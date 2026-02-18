@@ -364,6 +364,14 @@
     color: #ddd;
     box-sizing: border-box;
 }
+
+        #statusBar {
+    width: 90%;                /* same width as title/address boxes */
+    height: 20px;              /* bar height */
+    border-radius: 6px;        /* rounded corners like title */
+    margin: 5px auto 15px auto; /* spacing around the bar */
+    display: none;             /* hide by default */
+}
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -397,6 +405,7 @@
 <div class="main-content">
     <div class="object-card">
         <h1 id="objectTitle"></h1>
+        <div id="statusBar"></div>
         <p class="info-line" id="objectStreetLine">
             <span id="streetBox">
                 <span id="objectStreet" class="object-link"></span>
@@ -890,6 +899,35 @@ console.log("DEBUG: File selected:", file.name, file.size);
 
     reader.readAsDataURL(file);
 };
+
+const statusBar = document.getElementById('statusBar');
+
+function updateStatusBar(status) {
+    if(!status || status === 'Exists') {
+        statusBar.style.display = 'none'; // hide if exists
+    } else {
+        statusBar.style.display = 'block';
+        let color = '#555'; // default fallback
+        switch(status) {
+            case "Doesn't exist":
+                color = '#c0392b'; // red
+                break;
+            case "To be demolished":
+                color = '#f1c40f'; // yellow
+                break;
+            case "Exists partially":
+                color = '#e67e22'; // orange
+                break;
+            case "In construction":
+                color = '#f1c40f'; // yellow
+                break;
+        }
+        statusBar.style.backgroundColor = color;
+    }
+}
+
+// Call this after loading object info
+updateStatusBar(obj.status);
        
 /* === DISPLAY PHOTOS === */
 function displayPhotos(currentObj) {
