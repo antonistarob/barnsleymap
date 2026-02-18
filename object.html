@@ -193,7 +193,9 @@
             margin-top: 20px;
             display: flex;
             justify-content: flex-end;
+            width: 100%;  /* ensure it spans popup width */
             gap: 10px;
+            box-sizing: border-box;
         }
 
         #gradeOptions {
@@ -589,10 +591,10 @@
             </div>
         </div>
 
-       <div class="popup-buttons" style="display:flex; justify-content:flex-end; gap:10px; margin-top:15px;">
-            <button id="savePhotoBtn" class="action-button">Save</button>
-            <button id="cancelAddPhotoBtn" class="action-button">Cancel</button>
-        </div>
+<div class="popup-buttons" style="display:flex; justify-content:center; gap:10px; margin-top:15px; flex-wrap:wrap;">
+    <button id="savePhotoBtn" class="action-button">Save</button>
+    <button id="cancelAddPhotoBtn" class="action-button">Cancel</button>
+</div>
     </div>
 </div>
 
