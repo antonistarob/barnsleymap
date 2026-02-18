@@ -731,6 +731,10 @@ if(obj.yearBuilt || obj.yearDemolished) {
 } else {
     yearContainer.style.display = 'none';
 }
+
+       function updateYearContainer(currentObj) {
+updateYearContainer(obj);
+}
        
 /* DISPLAY OBJECT */
 // Set basic info
@@ -812,6 +816,7 @@ if (obj.gradeListed) {
         obj.description = editDescription.value.trim();
         obj.category = editCategory.value;
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        updateYearContainer(obj);
         window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}`;
     };
 
