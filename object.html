@@ -353,6 +353,17 @@
     color: #ddd;
     white-space: pre-wrap;
 }
+
+        #yearContainer {
+    display: flex;
+    justify-content: space-between;  /* Left/right alignment */
+    align-items: center;             /* Vertically center */
+    width: 90%;
+    margin: 10px auto;
+    font-size: 16px;
+    color: #ddd;
+    box-sizing: border-box;
+}
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -393,10 +404,10 @@
             </span>
         </p>
 <div id="additionalInfo">
-    <div id="yearContainer" style="display:none; justify-content: space-between; width: 90%; margin: 10px auto;">
-        <span id="yearBuiltDisplay"></span>
-        <span id="yearDemolishedDisplay"></span>
-    </div>
+<div id="yearContainer">
+    <span id="yearBuiltDisplay"></span>
+    <span id="yearDemolishedDisplay"></span>
+</div>
 </div>
 <div id="descriptionWrapper">
     <div id="objectDescription"></div>
