@@ -724,19 +724,23 @@ let obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
         throw new Error('Object missing');
     }
 
-updateYearContainer(obj);
-
 function updateYearContainer(currentObj) {
-    if (currentObj.yearBuilt || currentObj.yearDemolished) {
+    const hasBuilt = currentObj.yearBuilt && currentObj.yearBuilt.trim() !== '';
+    const hasDemolished = currentObj.yearDemolished && currentObj.yearDemolished.trim() !== '';
+
+    if (hasBuilt || hasDemolished) {
         yearContainer.style.display = 'flex';
-        yearBuiltDisplay.textContent = currentObj.yearBuilt ? `Year Built: ${currentObj.yearBuilt}` : '';
-        yearDemolishedDisplay.textContent = currentObj.yearDemolished ? `Year Demolished: ${currentObj.yearDemolished}` : '';
+        yearBuiltDisplay.textContent = hasBuilt ? `Year Built: ${currentObj.yearBuilt}` : '';
+        yearDemolishedDisplay.textContent = hasDemolished ? `Year Demolished: ${currentObj.yearDemolished}` : '';
     } else {
         yearContainer.style.display = 'none';
         yearBuiltDisplay.textContent = '';
         yearDemolishedDisplay.textContent = '';
     }
 }
+
+// Call this right after loading the object
+updateYearContainer(obj);
        
 /* DISPLAY OBJECT */
 // Set basic info
