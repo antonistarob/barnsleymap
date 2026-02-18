@@ -750,13 +750,26 @@ objectNumber.textContent = obj.number || "";
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
-// Additional info
-additionalInfo.innerHTML = '';
+// Only update grade listing info, leave yearContainer untouched
+const gradeInfoDiv = document.createElement('div');
+gradeInfoDiv.id = "gradeInfo";
+gradeInfoDiv.innerHTML = '';
+
 if (obj.gradeListed) {
-    additionalInfo.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
-    if (obj.listEntryNumber) additionalInfo.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
-    if (obj.dateListed) additionalInfo.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
+    gradeInfoDiv.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
+    if (obj.listEntryNumber) gradeInfoDiv.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
+    if (obj.dateListed) gradeInfoDiv.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
+
+// Remove old grade info if it exists
+const oldGradeDiv = document.getElementById('gradeInfo');
+if (oldGradeDiv) oldGradeDiv.remove();
+
+// Append new grade info
+additionalInfo.appendChild(gradeInfoDiv);
+
+// Update the years
+updateYearContainer(obj);
 
     objectDescription.textContent = obj.description || '';
     descriptionWrapper.style.display = obj.description ? 'block' : 'none';
