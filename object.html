@@ -633,13 +633,6 @@ const exifError = document.getElementById('exifError');
 const yearBuiltDisplay = document.getElementById('yearBuiltDisplay');
 const yearDemolishedDisplay = document.getElementById('yearDemolishedDisplay');
 
-if(obj.yearBuilt || obj.yearDemolished) {
-    yearContainer.style.display = 'flex';
-    yearBuiltDisplay.textContent = obj.yearBuilt ? `Year Built: ${obj.yearBuilt}` : '';
-    yearDemolishedDisplay.textContent = obj.yearDemolished ? `Year Demolished: ${obj.yearDemolished}` : '';
-} else {
-    yearContainer.style.display = 'none';
-}
 
 function populateExifDate() {
     exifError.style.display = 'none';
@@ -677,6 +670,14 @@ let obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
         throw new Error('Object missing');
     }
 
+if(obj.yearBuilt || obj.yearDemolished) {
+    yearContainer.style.display = 'flex';
+    yearBuiltDisplay.textContent = obj.yearBuilt ? `Year Built: ${obj.yearBuilt}` : '';
+    yearDemolishedDisplay.textContent = obj.yearDemolished ? `Year Demolished: ${obj.yearDemolished}` : '';
+} else {
+    yearContainer.style.display = 'none';
+}
+       
 /* DISPLAY OBJECT */
 // Set basic info
 objectTitle.textContent = obj.name;
