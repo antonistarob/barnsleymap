@@ -941,7 +941,13 @@ updateYearContainer(obj);
 /* DISPLAY OBJECT */
 // Set basic info
 objectTitle.textContent = obj.name;
-objectStreet.textContent = streetName;
+// With this:
+objectStreet.innerHTML = ''; // clear previous content
+const streetLink = document.createElement('a');
+streetLink.href = `street.html?name=${encodeURIComponent(streetName)}`;
+streetLink.textContent = streetName;
+streetLink.classList.add('object-link'); // keep hover style
+objectStreet.appendChild(streetLink);
 objectNumber.textContent = obj.number || "";
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
