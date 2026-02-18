@@ -365,12 +365,40 @@
     box-sizing: border-box;
 }
 
-        #statusBar {
-    width: 100%;                /* same width as title/address boxes */
-    height: 15px;              /* bar height */
-    border-radius: 6px;        /* rounded corners like title */
-    margin: 5px auto 15px auto; /* spacing around the bar */
-    display: none;             /* hide by default */
+#statusBar {
+    width: 90%;                /* same as title/address */
+    padding: 6px 0;
+    margin: 5px auto 15px auto;
+    border-radius: 6px;        /* match title corners */
+    border: 2px solid transparent; /* border color will change dynamically */
+    text-align: center;
+    font-weight: bold;
+    display: none;             /* hidden by default */
+    color: #fff;               /* text color */
+    box-sizing: border-box;
+}
+
+#statusBar[data-status="Doesn't exist"] {
+    border-color: #c0392b;
+    background-color: rgba(192, 57, 43, 0.2);
+}
+
+#statusBar[data-status="To be demolished"] {
+    border-color: #f1c40f;
+    background-color: rgba(241, 196, 15, 0.2);
+    color: #000;
+}
+
+#statusBar[data-status="Exists partially"] {
+    border-color: #e67e22;
+    background-color: rgba(230, 126, 34, 0.2);
+    color: #000;
+}
+
+#statusBar[data-status="In construction"] {
+    border-color: #f1c40f;
+    background-color: rgba(241, 196, 15, 0.2);
+    color: #000;
 }
     </style>
 
@@ -405,7 +433,7 @@
 <div class="main-content">
     <div class="object-card">
         <h1 id="objectTitle"></h1>
-        <div id="statusBar"></div>
+        <div id="statusBar"><span id="statusText"></span></div>
         <p class="info-line" id="objectStreetLine">
             <span id="streetBox">
                 <span id="objectStreet" class="object-link"></span>
@@ -901,32 +929,19 @@ console.log("DEBUG: File selected:", file.name, file.size);
 };
 
 const statusBar = document.getElementById('statusBar');
+const statusText = document.getElementById('statusText');
 
 function updateStatusBar(status) {
     if(!status || status === 'Exists') {
-        statusBar.style.display = 'none'; // hide if exists
+        statusBar.style.display = 'none';
     } else {
         statusBar.style.display = 'block';
-        let color = '#555'; // default fallback
-        switch(status) {
-            case "Doesn't exist":
-                color = '#c0392b'; // red
-                break;
-            case "To be demolished":
-                color = '#f1c40f'; // yellow
-                break;
-            case "Exists partially":
-                color = '#e67e22'; // orange
-                break;
-            case "In construction":
-                color = '#f1c40f'; // yellow
-                break;
-        }
-        statusBar.style.backgroundColor = color;
+        statusText.textContent = status;       // set text inside
+        statusBar.setAttribute('data-status', status); // apply CSS color
     }
 }
 
-// Call this after loading object info
+// call after loading object
 updateStatusBar(obj.status);
        
 /* === DISPLAY PHOTOS === */
