@@ -793,10 +793,6 @@ useExifDate.addEventListener('change', () => {
     else photoDate.value = '';
 });
 
-photoFile.addEventListener('change', () => {
-    if (useExifDate.checked) populateExifDate();
-});
-
 // LOAD DATA
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 let obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
@@ -956,8 +952,8 @@ function closeAddPhoto() {
     useExifDate.checked = false;
     exifError.style.display = 'none';
     photoOwnerCheckbox.checked = false;
-    photoSourceSection.style.display = 'none';
-    // Reset all rights radio buttons
+    photoSourceInput.value = '';
+    togglePhotoOwnership(false);
     document.querySelectorAll('input[name="photoRights"]').forEach(r => r.checked = false);
 }
 cancelAddPhotoBtn.onclick = closeAddPhoto;
