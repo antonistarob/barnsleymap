@@ -612,20 +612,70 @@
             <input type="text" id="editObjectName" placeholder="e.g. Building nr 10">
             <label id="popupNumberLabel">Number:</label>
             <input type="text" id="editObjectNumber" placeholder="e.g. 10">
-            <label>Object Category:</label>
-            <select id="editCategory">
-                <option value="">--Select category--</option>
-                <option value="Townhouse">Townhouse</option>
-                <option value="Detached house">Detached house</option>
-                <option value="Semi-detached house">Semi-detached house</option>
-                <option value="Terraced house">Terraced house</option>
-                <option value="Villa">Villa</option>
-                <option value="Palace/Manor">Palace/Manor</option>
-                <option value="Cottage">Cottage</option>
-                <option value="Single-family house">Single-family house</option>
-                <option value="Apartment block">Apartment block</option>
-                <option value="Church">Church</option>
-            </select>
+<label>Object Category:</label>
+<select id="editCategory">
+    <option value="">--Select category--</option>
+
+    <optgroup label="Buildings">
+        <option value="Apartment block">Apartment block</option>
+        <option value="Cottage">Cottage</option>
+        <option value="Detached house">Detached house</option>
+        <option value="Palace/Manor">Palace/Manor</option>
+        <option value="Semi-detached house">Semi-detached house</option>
+        <option value="Terraced house">Terraced house</option>
+        <option value="Single-family house">Single-family house</option>
+        <option value="Townhouse">Townhouse</option>
+        <option value="Villa">Villa</option>
+    </optgroup>
+
+    <optgroup label="Education and learning">
+        <option value="College">College</option>
+        <option value="Nursery">Nursery</option>
+        <option value="Primary school">Primary school</option>
+        <option value="Secondary school">Secondary school</option>
+        <option value="Sixth Form college">Sixth Form college</option>
+        <option value="University">University</option>
+    </optgroup>
+
+    <optgroup label="Bank and handle">
+        <option value="Bank">Bank</option>
+        <option value="Restaurant">Restaurant</option>
+        <option value="Shop">Shop</option>
+        <option value="Shopping centre">Shopping centre</option>
+        <option value="Supermarket">Supermarket</option>
+    </optgroup>
+
+    <optgroup label="Infrastructure">
+        <option value="Bridge">Bridge</option>
+        <option value="Bus station">Bus station</option>
+        <option value="Petrol station">Petrol station</option>
+        <option value="Train station">Train station</option>
+    </optgroup>
+
+    <optgroup label="Culture">
+        <option value="Cinema">Cinema</option>
+        <option value="Museum">Museum</option>
+    </optgroup>
+
+    <optgroup label="Public buildings">
+        <option value="Court">Court</option>
+        <option value="Fire station">Fire station</option>
+        <option value="Police station">Police station</option>
+        <option value="Post office">Post office</option>
+        <option value="Town Hall">Town Hall</option>
+    </optgroup>
+
+    <optgroup label="Religious Buildings">
+        <option value="Cemetery">Cemetery</option>
+        <option value="Church">Church</option>
+    </optgroup>
+
+    <optgroup label="Health">
+        <option value="Care home">Care home</option>
+        <option value="Hospital">Hospital</option>
+        <option value="Pharmacy">Pharmacy</option>
+    </optgroup>
+</select>
             <label>Status:</label>
             <select id="editStatus">
                 <option value="Exists" selected>Exists</option>
@@ -698,6 +748,11 @@
         </div>
     </div>
 
+    <div id="categoryPreview" style="margin-top:10px; display:flex; align-items:center; gap:10px;">
+    <img id="categoryIcon" src="" style="width:32px; height:32px;">
+    <span id="categoryLabel" style="color:#eee;"></span>
+</div>
+
     <!-- DELETE OBJECT POPUP -->
     <div class="popup-overlay" id="deletePopup">
         <div class="popup">
@@ -710,19 +765,60 @@
     </div>
 
    <script>
-    // Define icons for categories
-    const categoryIcons = {
-        "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
-        "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
-        "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
-        "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
-        "Villa": "https://polska-org.pl/gfx/obj/05c.png",
-        "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
-        "Cottage": "https://polska-org.pl/gfx/category/500129.png",
-        "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
-        "Apartment block": "https://polska-org.pl/gfx/category/3258201.png",
-        "Church": "https://polska-org.pl/gfx/obj/06a.png"
-    };
+// Define icons for all object types
+const categoryIcons = {
+    // Buildings
+    "Apartment block": "https://polska-org.pl/gfx/category/3258201.png",
+    "Cottage": "https://polska-org.pl/gfx/category/500129.png",
+    "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
+    "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
+    "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
+    "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
+    "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
+    "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
+    "Villa": "https://polska-org.pl/gfx/obj/05c.png",
+
+    // Education and learning
+    "Nursery": "https://polska-org.pl/gfx/obj/nursery.png",
+    "Primary school": "https://polska-org.pl/gfx/obj/primaryschool.png",
+    "Secondary school": "https://polska-org.pl/gfx/obj/secondaryschool.png",
+    "Sixth Form college": "https://polska-org.pl/gfx/obj/sixthform.png",
+    "College": "https://polska-org.pl/gfx/obj/college.png",
+    "University": "https://polska-org.pl/gfx/obj/university.png",
+
+    // Bank and handle
+    "Bank": "https://polska-org.pl/gfx/obj/bank.png",
+    "Shopping centre": "https://polska-org.pl/gfx/obj/shoppingcentre.png",
+    "Supermarket": "https://polska-org.pl/gfx/obj/supermarket.png",
+    "Shop": "https://polska-org.pl/gfx/obj/shop.png",
+    "Restaurant": "https://polska-org.pl/gfx/obj/restaurant.png",
+
+    // Infrastructure
+    "Bridge": "https://polska-org.pl/gfx/obj/bridge.png",
+    "Petrol station": "https://polska-org.pl/gfx/obj/petrolstation.png",
+    "Train station": "https://polska-org.pl/gfx/obj/trainstation.png",
+    "Bus station": "https://polska-org.pl/gfx/obj/busstation.png",
+
+    // Culture
+    "Cinema": "https://polska-org.pl/gfx/obj/cinema.png",
+    "Museum": "https://polska-org.pl/gfx/obj/museum.png",
+
+    // Public buildings
+    "Police station": "https://polska-org.pl/gfx/obj/policestation.png",
+    "Fire station": "https://polska-org.pl/gfx/obj/firestation.png",
+    "Court": "https://polska-org.pl/gfx/obj/court.png",
+    "Post office": "https://polska-org.pl/gfx/obj/postoffice.png",
+    "Town Hall": "https://polska-org.pl/gfx/obj/townhall.png",
+
+    // Religious Buildings
+    "Church": "https://polska-org.pl/gfx/obj/06a.png",
+    "Cemetery": "https://polska-org.pl/gfx/obj/cemetery.png",
+
+    // Health
+    "Care home": "https://polska-org.pl/gfx/obj/carehome.png",
+    "Hospital": "https://polska-org.pl/gfx/obj/hospital.png",
+    "Pharmacy": "https://polska-org.pl/gfx/obj/pharmacy.png"
+};
 
     // Get query params
     const qp = p => new URLSearchParams(location.search).get(p);
