@@ -230,6 +230,7 @@
 
 /* Object title box */
 #objectTitle {
+     position: relative;         /* required for absolute positioning of icon */
     border: 2px solid #555;
     border-radius: 8px 8px 8px 8px; /* only top corners rounded */
     background: #1f1f1f;
@@ -241,9 +242,12 @@
 
 /* Icon inside title */
 #objectIcon {
+    position: absolute;         /* stick to left inside the box */
+    left: 10px;                 /* distance from left edge */
+    top: 50%;                   /* vertically center */
+    transform: translateY(-50%);
     width: 32px;
     height: 32px;
-    flex-shrink: 0;              /* prevent icon from shrinking */
 }
 
      /* Status box */
