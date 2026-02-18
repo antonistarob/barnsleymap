@@ -997,11 +997,19 @@ const photoSourceSelect = document.getElementById('photoSourceSelect');
 
 photoOwnerCheckbox.addEventListener('change', () => {
     if (photoOwnerCheckbox.checked) {
+        // Hide the source input
         photoSourceSection.style.display = 'none';
-        photoSourceSelect.value = ''; // clear selection
+        // Clear any selected source
+        photoSourceInput.value = '';
+        // Hide the rights radio buttons
+        document.querySelectorAll('.rights-option').forEach(r => r.style.display = 'none');
+        // Uncheck all rights options
         document.querySelectorAll('input[name="photoRights"]').forEach(r => r.checked = false);
     } else {
+        // Show source input
         photoSourceSection.style.display = 'block';
+        // Show the rights radio buttons
+        document.querySelectorAll('.rights-option').forEach(r => r.style.display = 'flex');
     }
 });
 
