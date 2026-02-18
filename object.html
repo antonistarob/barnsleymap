@@ -890,6 +890,10 @@ addPhotoBtn.onclick = () => {
     addPhotoPopup.style.display = 'flex';
     addPhotoTitle.textContent = `Adding photo(s) to:`;
     addPhotoSubTitle.textContent = obj.name;
+
+    // ✅ FORCE correct initial state
+    photoOwnerCheckbox.checked = false;
+    photoSourceSection.style.display = 'block';
 };
 
 // Close add photo popup
@@ -900,6 +904,8 @@ function closeAddPhoto() {
     photoDescription.value = '';
     useExifDate.checked = false;
     exifError.style.display = 'none';
+    photoOwnerCheckbox.checked = false;
+    photoSourceSection.style.display = 'none';
 }
 cancelAddPhotoBtn.onclick = closeAddPhoto;
 
