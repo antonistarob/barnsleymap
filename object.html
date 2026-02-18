@@ -732,8 +732,16 @@ if(obj.yearBuilt || obj.yearDemolished) {
     yearContainer.style.display = 'none';
 }
 
-       function updateYearContainer(currentObj) {
-updateYearContainer(obj);
+function updateYearContainer(currentObj) {
+    if (currentObj.yearBuilt || currentObj.yearDemolished) {
+        yearContainer.style.display = 'flex';
+        yearBuiltDisplay.textContent = currentObj.yearBuilt ? `Year Built: ${currentObj.yearBuilt}` : '';
+        yearDemolishedDisplay.textContent = currentObj.yearDemolished ? `Year Demolished: ${currentObj.yearDemolished}` : '';
+    } else {
+        yearContainer.style.display = 'none';
+        yearBuiltDisplay.textContent = '';
+        yearDemolishedDisplay.textContent = '';
+    }
 }
        
 /* DISPLAY OBJECT */
