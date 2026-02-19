@@ -55,7 +55,7 @@ UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
     </div>
 </div>
 
-<!-- EDIT PHOTO POPUP (Same as Add Photo Popup) -->
+<!-- EDIT PHOTO POPUP -->
 <div class="popup-overlay" id="editPhotoPopup">
     <div class="popup">
         <h3>Edit Photo</h3>
@@ -134,9 +134,13 @@ let photo = {
 const photoImg = document.getElementById('photoImg');
 const photoDateDisplay = document.getElementById('photoDateDisplay');
 const photoDescDisplay = document.getElementById('photoDescDisplay');
-photoImg.src = photo.url;
-photoDateDisplay.textContent = photo.date;
-photoDescDisplay.textContent = photo.description;
+
+function displayPhoto() {
+    photoImg.src = photo.url;
+    photoDateDisplay.textContent = photo.date;
+    photoDescDisplay.textContent = photo.description;
+}
+displayPhoto();
 
 // Edit Photo Popup Elements
 const editPhotoBtn = document.getElementById('editPhotoBtn');
@@ -147,42 +151,7 @@ const saveEditPhotoBtn = document.getElementById('saveEditPhotoBtn');
 const editPhotoUpload = uploadcare.Widget('#editPhotoUpload');
 const editPhotoDate = document.getElementById('editPhotoDate');
 const editPhotoDescription = document.getElementById('editPhotoDescription');
-const editUseExifDate = document.getElementById('editUseExifDate');
-const editExifError = document.getElementById('editExifError');
-const editPhotoOwnerCheckbox = document.getElementById('editPhotoOwnerCheckbox');
-const editPhotoSourceSection = document.getElementById('editPhotoSourceSection');
 const editPhotoSourceInput = document.getElementById('editPhotoSourceInput');
-const editPhotoSourceList = document.getElementById('editPhotoSourceList');
-
-    // === EDIT OBJECT HANDLER (updated to preserve photos) ===
-document.getElementById('saveEditObject').onclick = () => {
-    // Preserve existing photos array
-    const existingPhotos = obj.photos || [];
-
-    // Update object fields from edit popup
-    obj.name = editObjectName.value.trim() || obj.name;
-    obj.number = editObjectNumber.value.trim();
-    obj.status = editStatus.value;
-    obj.yearBuilt = editYearBuilt.value.trim();
-    obj.yearDemolished = editYearDemolished.value.trim();
-    obj.gradeListed = editGradeListed.checked;
-    obj.grade = editGrade.value;
-    obj.listEntryNumber = editListEntryNumber.value.trim();
-    obj.dateListed = editDateListed.value.trim();
-    obj.description = editDescription.value.trim();
-    obj.category = editCategory.value;
-
-    // Restore the photos array
-    obj.photos = existingPhotos;
-
-    // Save to localStorage
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-    // Update year container display
-    updateYearContainer(obj);
-
-    // Redirect back to object.html for the (possibly renamed) object
-    
 
 // Open Edit Popup
 editPhotoBtn.onclick = () => {
@@ -190,11 +159,13 @@ editPhotoBtn.onclick = () => {
     editPhotoDate.value = photo.date;
     editPhotoDescription.value = photo.description;
     editPhotoSourceInput.value = photo.source || '';
-    document.querySelectorAll('input[name="editPhotoRights"]').forEach(r => r.checked = r.value===photo.rights);
+    document.querySelectorAll('input[name="editPhotoRights"]').forEach(r => r.checked = r.value === photo.rights);
 };
 
 // Cancel popup
-cancelEditPhotoBtn.onclick = () => { editPhotoPopup.style.display='none'; };
+cancelEditPhotoBtn.onclick = () => {
+    editPhotoPopup.style.display = 'none';
+};
 
 // Save edited photo
 saveEditPhotoBtn.onclick = async () => {
@@ -203,18 +174,19 @@ saveEditPhotoBtn.onclick = async () => {
         const fileInfo = await editPhotoUpload.value().done();
         newUrl = fileInfo.cdnUrl;
     }
+
     photo.url = newUrl;
-    photo.date = editPhotoDate.value.trim();
-    photo.description = editPhotoDescription.value.trim();
-    photo.source = editPhotoSourceInput.value.trim();
+    photo.date = editPhotoDate.value.trim() || photo.date;
+    photo.description = editPhotoDescription.value.trim() || photo.description;
+    photo.source = editPhotoSourceInput.value.trim() || photo.source;
     const rights = document.querySelector('input[name="editPhotoRights"]:checked');
-    photo.rights = rights ? rights.value : '';
+    photo.rights = rights ? rights.value : photo.rights;
 
-    photoImg.src = photo.url;
-    photoDateDisplay.textContent = photo.date;
-    photoDescDisplay.textContent = photo.description;
+    displayPhoto();
+    editPhotoPopup.style.display = 'none';
 
-    editPhotoPopup.style.display='none';
+    // Optional: save to localStorage
+    // localStorage.setItem('photo_' + photo.id, JSON.stringify(photo));
 };
 </script>
 </body>
