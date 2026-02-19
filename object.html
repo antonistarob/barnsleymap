@@ -1063,7 +1063,7 @@ addPhotoBtn.onclick = () => {
 // Close add photo popup
 function closeAddPhoto() {
     addPhotoPopup.style.display = 'none';
-    photoUpload.value(null); // reset Uploadcare widget
+photoInput.value(null);
     photoDate.value = '';
     photoDescription.value = '';
     useExifDate.checked = false;
@@ -1130,7 +1130,25 @@ photoSourceInput.addEventListener('blur', () => {
     if (!isValid) photoSourceInput.value = ''; // clear if invalid
 });
 
-const photoUpload = uploadcare.Widget('[role=uploadcare-uploader]');
+    // Handle upload complete inside your "Add Photo" popup logic
+const photoInput = uploadcare.Widget('#photoUpload', {
+    publicKey: 'b649bcddf1e8b81bebff',
+    imagesOnly: true,
+    previewStep: true,
+    clearable: true
+});
+
+let selectedFile = null; // temporarily store the file
+
+photoInput.onChange(file => {
+    if (file) {
+        selectedFile = file; // just store, do NOT save yet
+        console.log('File selected, waiting for Save button...');
+    } else {
+        selectedFile = null;
+    }
+});
+
 
 savePhotoBtn.onclick = async () => {
     if (!selectedFile) {
@@ -1234,25 +1252,6 @@ function renderPhotos(photos) {
 }
 
 renderPhotos(obj.photos);
-
-// Handle upload complete inside your "Add Photo" popup logic
-const photoInput = uploadcare.Widget('#photoUpload', {
-    publicKey: 'b649bcddf1e8b81bebff',
-    imagesOnly: true,
-    previewStep: true,
-    clearable: true
-});
-
-let selectedFile = null; // temporarily store the file
-
-photoInput.onChange(file => {
-    if (file) {
-        selectedFile = file; // just store, do NOT save yet
-        console.log('File selected, waiting for Save button...');
-    } else {
-        selectedFile = null;
-    }
-});
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
