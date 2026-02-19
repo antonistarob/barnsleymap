@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Object Info</title>
 
+
     <style>
         body {
             font-family: Arial;
@@ -796,6 +797,24 @@
     </div>
 
    <script>
+
+    const uploader = uploadcare.Widget('#photoUpload');
+const objectKey = new URLSearchParams(window.location.search).get('object') || 'unknown';
+
+// On upload complete, save URL in localStorage and show image
+uploader.onUploadComplete(file => {
+    console.log("Uploaded file URL:", file.cdnUrl);
+
+    let images = JSON.parse(localStorage.getItem('objectImages') || '{}');
+
+    if (!images[objectKey]) images[objectKey] = [];
+    images[objectKey].push(file.cdnUrl);
+
+    localStorage.setItem('objectImages', JSON.stringify(images));
+
+    displayObjectImages(objectKey);
+});
+    
 // Define icons for all object types
 const categoryIcons = {
     // Buildings
@@ -1239,53 +1258,25 @@ function updateStatusBar(status) {
 // call after loading object
 updateStatusBar(obj.status);
        
-/* === DISPLAY PHOTOS === */
-function displayPhotos(currentObj) {
-    const photosDiv = document.getElementById('photosDiv');
-    const objPhotos = currentObj.photos || [];
+// Display images
+function displayObjectImages(objectKey) {
+    const container = document.getElementById('photosDiv');
+    container.innerHTML = '';
 
-    photosDiv.innerHTML = '';
-
-    if (objPhotos.length === 0) {
-        photosDiv.innerHTML = '<p style="color:#aaa;">No photos added yet.</p>';
-        return;
+    let images = JSON.parse(localStorage.getItem('objectImages') || '{}');
+    if (images[objectKey]) {
+        images[objectKey].forEach(url => {
+            const img = document.createElement('img');
+            img.src = url;
+            img.style.maxWidth = '200px';
+            img.style.margin = '5px';
+            container.appendChild(img);
+        });
     }
-
-    objPhotos.forEach(photo => {
-        const card = document.createElement('div');
-        card.style.display = 'inline-block';
-        card.style.margin = '5px';
-        card.style.textAlign = 'center';
-
-        const link = document.createElement('a');
-        link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(currentObj.name)}&photoId=${photo.id}`;
-
-        const img = document.createElement('img');
-        img.src = photo.dataUrl;   // ✅ use dataUrl, not photo.filename
-        img.alt = photo.description || '';
-        img.style.width = "150px";
-        img.style.border = "1px solid #555";
-        img.style.borderRadius = "5px";
-        img.style.cursor = "pointer";
-
-        link.appendChild(img);
-        card.appendChild(link);
-
-        if (photo.date) {
-            const dateDiv = document.createElement('div');
-            dateDiv.style.fontSize = '12px';
-            dateDiv.style.color = '#aaa';
-            dateDiv.style.marginTop = '4px';
-            dateDiv.textContent = photo.date.split('T')[0];
-            card.appendChild(dateDiv);
-        }
-
-        photosDiv.appendChild(card);
-    });
 }
 
-// Initial render
-displayPhotos(obj);  // Refresh using the updated object
+// Show images on page load
+displayObjectImages(objectKey);
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
