@@ -476,6 +476,10 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
     <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
+
+     <!-- ✅ Uploadcare CSS & JS -->
+    <link rel="stylesheet" href="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.css" />
+    <script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
 </head>
 
 <body>
@@ -556,7 +560,6 @@
         <p id="addPhotoSubTitle" style="font-size:14px; margin-top:0;"></p>
 
         <label for="photoFile">File:</label>
-        <input type="file" id="photoFile" accept="image/*">
 
         <label for="photoDate" style="display:flex; align-items:center; justify-content:space-between;">
             Date:
@@ -1260,27 +1263,45 @@ function displayObjectImages(key) {
 // Call on page load
 displayObjectImages(objectKey);
 
-    const uploader = uploadcare.Widget('#photoUpload', {
+// Initialize Uploadcare
+const uploader = uploadcare.Widget('#photoUpload', {
     publicKey: 'b649bcddf1e8b81bebff',
-    imagesOnly: true
+    imagesOnly: true,
+    previewStep: true,        // optional: show preview
+    clearable: true            // optional: allow clearing
 });
 
+// Handle file upload
 uploader.onUploadComplete(file => {
     console.log("Uploaded file URL:", file.cdnUrl);
 
-    let images = JSON.parse(localStorage.getItem('objectImages') || '{}');
-    if (!images[objectKey]) images[objectKey] = [];
+    // Save the URL in your object
+    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+    let objArray = streetObjects[streetName] || [];
+    let objIndex = objArray.findIndex(o => o.name === objectName);
+    if (objIndex === -1) return;
 
-    images[objectKey].push({
+    if (!objArray[objIndex].photos) objArray[objIndex].photos = [];
+    objArray[objIndex].photos.push({
         url: file.cdnUrl,
-        date: photoDate.value,
         description: photoDescription.value,
-        source: photoSourceInput.value
+        date: photoDate.value,
+        source: photoSourceInput.value,
+        owner: photoOwnerCheckbox.checked
     });
 
-    localStorage.setItem('objectImages', JSON.stringify(images));
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-    displayObjectImages(objectKey); // show immediately
+    // Display new photo immediately
+    const img = document.createElement('img');
+    img.src = file.cdnUrl;
+    img.alt = photoDescription.value || '';
+    img.style.width = '200px';
+    img.style.height = 'auto';
+    img.style.margin = '5px';
+    document.getElementById('photosDiv').appendChild(img);
+
+    closeAddPhoto();
 });
 
     /* MAP & MARKER FUNCTIONS */
