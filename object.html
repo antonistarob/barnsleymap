@@ -1019,7 +1019,7 @@ objectsTableBody.innerHTML = '';
     nameCell.textContent = o.name;
     nameCell.classList.add('object-link');
     nameCell.addEventListener('click', () => {
-        const url = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}`;
+        const url = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photoId=${photo.id}`;
         if (window.location.href === url) window.location.reload();
         else window.location.href = url;
     });
@@ -1176,8 +1176,11 @@ photoInput.onChange(file => {
 
 
 savePhotoBtn.onclick = async () => {
+ // generate unique ID
+photoData.id = 'photo-' + Date.now(); // e.g., "photo-1673456789012"
     if (!selectedFile) {
         alert("Please select a photo.");
+     
         return;
     }
 
