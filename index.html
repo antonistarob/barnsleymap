@@ -195,6 +195,41 @@ let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
         popupAnchor: [0, -28]
     });
 }
+
+    function getCategoryIcon(category, status, centerAnchor = false) {
+    const iconUrl = categoryIcons[category] || categoryIcons['Townhouse'];
+    const size = 36;
+    const anchor = centerAnchor ? [size/2, size/2] : [size/2, size];
+
+    if (status === "Doesn't exist") {
+        return L.divIcon({
+            html: `
+                <div style="
+                    width:${size}px;
+                    height:${size}px;
+                    border:3px solid rgba(0,0,0,0.6);
+                    border-radius:50%;
+                    display:flex;
+                    justify-content:center;
+                    align-items:center;
+                    background:transparent;">
+                    <img src="${iconUrl}" style="width:24px;height:24px;" />
+                </div>
+            `,
+            className: '',
+            iconSize: [size, size],
+            iconAnchor: anchor,
+            popupAnchor: [0, -size/2]
+        });
+    }
+
+    return L.icon({
+        iconUrl,
+        iconSize: [32, 32],
+        iconAnchor: centerAnchor ? [16, 16] : [16, 32],
+        popupAnchor: [0, -16]
+    });
+}
     
 // Cleanup orphan streets
 streets = streets.filter(name => streetsData[name]);
@@ -250,45 +285,44 @@ streetSearch.addEventListener('input', ()=>{
     });
 });
 
-// Map
 const map = L.map('map').setView([53.5526,-1.4787],14);
+
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution:'&copy; OpenStreetMap contributors',
     maxZoom:20
 }).addTo(map);
 
-// Add OBJECT markers (from streetObjects)
-Object.keys(streetObjects).forEach(streetName => {
-    streetObjects[streetName].forEach(obj => {
-        if (!obj.lat || !obj.lng) return;
+Object.keys(streetObjects).forEach(street => {
+    streetObjects[street].forEach(o => {
+        if (!o.lat || !o.lng) return;
+
+        const marker = L.marker(
+            [o.lat, o.lng],
+            { icon: getCategoryIcon(o.category, o.status, true) }
+        ).addTo(map);
 
         let popupContent = `
-            <strong>${obj.name}</strong><br>
-            <em>${streetName}${obj.number ? ' ' + obj.number : ''}</em><br>
+            <strong>${o.name}</strong><br>
+            <em>${street}${o.number ? ' ' + o.number : ''}</em><br>
         `;
 
-        if (obj.status && obj.status !== 'Exists') {
-            popupContent += `<strong>Status:</strong> ${obj.status}<br>`;
+        if (o.status && o.status !== 'Exists') {
+            popupContent += `<strong>Status:</strong> ${o.status}<br>`;
         }
 
-        if (obj.description) {
-            popupContent += `<p>${obj.description}</p>`;
+        if (o.description) {
+            popupContent += `<p>${o.description}</p>`;
         }
 
         popupContent += `
             <button onclick="
-                window.location.href='object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}'
+                window.location.href='object.html?street=${encodeURIComponent(street)}&object=${encodeURIComponent(o.name)}'
             ">
                 View object
             </button>
         `;
 
-L.marker(
-    [obj.lat, obj.lng],
-    { icon: getLeafletIcon(obj.category) }
-)
-.addTo(map)
-.bindPopup(popupContent);
+        marker.bindPopup(popupContent);
     });
 });
 </script>
