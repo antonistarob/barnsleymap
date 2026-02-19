@@ -1255,44 +1255,73 @@ const photosDiv = document.getElementById('photosDiv');
     return `${day}/${month}/${year}`;
 }
 
-function renderPhotos(photos) {
+// === RENDER PHOTOS FUNCTION ===
+function renderPhotos() {
+    const photosDiv = document.getElementById('photosDiv');
     photosDiv.innerHTML = '';
 
-    if (!photos || photos.length === 0) {
-        photosDiv.textContent = "No photos added.";
+    if (!obj.photos) return;
+
+    obj.photos.forEach(photo => {
+        const a = document.createElement('a');
+        a.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photoId=${encodeURIComponent(photo.id)}`;
+
+        const img = document.createElement('img');
+        img.src = photo.url || 'placeholder.png';
+        img.alt = photo.description || '';
+        img.style.cursor = 'pointer';
+
+        const photoBox = document.createElement('div');
+        photoBox.classList.add('photo-box');
+        photoBox.appendChild(img);
+
+        if (photo.date) {
+            const dateDiv = document.createElement('div');
+            dateDiv.classList.add('photo-date');
+            dateDiv.textContent = photo.date;
+            photoBox.appendChild(dateDiv);
+        }
+
+        a.appendChild(photoBox);
+        photosDiv.appendChild(a);
+    });
+}
+
+// === SAVE PHOTO LOGIC ===
+savePhotoBtn.onclick = async () => {
+    if (!selectedFile) {
+        alert("Please select a photo.");
         return;
     }
 
-photos.forEach((photo) => {
+    // Wait for file upload to complete
+    const fileInfo = await selectedFile.done();
 
-    // Skip invalid/missing photos
-    if (!photo || !photo.url) return;
+    // Create photo object
+    const photoData = {
+        id: 'photo-' + Date.now(),      // unique ID for linking
+        url: fileInfo.cdnUrl,
+        description: photoDescription.value.trim(),
+        date: photoDate.value.trim(),
+        owner: photoOwnerCheckbox.checked,
+        source: photoSourceInput.value.trim(),
+        rights: document.querySelector('input[name="photoRights"]:checked')?.value || ''
+    };
 
-    const box = document.createElement('div');
-    box.classList.add('photo-box');
+    // Initialize photos array if missing
+    if (!obj.photos) obj.photos = [];
+    obj.photos.push(photoData);
 
-    const link = document.createElement('a');
-    link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}&photoId=${encodeURIComponent(photo.id)}`;
+    // Save back to localStorage
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-    const img = document.createElement('img');
-    img.src = photo.url;
-    img.alt = photo.description || '';
+    // Update UI
+    renderPhotos();
+    closeAddPhoto();
+};
 
-    link.appendChild(img);
-    box.appendChild(link);
-
-    if (photo.date) {
-        const dateDiv = document.createElement('div');
-        dateDiv.classList.add('photo-date');
-        dateDiv.textContent = formatDateGB(photo.date);
-        box.appendChild(dateDiv);
-    }
-
-    photosDiv.appendChild(box);
-});
-}
-
-renderPhotos(obj.photos);
+// Render photos initially
+renderPhotos();
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
