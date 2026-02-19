@@ -22,7 +22,7 @@ body { font-family: Arial; background:#121212; color:#eee; margin:0; padding:20p
 
 <div id="photoContainer"></div>
 
-<!-- EDIT PHOTO POPUP (object.html style) -->
+<!-- EDIT PHOTO POPUP -->
 <div class="popup-overlay" id="editPhotoPopup">
     <div class="popup">
         <h3>Edit Photo</h3>
@@ -39,7 +39,7 @@ body { font-family: Arial; background:#121212; color:#eee; margin:0; padding:20p
     </div>
 </div>
 
-<!-- DELETE PHOTO POPUP (object.html style) -->
+<!-- DELETE PHOTO POPUP -->
 <div class="popup-overlay" id="deletePhotoPopup">
     <div class="popup">
         <h3>Delete Photo?</h3>
@@ -71,6 +71,8 @@ const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
 
 let photo = null;
 if (obj && obj.photos) photo = obj.photos.find(p => p.id === photoId);
+
+// If photo not found (fallback)
 if (!photo) photo = { id:'missing_'+Date.now(), description:'Photo missing', username:'Unknown', views:0 };
 
 photo.username ||= "Anonymous";
@@ -84,7 +86,7 @@ const container = document.getElementById('photoContainer');
 const card = document.createElement('div');
 card.className = 'photo-card';
 
-// Controls (edit/delete)
+// Controls
 const controls = document.createElement('div');
 controls.className = 'photo-controls';
 
