@@ -110,6 +110,60 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+    const categoryIcons = {
+    // Buildings
+    "Apartment block": "https://polska-org.pl/gfx/category/3258201.png",
+    "Cottage": "https://polska-org.pl/gfx/category/500129.png",
+    "Detached house": "https://polska-org.pl/gfx/category/6216777.png",
+    "Palace/Manor": "https://polska-org.pl/gfx/obj/05h.png",
+    "Semi-detached house": "https://polska-org.pl/gfx/category/500046.png",
+    "Single-family house": "https://polska-org.pl/gfx/category/500129.png",
+    "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
+    "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
+    "Villa": "https://polska-org.pl/gfx/obj/05c.png",
+
+    // Education and learning
+    "Nursery": "https://polska-org.pl/gfx/obj/03b.png",
+    "Primary school": "https://polska-org.pl/gfx/obj/03c.png",
+    "Secondary school": "https://polska-org.pl/gfx/obj/03d.png",
+    "Sixth Form college": "https://polska-org.pl/gfx/obj/03e.png",
+    "College": "https://polska-org.pl/gfx/obj/03e.png",
+    "University": "https://polska-org.pl/gfx/obj/03e.png",
+
+    // Bank and handle
+    "Bank": "https://polska-org.pl/gfx/obj/11d.png",
+    "Shopping centre": "https://polska-org.pl/gfx/obj/11b.png",
+    "Supermarket": "https://polska-org.pl/gfx/obj/11b.png",
+    "Shop": "https://polska-org.pl/gfx/obj/11b.png",
+    "Restaurant": "https://polska-org.pl/gfx/obj/08j.png",
+
+    // Infrastructure
+    "Bridge": "https://polska-org.pl/gfx/category/500136.png",
+    "Petrol station": "https://polska-org.pl/gfx/obj/01a.png",
+    "Train station": "https://polska-org.pl/gfx/obj/04a.png",
+    "Bus station": "https://polska-org.pl/gfx/obj/02a.png",
+
+    // Culture
+    "Cinema": "https://polska-org.pl/gfx/obj/18b.png",
+    "Museum": "https://polska-org.pl/gfx/obj/10c.png",
+
+    // Public buildings
+    "Police station": "https://polska-org.pl/gfx/obj/08o.png",
+    "Fire station": "https://polska-org.pl/gfx/obj/08s.png",
+    "Court": "https://polska-org.pl/gfx/obj/08r.png",
+    "Post office": "https://polska-org.pl/gfx/obj/08c.png",
+    "Town Hall": "https://polska-org.pl/gfx/obj/08t.png",
+
+    // Religious Buildings
+    "Church": "https://polska-org.pl/gfx/obj/06a.png",
+    "Cemetery": "https://polska-org.pl/gfx/obj/06d.png",
+
+    // Health
+    "Care home": "https://polska-org.pl/gfx/obj/08n.png",
+    "Hospital": "https://polska-org.pl/gfx/obj/09b.png",
+    "Pharmacy": "https://polska-org.pl/gfx/category/500082.png"
+};
+
 const addStreetBtn = document.getElementById('addStreetBtn');
 const popupOverlay = document.getElementById('popupOverlay');
 const cancelStreet = document.getElementById('cancelStreet');
@@ -121,6 +175,27 @@ let streets = JSON.parse(localStorage.getItem('streets')) || [];
 let streetsData = JSON.parse(localStorage.getItem('streetsData')) || {};
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 
+
+    function getLeafletIcon(category) {
+    const iconUrl = categoryIcons[category] || categoryIcons["Shop"];
+
+    return L.icon({
+        iconUrl: iconUrl,
+        iconSize: [28, 28],      // good size for these icons
+        iconAnchor: [14, 28],    // bottom center touches the map
+        popupAnchor: [0, -28]
+    });
+}function getLeafletIcon(category) {
+    const iconUrl = categoryIcons[category] || categoryIcons["Shop"];
+
+    return L.icon({
+        iconUrl: iconUrl,
+        iconSize: [28, 28],      // good size for these icons
+        iconAnchor: [14, 28],    // bottom center touches the map
+        popupAnchor: [0, -28]
+    });
+}
+    
 // Cleanup orphan streets
 streets = streets.filter(name => streetsData[name]);
 localStorage.setItem('streets', JSON.stringify(streets));
@@ -208,9 +283,12 @@ Object.keys(streetObjects).forEach(streetName => {
             </button>
         `;
 
-        L.marker([obj.lat, obj.lng])
-            .addTo(map)
-            .bindPopup(popupContent);
+L.marker(
+    [obj.lat, obj.lng],
+    { icon: getLeafletIcon(obj.category) }
+)
+.addTo(map)
+.bindPopup(popupContent);
     });
 });
 </script>
