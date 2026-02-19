@@ -549,6 +549,7 @@
     <!-- POPUPS -->
     <!-- Add Photo -->
 <!-- Add Photo -->
+ <input type="hidden" role="uploadcare-uploader" id="photoUpload" />
 <div class="popup-overlay" id="addPhotoPopup" style="display:none;">
     <div class="popup">
         <h3>Adding photo to:</h3>
@@ -797,26 +798,6 @@
     </div>
 
    <script>
-
-const uploader = uploadcare.Widget('#photoUpload', {
-    publicKey: 'b649bcddf1e8b81bebff'
-});
-const objectKey = new URLSearchParams(window.location.search).get('object') || 'unknown';
-
-
-// On upload complete, save URL in localStorage and show image
-uploader.onUploadComplete(file => {
-    console.log("Uploaded file URL:", file.cdnUrl);
-
-    let images = JSON.parse(localStorage.getItem('objectImages') || '{}');
-
-    if (!images[objectKey]) images[objectKey] = [];
-    images[objectKey].push(file.cdnUrl);
-
-    localStorage.setItem('objectImages', JSON.stringify(images));
-
-    displayObjectImages(objectKey);
-});
     
 // Define icons for all object types
 const categoryIcons = {
@@ -1261,25 +1242,46 @@ function updateStatusBar(status) {
 // call after loading object
 updateStatusBar(obj.status);
        
-// Display images
-function displayObjectImages(objectKey) {
-    const container = document.getElementById('photosDiv');
-    container.innerHTML = '';
+function displayObjectImages(key) {
+    const photosDiv = document.getElementById('photosDiv');
+    photosDiv.innerHTML = '';
 
-    let images = JSON.parse(localStorage.getItem('objectImages') || '{}');
-    if (images[objectKey]) {
-        images[objectKey].forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.style.maxWidth = '200px';
-            img.style.margin = '5px';
-            container.appendChild(img);
-        });
-    }
+    const images = JSON.parse(localStorage.getItem('objectImages') || '{}');
+    (images[key] || []).forEach(photo => {
+        const img = document.createElement('img');
+        img.src = photo.url;
+        img.style.width = '200px';
+        img.style.margin = '5px';
+        img.title = photo.description || '';
+        photosDiv.appendChild(img);
+    });
 }
 
-// Show images on page load
+// Call on page load
 displayObjectImages(objectKey);
+
+    const uploader = uploadcare.Widget('#photoUpload', {
+    publicKey: 'b649bcddf1e8b81bebff',
+    imagesOnly: true
+});
+
+uploader.onUploadComplete(file => {
+    console.log("Uploaded file URL:", file.cdnUrl);
+
+    let images = JSON.parse(localStorage.getItem('objectImages') || '{}');
+    if (!images[objectKey]) images[objectKey] = [];
+
+    images[objectKey].push({
+        url: file.cdnUrl,
+        date: photoDate.value,
+        description: photoDescription.value,
+        source: photoSourceInput.value
+    });
+
+    localStorage.setItem('objectImages', JSON.stringify(images));
+
+    displayObjectImages(objectKey); // show immediately
+});
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
