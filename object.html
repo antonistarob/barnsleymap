@@ -1178,7 +1178,6 @@ photoSourceInput.addEventListener('blur', () => {
     if (!isValid) photoSourceInput.value = ''; // clear if invalid
 });
 
-// SAVE PHOTO
 const photoUpload = uploadcare.Widget('[role=uploadcare-uploader]');
 
 savePhotoBtn.onclick = async () => {
@@ -1188,12 +1187,7 @@ savePhotoBtn.onclick = async () => {
         return;
     }
 
-    // Temporary: just close the popup for now
-    alert("Photo uploaded (placeholder)!");
-    closeAddPhoto();
-};
-
-    const photoURL = fileInfo.cdnUrl; // this is the actual URL for preview/storage
+    const photoURL = fileInfo.cdnUrl; // actual URL for preview/storage
 
     // Ownership / rights validation
     if (!photoOwnerCheckbox.checked) {
@@ -1223,7 +1217,8 @@ savePhotoBtn.onclick = async () => {
     // Update photos display immediately
     renderPhotos(obj.photos);
 
-    reader.readAsDataURL(file);
+    // Close popup
+    closeAddPhoto();
 };
 
 const statusBar = document.getElementById('statusBar');
