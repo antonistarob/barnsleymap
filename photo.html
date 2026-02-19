@@ -116,15 +116,18 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'photo-card';
 
-    // Controls
-    const controls = document.createElement('div');
-    controls.className = 'photo-controls';
+// --- PHOTO CONTROLS ---
+const controls = document.createElement('div');
+controls.className = 'photo-controls';
 
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Edit';
-    editBtn.className = 'photo-action-btn';
-    editBtn.onclick = () => openEditPhoto(photo);
-    controls.appendChild(editBtn);
+// Edit button (acts like "Add Photo" on object.html)
+const editBtn = document.createElement('button');
+editBtn.textContent = 'Edit';
+editBtn.className = 'photo-action-btn';
+editBtn.addEventListener('click', () => openAddPhotoPopup(photo));
+controls.appendChild(editBtn);
+
+card.insertBefore(controls, card.firstChild);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Delete';
