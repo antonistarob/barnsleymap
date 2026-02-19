@@ -1188,6 +1188,11 @@ savePhotoBtn.onclick = async () => {
         return;
     }
 
+    // Temporary: just close the popup for now
+    alert("Photo uploaded (placeholder)!");
+    closeAddPhoto();
+};
+
     const photoURL = fileInfo.cdnUrl; // this is the actual URL for preview/storage
 
     // Ownership / rights validation
@@ -1217,10 +1222,6 @@ savePhotoBtn.onclick = async () => {
 
     // Update photos display immediately
     renderPhotos(obj.photos);
-
-    // Close popup
-    closeAddPhoto();
-};
 
     reader.readAsDataURL(file);
 };
