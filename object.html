@@ -561,7 +561,12 @@ UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
     <!-- POPUPS -->
     <!-- Add Photo -->
 <!-- Add Photo -->
-<input 
+<div class="popup-overlay" id="addPhotoPopup" style="display:none;">
+    <div class="popup">
+        <h3>Adding photo to:</h3>
+        <p id="addPhotoSubTitle" style="font-size:14px; margin-top:0;"></p>
+
+     <input 
     type="hidden" 
     role="uploadcare-uploader" 
     id="photoUpload"
@@ -570,11 +575,6 @@ UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
     data-preview-step="true"
     data-transform="resize(1500,0),format(webp),quality(80)"
 >
-<div class="popup-overlay" id="addPhotoPopup" style="display:none;">
-    <div class="popup">
-        <h3>Adding photo to:</h3>
-        <p id="addPhotoSubTitle" style="font-size:14px; margin-top:0;"></p>
-     
 
         <label for="photoDate" style="display:flex; align-items:center; justify-content:space-between;">
             Date:
