@@ -124,11 +124,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Image
     const img = document.createElement('img');
-    if (photo.dataUrl) img.src = photo.dataUrl;
-    else if (photo.src) img.src = photo.src;
-    else img.src = 'placeholder.png';
+    img.src = photo.url || 'placeholder.png';
     img.alt = photo.description || 'Photo';
     card.appendChild(img);
+    console.log(photo);
+    
 
     // Info
     const info = document.createElement('div');
