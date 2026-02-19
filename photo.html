@@ -52,132 +52,139 @@ body { font-family: Arial; background:#121212; color:#eee; margin:0; padding:20p
 </div>
 
 <script>
-// --- HELPERS ---
-function getQueryParam(p) { return new URLSearchParams(location.search).get(p); }
-function formatDateGB(dateValue) {
-    if (!dateValue) return "";
-    const d = new Date(dateValue);
-    if (isNaN(d)) return dateValue;
-    return d.toLocaleDateString('en-GB');
-}
+document.addEventListener('DOMContentLoaded', () => {
 
-// --- LOAD DATA ---
-const streetName = getQueryParam('street');
-const objectName = getQueryParam('object');
-let photoId = getQueryParam('photoId');
-
-const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const objList = streetObjects[streetName] || [];
-const obj = objList.find(o => o.name === objectName);
-
-let photo = null;
-
-// If object exists and has photos
-if (obj && obj.photos && obj.photos.length > 0) {
-    if (!photoId || photoId === 'undefined') {
-        photo = obj.photos[0];
-        photoId = photo.id;
-    } else {
-        photo = obj.photos.find(p => p.id === photoId);
-        if (!photo) photo = obj.photos[0]; // fallback if not found
+    // --- HELPERS ---
+    function getQueryParam(p) { return new URLSearchParams(location.search).get(p); }
+    function formatDateGB(dateValue) {
+        if (!dateValue) return "";
+        const d = new Date(dateValue);
+        if (isNaN(d)) return dateValue;
+        return d.toLocaleDateString('en-GB');
     }
-}
 
-// If no object or no photo, show placeholder
-if (!photo) {
+    // --- LOAD DATA ---
+    const streetName = getQueryParam('street');
+    const objectName = getQueryParam('object');
+    let photoId = getQueryParam('photoId');
+
+    const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+    const objList = streetObjects[streetName] || [];
+    const obj = objList.find(o => o.name === objectName);
+
+    let photo = null;
+
+    if (obj && obj.photos && obj.photos.length > 0) {
+        if (!photoId || photoId === 'undefined') {
+            photo = obj.photos[0];
+            photoId = photo.id;
+        } else {
+            photo = obj.photos.find(p => p.id === photoId);
+            if (!photo) photo = obj.photos[0];
+        }
+    }
+
     const container = document.getElementById('photoContainer');
-    container.innerHTML = `<div style="text-align:center; margin-top:50px; color:#aaa;">
-        <h2>Photo not found</h2>
-        <p>Street or object may be missing.</p>
-        <a href="street.html">Go back to streets</a>
-    </div>`;
-}
 
-photo.username ||= "Anonymous";
-photo.views ||= 0;
-photo.views++;
-if (obj && obj.photos && photo) localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    if (!photo) {
+        container.innerHTML = `<div style="text-align:center; margin-top:50px; color:#aaa;">
+            <h2>Photo not found</h2>
+            <p>Street or object may be missing.</p>
+            <a href="street.html">Go back to streets</a>
+        </div>`;
+        return;
+    }
 
-const container = document.getElementById('photoContainer');
+    photo.username ||= "Anonymous";
+    photo.views ||= 0;
+    photo.views++;
+    if (obj && obj.photos) localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-// --- CREATE PHOTO CARD ---
-const card = document.createElement('div');
-card.className = 'photo-card';
+    // --- CREATE PHOTO CARD ---
+    const card = document.createElement('div');
+    card.className = 'photo-card';
 
-// Controls
-const controls = document.createElement('div');
-controls.className = 'photo-controls';
+    // Controls
+    const controls = document.createElement('div');
+    controls.className = 'photo-controls';
 
-const editBtn = document.createElement('button');
-editBtn.textContent = 'Edit';
-editBtn.className = 'photo-action-btn';
-editBtn.onclick = () => openEditPhoto(photo);
-controls.appendChild(editBtn);
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'photo-action-btn';
+    editBtn.onclick = () => openEditPhoto(photo);
+    controls.appendChild(editBtn);
 
-const deleteBtn = document.createElement('button');
-deleteBtn.textContent = 'Delete';
-deleteBtn.className = 'photo-action-btn delete';
-deleteBtn.onclick = () => openDeletePhoto(photo.id);
-controls.appendChild(deleteBtn);
+    const deleteBtn = document.createElement('button');
+    deleteBtn.textContent = 'Delete';
+    deleteBtn.className = 'photo-action-btn delete';
+    deleteBtn.onclick = () => openDeletePhoto(photo.id);
+    controls.appendChild(deleteBtn);
 
-card.appendChild(controls);
+    card.appendChild(controls);
 
-// Image
-const img = document.createElement('img');
-img.src = photo.dataUrl || photo.src || 'placeholder.png';
-img.alt = photo.description || '';
-card.appendChild(img);
+    // Image
+    const img = document.createElement('img');
+    if (photo.dataUrl) img.src = photo.dataUrl;
+    else if (photo.src) img.src = photo.src;
+    else img.src = 'placeholder.png';
+    img.alt = photo.description || 'Photo';
+    card.appendChild(img);
 
-// Info
-const info = document.createElement('div');
-info.className = 'photo-info';
-if (photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
-if (photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${formatDateGB(photo.date)}</div>`;
-const addedDate = photo.id.includes('_') ? new Date(parseInt(photo.id.split('_')[1]||Date.now())) : new Date();
-info.innerHTML += `<div><strong>Date added:</strong> ${addedDate.toLocaleDateString('en-GB')}</div>`;
-info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
-info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
-info.innerHTML += `<div><strong>Directory:</strong> <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a></div>`;
-card.appendChild(info);
+    // Info
+    const info = document.createElement('div');
+    info.className = 'photo-info';
+    if (photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
+    if (photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${formatDateGB(photo.date)}</div>`;
+    const addedDate = photo.id.includes('_') ? new Date(parseInt(photo.id.split('_')[1]||Date.now())) : new Date();
+    info.innerHTML += `<div><strong>Date added:</strong> ${addedDate.toLocaleDateString('en-GB')}</div>`;
+    info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
+    info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
+    info.innerHTML += `<div><strong>Directory:</strong> <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a></div>`;
+    card.appendChild(info);
 
-container.appendChild(card);
+    container.appendChild(card);
 
-// --- EDIT PHOTO ---
-let editingPhoto = null;
-function openEditPhoto(p) {
-    editingPhoto = p;
-    document.getElementById('editPhotoDesc').value = p.description || "";
-    document.getElementById('editPhotoDate').value = p.date ? formatDateGB(p.date) : "";
-    document.getElementById('editPhotoPopup').style.display = 'flex';
-}
-function closeEditPhoto() { editingPhoto = null; document.getElementById('editPhotoPopup').style.display='none'; }
-document.getElementById('cancelEditPhotoBtn').addEventListener('click', closeEditPhoto);
-document.getElementById('savePhotoBtn').addEventListener('click', () => {
-    if (!editingPhoto) return;
-    editingPhoto.description = document.getElementById('editPhotoDesc').value.trim();
-    const dateStr = document.getElementById('editPhotoDate').value.trim();
-    if (dateStr) editingPhoto.date = new Date(dateStr.split('/').reverse().join('-')).toISOString();
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    location.reload();
-});
+    // --- EDIT PHOTO ---
+    let editingPhoto = null;
+    function openEditPhoto(p) {
+        editingPhoto = p;
+        document.getElementById('editPhotoDesc').value = p.description || "";
+        document.getElementById('editPhotoDate').value = p.date ? formatDateGB(p.date) : "";
+        document.getElementById('editPhotoPopup').style.display = 'flex';
+    }
+    function closeEditPhoto() {
+        editingPhoto = null;
+        document.getElementById('editPhotoPopup').style.display='none';
+    }
+    document.getElementById('cancelEditPhotoBtn').addEventListener('click', closeEditPhoto);
+    document.getElementById('savePhotoBtn').addEventListener('click', () => {
+        if (!editingPhoto) return;
+        editingPhoto.description = document.getElementById('editPhotoDesc').value.trim();
+        const dateStr = document.getElementById('editPhotoDate').value.trim();
+        if (dateStr) editingPhoto.date = new Date(dateStr.split('/').reverse().join('-')).toISOString();
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        location.reload();
+    });
 
-// --- DELETE PHOTO ---
-let photoToDelete = null;
-function openDeletePhoto(id) {
-    photoToDelete = id;
-    document.getElementById('deletePhotoPopup').style.display = 'flex';
-}
-function closeDeletePhoto() {
-    photoToDelete = null;
-    document.getElementById('deletePhotoPopup').style.display = 'none';
-}
-document.getElementById('cancelDeletePhoto').addEventListener('click', closeDeletePhoto);
-document.getElementById('confirmDeletePhoto').addEventListener('click', () => {
-    if (!photoToDelete || !obj || !obj.photos) return;
-    obj.photos = obj.photos.filter(p => p.id !== photoToDelete);
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-    closeDeletePhoto();
-    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}`;
+    // --- DELETE PHOTO ---
+    let photoToDelete = null;
+    function openDeletePhoto(id) {
+        photoToDelete = id;
+        document.getElementById('deletePhotoPopup').style.display = 'flex';
+    }
+    function closeDeletePhoto() {
+        photoToDelete = null;
+        document.getElementById('deletePhotoPopup').style.display = 'none';
+    }
+    document.getElementById('cancelDeletePhoto').addEventListener('click', closeDeletePhoto);
+    document.getElementById('confirmDeletePhoto').addEventListener('click', () => {
+        if (!photoToDelete || !obj || !obj.photos) return;
+        obj.photos = obj.photos.filter(p => p.id !== photoToDelete);
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+        closeDeletePhoto();
+        window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}`;
+    });
+
 });
 </script>
 
