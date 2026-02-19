@@ -257,7 +257,7 @@ controls.appendChild(editBtn);
 const deleteBtn = document.createElement('button');
 deleteBtn.textContent = 'Delete';
 deleteBtn.className = 'photo-action-btn delete';
-deleteBtn.onclick = () => openDeletePhoto(photoIndex);
+deleteBtn.onclick = () => openDeletePhoto(photo.id);
 controls.appendChild(deleteBtn);
 
 card.appendChild(controls);
