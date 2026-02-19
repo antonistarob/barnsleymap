@@ -1196,6 +1196,8 @@ updateStatusBar(obj.status);
 
 // Get the container for photos
 const photosDiv = document.getElementById('photosDiv');
+    photosDiv.innerHTML = ''; // clear old photos
+
 
 // Function to render photos for the object
 function renderPhotos(photos) {
@@ -1208,6 +1210,7 @@ function renderPhotos(photos) {
     photos.forEach((photo, index) => {
         const box = document.createElement('div');
         box.classList.add('photo-box');
+     
 
         // Create a link to photo.html
         const link = document.createElement('a');
