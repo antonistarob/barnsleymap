@@ -468,6 +468,11 @@
     border-color: rgba(241, 196, 15, 0.2);
     background-color: rgba(241, 196, 15, 0.05);
 }
+
+     .uploadcare--widget {
+    width: 100% !important;  /* Make it full width in the popup */
+    margin-bottom: 10px;
+}
     </style>
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -559,7 +564,15 @@
         <h3>Adding photo to:</h3>
         <p id="addPhotoSubTitle" style="font-size:14px; margin-top:0;"></p>
 
-        <label for="photoFile">File:</label>
+     <input 
+    type="hidden" 
+    role="uploadcare-uploader" 
+    id="photoUpload"
+    data-images-only
+    data-tabs="file url"
+    data-clearable="true"
+    data-preview-step="true"
+>
 
         <label for="photoDate" style="display:flex; align-items:center; justify-content:space-between;">
             Date:
