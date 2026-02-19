@@ -1110,45 +1110,49 @@ photoSourceInput.addEventListener('blur', () => {
 const photoUpload = uploadcare.Widget('[role=uploadcare-uploader]');
 
 savePhotoBtn.onclick = async () => {
-    const fileInfo = await photoUpload.value(); // returns a FileInfo object
-    if (!fileInfo) {
+    if (!selectedFile) {
         alert("Please select a photo.");
         return;
     }
 
-    const photoURL = fileInfo.cdnUrl; // actual URL for preview/storage
+    // Wait for the file to fully upload
+    const fileInfo = await selectedFile.done(); // Uploadcare promise resolves with URL & info
 
-    // Ownership / rights validation
-    if (!photoOwnerCheckbox.checked) {
-        const selectedRight = document.querySelector('input[name="photoRights"]:checked');
-        if (!photoSourceInput.value.trim()) {
-            alert("Please enter the photo source.");
+    // Gather all input data
+    const photoData = {
+        url: fileInfo.cdnUrl,
+        description: photoDescription.value.trim(),
+        date: photoDate.value.trim(),
+        owner: photoOwnerCheckbox.checked,
+        source: photoSourceInput.value.trim(),
+        rights: document.querySelector('input[name="photoRights"]:checked')?.value || ''
+    };
+
+    // Validate source / rights if not owner
+    if (!photoData.owner) {
+        if (!photoData.source) {
+            alert('Please enter the photo source.');
             return;
         }
-        if (!selectedRight) {
-            alert("Please select a rights declaration.");
+        if (!photoData.rights) {
+            alert('Please select a rights declaration.');
             return;
         }
     }
 
-    // Add photo to the object
+    // Save photo to object
     if (!obj.photos) obj.photos = [];
-    obj.photos.push({
-        url: photoURL,
-        description: photoDescription.value.trim(),
-        date: photoDate.value.trim(),
-        source: photoSourceInput.value.trim(),
-        owner: photoOwnerCheckbox.checked
-    });
+    obj.photos.push(photoData);
 
-    // Save to localStorage
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-    // Update photo display
+    // Update photos display
     renderPhotos(obj.photos);
 
-    // Close the popup and reset fields
+    // Close popup & reset fields
     closeAddPhoto();
+    selectedFile = null;
+    photoInput.value(null); // reset Uploadcare widget
 };
 
 const statusBar = document.getElementById('statusBar');
@@ -1201,33 +1205,22 @@ const uploader = uploadcare.Widget('#photoUpload', {
 });
 
 // Handle upload complete inside your "Add Photo" popup logic
-uploader.onUploadComplete(file => {
-    if (!file) return;
+const photoInput = uploadcare.Widget('#photoUpload', {
+    publicKey: 'b649bcddf1e8b81bebff',
+    imagesOnly: true,
+    previewStep: true,
+    clearable: true
+});
 
-    obj.photos = obj.photos || [];
-    obj.photos.push({
-        url: file.cdnUrl,
-        description: photoDescription.value,
-        date: photoDate.value,
-        source: photoSourceInput.value,
-        owner: photoOwnerCheckbox.checked
-    });
+let selectedFile = null; // temporarily store the file
 
-    // Save updated object to localStorage
-    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-    let objArray = streetObjects[streetName] || [];
-    let objIndex = objArray.findIndex(o => o.name === objectName);
-    if (objIndex !== -1) {
-        objArray[objIndex] = obj;
-        streetObjects[streetName] = objArray;
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+photoInput.onChange(file => {
+    if (file) {
+        selectedFile = file; // just store, do NOT save yet
+        console.log('File selected, waiting for Save button...');
+    } else {
+        selectedFile = null;
     }
-
-    // Refresh displayed photos
-    renderPhotos(obj.photos);
-
-    // Close popup and reset fields
-    closeAddPhoto();
 });
 
     /* MAP & MARKER FUNCTIONS */
