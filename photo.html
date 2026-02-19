@@ -67,22 +67,31 @@ const objectName = getQueryParam('object');
 let photoId = getQueryParam('photoId');
 
 const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+const objList = streetObjects[streetName] || [];
+const obj = objList.find(o => o.name === objectName);
 
 let photo = null;
+
+// If object exists and has photos
 if (obj && obj.photos && obj.photos.length > 0) {
-    // If photoId is missing or undefined, fallback to first photo
     if (!photoId || photoId === 'undefined') {
         photo = obj.photos[0];
-        photoId = photo.id; // set it so other logic works
+        photoId = photo.id;
     } else {
         photo = obj.photos.find(p => p.id === photoId);
         if (!photo) photo = obj.photos[0]; // fallback if not found
     }
 }
 
-// If photo not found (fallback)
-if (!photo) photo = { id:'missing_'+Date.now(), description:'Photo missing', username:'Unknown', views:0 };
+// If no object or no photo, show placeholder
+if (!photo) {
+    const container = document.getElementById('photoContainer');
+    container.innerHTML = `<div style="text-align:center; margin-top:50px; color:#aaa;">
+        <h2>Photo not found</h2>
+        <p>Street or object may be missing.</p>
+        <a href="street.html">Go back to streets</a>
+    </div>`;
+}
 
 photo.username ||= "Anonymous";
 photo.views ||= 0;
