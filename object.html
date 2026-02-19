@@ -1205,14 +1205,21 @@ function renderPhotos(photos) {
         return;
     }
 
-    photos.forEach(photo => {
+    photos.forEach((photo, index) => {
         const box = document.createElement('div');
         box.classList.add('photo-box');
+
+        // Create a link to photo.html
+        const link = document.createElement('a');
+        link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photoIndex=${index}`;
+        link.target = "_blank"; // optional: open in new tab
 
         const img = document.createElement('img');
         img.src = photo.url;
         img.alt = photo.description || '';
-        box.appendChild(img);
+
+        link.appendChild(img);
+        box.appendChild(link);
 
         if (photo.date) {
             const dateDiv = document.createElement('div');
