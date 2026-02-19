@@ -6,24 +6,13 @@
 <title>Photo View</title>
 <style>
 body { font-family: Arial; background:#121212; color:#eee; margin:0; padding:20px; }
-.photo-card {
-    max-width: 1000px; /* bigger than before */
-    margin: 20px auto;
-    background: #1f1f1f;
-    padding: 15px;
-    border-radius: 6px;
-}
-.photo-card img {
-    max-width: 100%;
-    max-height: 80vh; /* limits it to 80% of the viewport height */
-    border-radius: 6px;
-    display: block;
-    margin: 0 auto 10px;
-}
+.photo-card { max-width:900px; margin:auto; background:#1f1f1f; padding:20px; border-radius:8px; }
+.photo-card img { max-width:100%; border-radius:8px; display:block; margin-bottom:15px; }
 .photo-info div { margin-bottom:5px; }
-.photo-controls { display:flex; justify-content:flex-end; gap:10px; margin-bottom:10px; }
-.photo-action-btn { background:#3498db; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; }
+.photo-controls { display:flex; justify-content:flex-end; gap:10px; margin-bottom:15px; }
+.photo-action-btn { background:#3498db; color:#fff; border:none; padding:7px 14px; border-radius:5px; cursor:pointer; }
 .photo-action-btn.delete { background:#c0392b; }
+
 .popup-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; }
 .popup { background:#2c2c2c; padding:20px; border-radius:8px; width:400px; max-width:90%; }
 .popup textarea, .popup input { width:100%; margin-top:5px; margin-bottom:10px; padding:5px; background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:4px; }
@@ -34,15 +23,18 @@ body { font-family: Arial; background:#121212; color:#eee; margin:0; padding:20p
 
 <div id="photoContainer"></div>
 
-<!-- EDIT PHOTO POPUP -->
-<div class="popup-overlay" id="editPhotoPopup">
+<!-- EDIT / ADD PHOTO POPUP -->
+<div class="popup-overlay" id="addPhotoPopup">
     <div class="popup">
-        <h3>Edit Photo</h3>
-        <label for="editPhotoDesc">Description:</label>
-        <textarea id="editPhotoDesc" rows="3"></textarea>
+        <h3>Add / Edit Photo</h3>
+        <label for="photoFileInput">Photo File:</label>
+        <input type="file" id="photoFileInput">
 
-        <label for="editPhotoDate">Date:</label>
-        <input type="text" id="editPhotoDate" placeholder="DD/MM/YYYY">
+        <label for="photoDescInput">Description:</label>
+        <textarea id="photoDescInput" rows="3"></textarea>
+
+        <label for="photoDateInput">Date:</label>
+        <input type="text" id="photoDateInput" placeholder="DD/MM/YYYY">
 
         <div class="popup-buttons">
             <button id="savePhotoBtn" class="photo-action-btn">Save</button>
@@ -116,23 +108,20 @@ document.addEventListener('DOMContentLoaded', () => {
     const card = document.createElement('div');
     card.className = 'photo-card';
 
-// --- PHOTO CONTROLS ---
-const controls = document.createElement('div');
-controls.className = 'photo-controls';
+    // Controls
+    const controls = document.createElement('div');
+    controls.className = 'photo-controls';
 
-// Edit button (acts like "Add Photo" on object.html)
-const editBtn = document.createElement('button');
-editBtn.textContent = 'Edit';
-editBtn.className = 'photo-action-btn';
-editBtn.addEventListener('click', () => openAddPhotoPopup(photo));
-controls.appendChild(editBtn);
-
-card.insertBefore(controls, card.firstChild);
+    const editBtn = document.createElement('button');
+    editBtn.textContent = 'Edit';
+    editBtn.className = 'photo-action-btn';
+    editBtn.addEventListener('click', () => openAddPhotoPopup(photo));
+    controls.appendChild(editBtn);
 
     const deleteBtn = document.createElement('button');
     deleteBtn.textContent = 'Delete';
     deleteBtn.className = 'photo-action-btn delete';
-    deleteBtn.onclick = () => openDeletePhoto(photo.id);
+    deleteBtn.addEventListener('click', () => openDeletePhoto(photo.id));
     controls.appendChild(deleteBtn);
 
     card.appendChild(controls);
@@ -142,8 +131,6 @@ card.insertBefore(controls, card.firstChild);
     img.src = photo.url || 'placeholder.png';
     img.alt = photo.description || 'Photo';
     card.appendChild(img);
-    console.log(photo);
-    
 
     // Info
     const info = document.createElement('div');
@@ -159,24 +146,28 @@ card.insertBefore(controls, card.firstChild);
 
     container.appendChild(card);
 
-    // --- EDIT PHOTO ---
+    // --- EDIT / ADD PHOTO POPUP ---
     let editingPhoto = null;
-    function openEditPhoto(p) {
-        editingPhoto = p;
-        document.getElementById('editPhotoDesc').value = p.description || "";
-        document.getElementById('editPhotoDate').value = p.date ? formatDateGB(p.date) : "";
-        document.getElementById('editPhotoPopup').style.display = 'flex';
+    function openAddPhotoPopup(existingPhoto = null) {
+        editingPhoto = existingPhoto || null;
+        const popup = document.getElementById('addPhotoPopup');
+        popup.style.display = 'flex';
+
+        document.getElementById('photoDescInput').value = existingPhoto?.description || '';
+        document.getElementById('photoDateInput').value = existingPhoto?.date ? formatDateGB(existingPhoto.date) : '';
+        document.getElementById('photoFileInput').value = '';
     }
-    function closeEditPhoto() {
-        editingPhoto = null;
-        document.getElementById('editPhotoPopup').style.display='none';
-    }
-    document.getElementById('cancelEditPhotoBtn').addEventListener('click', closeEditPhoto);
+    document.getElementById('cancelEditPhotoBtn').addEventListener('click', () => {
+        document.getElementById('addPhotoPopup').style.display = 'none';
+    });
+
     document.getElementById('savePhotoBtn').addEventListener('click', () => {
         if (!editingPhoto) return;
-        editingPhoto.description = document.getElementById('editPhotoDesc').value.trim();
-        const dateStr = document.getElementById('editPhotoDate').value.trim();
+
+        editingPhoto.description = document.getElementById('photoDescInput').value.trim();
+        const dateStr = document.getElementById('photoDateInput').value.trim();
         if (dateStr) editingPhoto.date = new Date(dateStr.split('/').reverse().join('-')).toISOString();
+
         localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
         location.reload();
     });
