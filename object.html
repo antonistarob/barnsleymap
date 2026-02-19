@@ -798,8 +798,11 @@
 
    <script>
 
-    const uploader = uploadcare.Widget('#photoUpload');
+const uploader = uploadcare.Widget('#photoUpload', {
+    publicKey: 'b649bcddf1e8b81bebff'
+});
 const objectKey = new URLSearchParams(window.location.search).get('object') || 'unknown';
+
 
 // On upload complete, save URL in localStorage and show image
 uploader.onUploadComplete(file => {
