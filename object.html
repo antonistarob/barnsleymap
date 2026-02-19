@@ -1087,7 +1087,6 @@ addPhotoBtn.onclick = () => {
 // Close add photo popup
 function closeAddPhoto() {
     addPhotoPopup.style.display = 'none';
-photoInput.value(null);
     photoDate.value = '';
     photoDescription.value = '';
     useExifDate.checked = false;
@@ -1098,6 +1097,7 @@ photoInput.value(null);
     // Ensure source/rights inputs are visible again
     photoSourceSection.style.display = 'block';
     document.querySelectorAll('.rights-option').forEach(r => r.style.display = 'flex');
+ photoInput.value(null);
 }
 cancelAddPhotoBtn.onclick = closeAddPhoto;
 
