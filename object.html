@@ -135,15 +135,38 @@
             text-align: center;
         }
 
-        #photosDiv {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
+#photosDiv {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px; /* spacing between photo boxes */
+}
 
-        #photosDiv img {
-            cursor: pointer;
-        }
+.photo-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #555;
+    border-radius: 6px;
+    padding: 5px;
+    background: #1a1a1a;
+    width: 160px;  /* box width */
+}
+
+.photo-box img {
+    width: 150px;
+    height: auto;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.photo-date {
+    margin-top: 5px;
+    font-size: 12px;
+    color: #aaa;
+    text-align: center;
+    word-wrap: break-word;
+}
 
         .popup {
     background: #1f1f1f;
@@ -1183,13 +1206,22 @@ function renderPhotos(photos) {
     }
 
     photos.forEach(photo => {
+        const box = document.createElement('div');
+        box.classList.add('photo-box');
+
         const img = document.createElement('img');
         img.src = photo.url;
         img.alt = photo.description || '';
-        img.style.width = '150px';
-        img.style.height = 'auto';
-        img.style.margin = '5px';
-        photosDiv.appendChild(img);
+        box.appendChild(img);
+
+        if (photo.date) {
+            const dateDiv = document.createElement('div');
+            dateDiv.classList.add('photo-date');
+            dateDiv.textContent = photo.date;
+            box.appendChild(dateDiv);
+        }
+
+        photosDiv.appendChild(box);
     });
 }
 
