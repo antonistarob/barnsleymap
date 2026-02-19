@@ -814,138 +814,81 @@ const categoryIcons = {
     "Terraced house": "https://polska-org.pl/gfx/category/500046.png",
     "Townhouse": "https://polska-org.pl/gfx/category/500045.png",
     "Villa": "https://polska-org.pl/gfx/obj/05c.png",
-
-    // Education and learning
+    // Education
     "Nursery": "https://polska-org.pl/gfx/obj/03b.png",
     "Primary school": "https://polska-org.pl/gfx/obj/03c.png",
     "Secondary school": "https://polska-org.pl/gfx/obj/03d.png",
     "Sixth Form college": "https://polska-org.pl/gfx/obj/03e.png",
     "College": "https://polska-org.pl/gfx/obj/03e.png",
     "University": "https://polska-org.pl/gfx/obj/03e.png",
-
-    // Bank and handle
+    // Bank & shop
     "Bank": "https://polska-org.pl/gfx/obj/11d.png",
     "Shopping centre": "https://polska-org.pl/gfx/obj/11b.png",
     "Supermarket": "https://polska-org.pl/gfx/obj/11b.png",
     "Shop": "https://polska-org.pl/gfx/obj/11b.png",
     "Restaurant": "https://polska-org.pl/gfx/obj/08j.png",
-
     // Infrastructure
     "Bridge": "https://polska-org.pl/gfx/category/500136.png",
     "Petrol station": "https://polska-org.pl/gfx/obj/01a.png",
     "Train station": "https://polska-org.pl/gfx/obj/04a.png",
     "Bus station": "https://polska-org.pl/gfx/obj/02a.png",
-
     // Culture
     "Cinema": "https://polska-org.pl/gfx/obj/18b.png",
     "Museum": "https://polska-org.pl/gfx/obj/10c.png",
-
-    // Public buildings
+    // Public
     "Police station": "https://polska-org.pl/gfx/obj/08o.png",
     "Fire station": "https://polska-org.pl/gfx/obj/08s.png",
     "Court": "https://polska-org.pl/gfx/obj/08r.png",
     "Post office": "https://polska-org.pl/gfx/obj/08c.png",
     "Town Hall": "https://polska-org.pl/gfx/obj/08t.png",
-
-    // Religious Buildings
+    // Religious
     "Church": "https://polska-org.pl/gfx/obj/06a.png",
     "Cemetery": "https://polska-org.pl/gfx/obj/06d.png",
-
     // Health
     "Care home": "https://polska-org.pl/gfx/obj/08n.png",
     "Hospital": "https://polska-org.pl/gfx/obj/09b.png",
     "Pharmacy": "https://polska-org.pl/gfx/category/500082.png"
 };
 
-    // Get query params
-    const qp = p => new URLSearchParams(location.search).get(p);
-    const streetName = qp('street');
-    const objectName = qp('object');
+// Get query params
+const qp = p => new URLSearchParams(location.search).get(p);
+const streetName = qp('street');
+const objectName = qp('object');
 
-    /* ELEMENTS */
-    const objectTitle = document.getElementById('objectTitle');
-    const objectStreet = document.getElementById('objectStreet');
-    const objectNumber = document.getElementById('objectNumber');
-    const additionalInfo = document.getElementById('additionalInfo');
-    const objectDescription = document.getElementById('objectDescription');
-    const descriptionWrapper = document.getElementById('descriptionWrapper');
-    const objectsTableBody = document.getElementById('objectsTableBody');
-    const editBtn = document.getElementById('editBtn');
-    const deleteBtn = document.getElementById('deleteBtn');
-    const editPopup = document.getElementById('editPopup');
-    const deletePopup = document.getElementById('deletePopup');
-    const deleteMessage = document.getElementById('deleteMessage');
-    const editObjectName = document.getElementById('editObjectName');
-    const editObjectNumber = document.getElementById('editObjectNumber');
-    const editStatus = document.getElementById('editStatus');
-    const editYearBuilt = document.getElementById('editYearBuilt');
-    const editYearDemolished = document.getElementById('editYearDemolished');
-    const editGradeListed = document.getElementById('editGradeListed');
-    const gradeOptions = document.getElementById('gradeOptions');
-    const editGrade = document.getElementById('editGrade');
-    const editListEntryNumber = document.getElementById('editListEntryNumber');
-    const editDateListed = document.getElementById('editDateListed');
-    const editDescription = document.getElementById('editDescription');
-    const editCategory = document.getElementById('editCategory');
-    const addPhotoBtn = document.getElementById('addPhotoBtn');
-    const addPhotoPopup = document.getElementById('addPhotoPopup');
-    const addPhotoTitle = document.getElementById('addPhotoTitle');
-    const addPhotoSubTitle = document.getElementById('addPhotoSubTitle');
-    const photoFile = document.getElementById('photoFile');
-    const photoDate = document.getElementById('photoDate');
-    const photoDescription = document.getElementById('photoDescription');
-    const savePhotoBtn = document.getElementById('savePhotoBtn');
-    const mapBtn = document.getElementById('mapBtn');
-    const mapPopup = document.getElementById('mapPopup');
-    const mapSection = document.getElementById('mapSection');
-    const mapNotSetText = document.getElementById('mapNotSetText');
-    const deleteMarkerBtn = document.getElementById('deleteMarkerBtn');
-    const saveMapBtn = document.getElementById('saveMapBtn');
-    const cancelAddPhotoBtn = document.getElementById('cancelAddPhotoBtn');
+// ELEMENTS
+const objectTitleText = document.getElementById('objectTitleText');
+const objectIcon = document.getElementById('objectIcon');
+const objectStreet = document.getElementById('objectStreet');
+const objectNumber = document.getElementById('objectNumber');
+const additionalInfo = document.getElementById('additionalInfo');
+const objectDescription = document.getElementById('objectDescription');
+const descriptionWrapper = document.getElementById('descriptionWrapper');
+const objectsTableBody = document.getElementById('objectsTableBody');
 
-       const useExifDate = document.getElementById('useExifDate');
-const exifError = document.getElementById('exifError');
+const editBtn = document.getElementById('editBtn');
+const deleteBtn = document.getElementById('deleteBtn');
+const editPopup = document.getElementById('editPopup');
+const deletePopup = document.getElementById('deletePopup');
+const deleteMessage = document.getElementById('deleteMessage');
 
-       const yearContainer = document.getElementById('yearContainer');
+const editObjectName = document.getElementById('editObjectName');
+const editObjectNumber = document.getElementById('editObjectNumber');
+const editStatus = document.getElementById('editStatus');
+const editYearBuilt = document.getElementById('editYearBuilt');
+const editYearDemolished = document.getElementById('editYearDemolished');
+const editGradeListed = document.getElementById('editGradeListed');
+const gradeOptions = document.getElementById('gradeOptions');
+const editGrade = document.getElementById('editGrade');
+const editListEntryNumber = document.getElementById('editListEntryNumber');
+const editDateListed = document.getElementById('editDateListed');
+const editDescription = document.getElementById('editDescription');
+const editCategory = document.getElementById('editCategory');
+
+const yearContainer = document.getElementById('yearContainer');
 const yearBuiltDisplay = document.getElementById('yearBuiltDisplay');
 const yearDemolishedDisplay = document.getElementById('yearDemolishedDisplay');
 
-       const photoOwnerCheckbox = document.getElementById('photoOwnerCheckbox');
-const photoSourceSection = document.getElementById('photoSourceSection');
-const photoSourceInput = document.getElementById('photoSourceInput');
-const photoSourceList = document.getElementById('photoSourceList')
-
-            // Gather all input data
-        const photoDateValue = photoDate.value.trim();
-        const photoDescriptionValue = photoDescription.value.trim();
-        const photoOwnerValue = photoOwnerCheckbox.checked;
-        const photoSourceValue = photoSourceInput.value.trim();
-        const photoRightsValue = document.querySelector('input[name="photoRights"]:checked')?.value || '';
-
-function populateExifDate() {
-    exifError.style.display = 'none';
-    const file = photoFile.files[0];
-    if (!file) return;
-
-    EXIF.getData(file, function() {
-        const exifDate = EXIF.getTag(this, "DateTimeOriginal");
-        if (exifDate) {
-            const parts = exifDate.split(" ")[0].split(":");
-            photoDate.value = `${parts[0]}-${parts[1]}-${parts[2]}`;
-        } else {
-            exifError.style.display = 'block';
-            photoDate.value = '';
-        }
-    });
-}
-
-useExifDate.addEventListener('change', () => {
-    exifError.style.display = 'none';
-    if (useExifDate.checked) populateExifDate();
-    else photoDate.value = '';
-});
-
-// LOAD DATA
+// Load object data
 let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 let objArray = streetObjects[streetName] || [];
 let obj = objArray.find(o => o.name === objectName);
@@ -955,10 +898,10 @@ if(!obj){
     throw new Error('Object missing');
 }
 
+// Update year container
 function updateYearContainer(currentObj) {
     const hasBuilt = currentObj.yearBuilt && currentObj.yearBuilt.trim() !== '';
     const hasDemolished = currentObj.yearDemolished && currentObj.yearDemolished.trim() !== '';
-
     if (hasBuilt || hasDemolished) {
         yearContainer.style.display = 'flex';
         yearBuiltDisplay.textContent = hasBuilt ? `Year Built: ${currentObj.yearBuilt}` : '';
@@ -969,65 +912,45 @@ function updateYearContainer(currentObj) {
         yearDemolishedDisplay.textContent = '';
     }
 }
-
-// Call this right after loading the object
 updateYearContainer(obj);
-       
-/* DISPLAY OBJECT */
 
-// Set the object title text (keep the icon intact)
-document.getElementById('objectTitleText').textContent = obj.name;
+// Display object info
+objectTitleText.textContent = obj.name;
+objectIcon.src = categoryIcons[obj.category] || '';
+objectIcon.alt = obj.category || '';
 
-// Set the street link
-objectStreet.innerHTML = ''; // clear previous content
+objectStreet.innerHTML = '';
 const streetLink = document.createElement('a');
 streetLink.href = `street.html?name=${encodeURIComponent(streetName)}`;
 streetLink.textContent = streetName;
-streetLink.classList.add('object-link'); // keep hover style
+streetLink.classList.add('object-link');
 objectStreet.appendChild(streetLink);
 
-// Set number
-objectNumber.textContent = obj.number || "";
-
-// Set description
+objectNumber.textContent = obj.number || '';
 objectDescription.textContent = obj.description || '';
 descriptionWrapper.style.display = obj.description ? 'block' : 'none';
 
-// Remove old grade info if it exists
+// Grade info
 const oldGradeDiv = document.getElementById('gradeInfo');
 if (oldGradeDiv) oldGradeDiv.remove();
 
-// Only update grade listing info, leave yearContainer untouched
 const gradeInfoDiv = document.createElement('div');
 gradeInfoDiv.id = "gradeInfo";
 gradeInfoDiv.innerHTML = '';
-
 if (obj.gradeListed) {
     gradeInfoDiv.innerHTML += `<span><strong>Grade Listed:</strong> ${obj.grade}</span><br>`;
     if (obj.listEntryNumber) gradeInfoDiv.innerHTML += `<span><strong>List Entry Number:</strong> ${obj.listEntryNumber}</span><br>`;
     if (obj.dateListed) gradeInfoDiv.innerHTML += `<span><strong>Date first listed:</strong> ${obj.dateListed}</span><br>`;
 }
-
-// Append new grade info
 additionalInfo.appendChild(gradeInfoDiv);
 
-// Set the category icon
-const iconSrc = categoryIcons[obj.category] || ''; // fallback if undefined
-document.getElementById('objectIcon').src = iconSrc;
-document.getElementById('objectIcon').alt = obj.category || '';
-
-// Update the years
-updateYearContainer(obj);
-
-/* LEFT COLUMN */
+// Populate left column table
 objectsTableBody.innerHTML = '';
 (streetObjects[streetName] || []).forEach(o => {
     const row = document.createElement('tr');
-
     const numberCell = document.createElement('td');
     numberCell.textContent = o.number || '';
     row.appendChild(numberCell);
-
     const nameCell = document.createElement('td');
     nameCell.textContent = o.name;
     nameCell.classList.add('object-link');
@@ -1037,67 +960,56 @@ objectsTableBody.innerHTML = '';
         else window.location.href = url;
     });
     row.appendChild(nameCell);
-
     objectsTableBody.appendChild(row);
 });
 
-    /* EDIT OBJECT */
-    editBtn.onclick = () => {
-        editPopup.style.display = 'flex';
-        editObjectName.value = obj.name;
-        editObjectNumber.value = obj.number || '';
-        editStatus.value = obj.status || 'Exists';
-        editYearBuilt.value = obj.yearBuilt || '';
-        editYearDemolished.value = obj.yearDemolished || '';
-        editGradeListed.checked = obj.gradeListed || false;
-        gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
-        editGrade.value = obj.grade || 'Grade I';
-        editListEntryNumber.value = obj.listEntryNumber || '';
-        editDateListed.value = obj.dateListed || '';
-        editDescription.value = obj.description || '';
-        editCategory.value = obj.category || '';
-    };
+// EDIT OBJECT
+editBtn.onclick = () => {
+    editPopup.style.display = 'flex';
+    editObjectName.value = obj.name;
+    editObjectNumber.value = obj.number || '';
+    editStatus.value = obj.status || 'Exists';
+    editYearBuilt.value = obj.yearBuilt || '';
+    editYearDemolished.value = obj.yearDemolished || '';
+    editGradeListed.checked = obj.gradeListed || false;
+    gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
+    editGrade.value = obj.grade || 'Grade I';
+    editListEntryNumber.value = obj.listEntryNumber || '';
+    editDateListed.value = obj.dateListed || '';
+    editDescription.value = obj.description || '';
+    editCategory.value = obj.category || '';
+};
+editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
 
-    editGradeListed.onchange = () => gradeOptions.style.display = editGradeListed.checked ? 'block' : 'none';
+document.getElementById('saveEditObject').onclick = () => {
+    obj.name = editObjectName.value.trim() || obj.name;
+    obj.number = editObjectNumber.value.trim();
+    obj.status = editStatus.value;
+    obj.yearBuilt = editYearBuilt.value.trim();
+    obj.yearDemolished = editYearDemolished.value.trim();
+    obj.gradeListed = editGradeListed.checked;
+    obj.grade = editGrade.value;
+    obj.listEntryNumber = editListEntryNumber.value.trim();
+    obj.dateListed = editDateListed.value.trim();
+    obj.description = editDescription.value.trim();
+    obj.category = editCategory.value;
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    updateYearContainer(obj);
+    window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}`;
+};
+function closeEdit() { editPopup.style.display = 'none'; }
 
-    flatpickr(editDateListed, {
-        altInput: true,
-        altFormat: "d/m/Y",
-        dateFormat: "Y-m-d",
-        theme: "dark"
-    });
-
-    document.getElementById('saveEditObject').onclick = () => {
-        obj.name = editObjectName.value.trim() || obj.name;
-        obj.number = editObjectNumber.value.trim();
-        obj.status = editStatus.value;
-        obj.yearBuilt = editYearBuilt.value.trim();
-        obj.yearDemolished = editYearDemolished.value.trim();
-        obj.gradeListed = editGradeListed.checked;
-        obj.grade = editGrade.value;
-        obj.listEntryNumber = editListEntryNumber.value.trim();
-        obj.dateListed = editDateListed.value.trim();
-        obj.description = editDescription.value.trim();
-        obj.category = editCategory.value;
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        updateYearContainer(obj);
-        window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}`;
-    };
-
-    function closeEdit() { editPopup.style.display = 'none'; }
-
-
-    /* DELETE OBJECT */
-    deleteBtn.onclick = () => {
-        deleteMessage.innerHTML = `Are you sure you want to delete <b>${obj.name}</b>?`;
-        deletePopup.style.display = 'flex';
-    };
-    document.getElementById('cancelDelete').onclick = () => deletePopup.style.display = 'none';
-    document.getElementById('confirmDelete').onclick = () => {
-        streetObjects[streetName] = (streetObjects[streetName] || []).filter(o => o.name !== obj.name);
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
-    };
+// DELETE OBJECT
+deleteBtn.onclick = () => {
+    deleteMessage.innerHTML = `Are you sure you want to delete <b>${obj.name}</b>?`;
+    deletePopup.style.display = 'flex';
+};
+document.getElementById('cancelDelete').onclick = () => deletePopup.style.display = 'none';
+document.getElementById('confirmDelete').onclick = () => {
+    streetObjects[streetName] = (streetObjects[streetName] || []).filter(o => o.name !== obj.name);
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    window.location.href = `street.html?name=${encodeURIComponent(streetName)}`;
+};
 
 /* === ADD PHOTO === */
 addPhotoBtn.onclick = () => {
