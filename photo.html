@@ -153,23 +153,38 @@ function savePhotoEdits() {
     location.reload();
 }
 
-// --- DELETE PHOTO ---
-let photoToDelete = null;
+// --- OPEN DELETE ---
 function openDeletePhoto(id) {
-    photoToDelete = id;
+    photoToDelete = id; // ensure this is the exact photo.id
     document.getElementById('deletePhotoPopup').style.display = 'flex';
 }
+
+// --- CLOSE DELETE ---
 function closeDeletePhotoPopup() {
     photoToDelete = null;
     document.getElementById('deletePhotoPopup').style.display = 'none';
 }
 document.getElementById('cancelDeletePhoto').addEventListener('click', closeDeletePhotoPopup);
+
+// --- CONFIRM DELETE ---
 document.getElementById('confirmDeletePhoto').addEventListener('click', () => {
     if (!photoToDelete) return;
-    const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
-    if (!obj || !obj.photos) return;
+
+    // Ensure we have the object
+    const objArray = streetObjects[streetName] || [];
+    const obj = objArray.find(o => o.name === objectName);
+    if (!obj || !Array.isArray(obj.photos)) return;
+
+    // Delete the photo
+    const initialCount = obj.photos.length;
     obj.photos = obj.photos.filter(p => p.id !== photoToDelete);
+    
+    // Save back
+    streetObjects[streetName] = objArray;
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+    // Close popup and redirect
+    closeDeletePhotoPopup();
     window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}`;
 });
 </script>
