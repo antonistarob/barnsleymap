@@ -3,188 +3,38 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Photo Viewer</title>
-
+<title>Photo View</title>
 <style>
-body {
-    background: #121212;
-    color: #eee;
-    font-family: Arial;
-    margin: 0;
-    padding: 20px;
-}
-
-a { color: #88c; text-decoration: none; }
-a:hover { text-decoration: underline; }
-
-h1 {
-    text-align: center;
-    margin-bottom: 20px;
-}
-
-#photoContainer {
-    display: flex;
-    justify-content: center;
-}
-
-.photo-card {
-    background: #1f1f1f;
-    border: 1px solid #555;
-    border-radius: 5px;
-    max-width: 1000px;
-    width: 100%;
-    position: relative;
-}
-
-.photo-card img {
-    width: 100%;
-    display: block;
-    border-radius: 5px 5px 0 0;
-}
-
-.photo-info {
-    margin-top: 8px;
-    background: #2b2b2b;
-    padding: 8px 12px;
-    border-radius: 5px;
-    font-size: 13px;
-    color: #ccc;
-}
-
-.photo-info div {
-    margin-bottom: 4px;
-}
-
-/* EDIT / DELETE */
-.photo-controls {
-    position: absolute;
-    top: 10px;
-    left: 10px;
-    display: flex;
-    gap: 8px;
-    z-index: 5;
-}
-
-.photo-action-btn {
-    background: rgba(30,30,30,0.9);
-    color: #eee;
-    border: 1px solid #555;
-    padding: 4px 8px;
-    font-size: 13px;
-    border-radius: 4px;
-    cursor: pointer;
-}
-
-.photo-action-btn:hover {
-    background: #444;
-}
-
-.photo-action-btn.delete {
-    border-color: #922b21;
-    color: #e74c3c;
-}
-
-/* MODAL */
-.modal-overlay, .popup-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 50;
-}
-
-.modal, .popup {
-    background: #1f1f1f;
-    border: 1px solid #555;
-    border-radius: 6px;
-    padding: 15px;
-    width: 320px;
-    color: #eee;
-}
-
-.modal h2 {
-    margin: 0 0 12px;
-    font-size: 18px;
-}
-
-.modal label {
-    font-size: 13px;
-    color: #bbb;
-}
-
-.modal input,
-.modal textarea {
-    width: 100%;
-    margin-top: 4px;
-    margin-bottom: 10px;
-    padding: 6px 8px;
-    background: #2b2b2b;
-    border: 1px solid #555;
-    border-radius: 4px;
-    box-sizing: border-box;
-    color: #eee;
-    font-family: Arial;
-    font-size: 13px;
-}
-
-.modal textarea {
-    resize: vertical;
-    min-height: 60px;
-}
-
-.modal-actions, .popup-buttons {
-    display: flex;
-    justify-content: flex-end;
-    gap: 8px;
-}
-
-.modal-btn, .action-button {
-    padding: 5px 10px;
-    font-size: 13px;
-    border-radius: 4px;
-    cursor: pointer;
-    border: 1px solid #555;
-    background: #2b2b2b;
-    color: #eee;
-}
-
-.modal-btn:hover, .action-button:hover {
-    background: #444;
-}
-
-.modal-btn.save {
-    border-color: #3c6;
-    color: #9f9;
-}
-
-.action-button.delete {
-    border-color: #922b21;
-    color: #e74c3c;
-}
+body { font-family: Arial; background:#121212; color:#eee; margin:0; padding:20px; }
+.photo-card { max-width:800px; margin:auto; background:#1f1f1f; padding:15px; border-radius:6px; }
+.photo-card img { max-width:100%; border-radius:6px; display:block; margin-bottom:10px; }
+.photo-info div { margin-bottom:5px; }
+.photo-controls { display:flex; justify-content:flex-end; gap:10px; margin-bottom:10px; }
+.photo-action-btn { background:#3498db; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer; }
+.photo-action-btn.delete { background:#c0392b; }
+.popup-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; }
+.popup { background:#2c2c2c; padding:20px; border-radius:8px; width:400px; max-width:90%; }
+.popup textarea, .popup input { width:100%; margin-top:5px; margin-bottom:10px; padding:5px; background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:4px; }
+.popup-buttons { display:flex; justify-content:flex-end; gap:10px; }
 </style>
 </head>
-
 <body>
 
-<h1>Photo Viewer</h1>
 <div id="photoContainer"></div>
 
-<!-- EDIT PHOTO MODAL -->
-<div class="modal-overlay" id="editPhotoModal">
-    <div class="modal">
-        <h2>Edit Photo</h2>
-
-        <label>Date of photo (DD/MM/YYYY)</label>
+<!-- EDIT PHOTO POPUP (copy from object.html "Add Photo") -->
+<div class="popup-overlay" id="editPhotoModal">
+    <div class="popup">
+        <h3>Edit Photo</h3>
+        <label for="editPhotoDate">Date:</label>
         <input type="text" id="editPhotoDate" placeholder="DD/MM/YYYY">
 
-        <label>Description</label>
-        <textarea id="editPhotoDescription"></textarea>
+        <label for="editPhotoDescription">Description:</label>
+        <textarea id="editPhotoDescription" rows="3"></textarea>
 
-        <div class="modal-actions">
-            <button class="modal-btn" onclick="closeEditModal()">Cancel</button>
-            <button class="modal-btn save" onclick="savePhotoEdits()">Save</button>
+        <div class="popup-buttons">
+            <button onclick="savePhotoEdits()" class="photo-action-btn">Save</button>
+            <button onclick="closeEditModal()" class="photo-action-btn">Cancel</button>
         </div>
     </div>
 </div>
@@ -192,19 +42,20 @@ h1 {
 <!-- DELETE PHOTO POPUP -->
 <div class="popup-overlay" id="deletePhotoPopup">
     <div class="popup">
-        <p id="deletePhotoMessage">Are you sure you want to delete this photo?</p>
+        <h3>Delete Photo?</h3>
+        <div>Are you sure you want to delete this photo?</div>
         <div class="popup-buttons">
-            <button id="confirmDeletePhoto" class="action-button delete">Yes</button>
-            <button id="cancelDeletePhoto" class="action-button">No</button>
+            <button id="confirmDeletePhoto" class="photo-action-btn delete">Delete</button>
+            <button id="cancelDeletePhoto" class="photo-action-btn">Cancel</button>
         </div>
     </div>
 </div>
 
 <script>
+// --- HELPERS ---
 function getQueryParam(p) {
     return new URLSearchParams(location.search).get(p);
 }
-
 function formatDateGB(dateValue) {
     if (!dateValue) return "";
     const d = new Date(dateValue);
@@ -212,35 +63,33 @@ function formatDateGB(dateValue) {
     return d.toLocaleDateString('en-GB');
 }
 
+// --- LOAD URL PARAMS ---
 const streetName = getQueryParam('street');
 const objectName = getQueryParam('object');
-const photoIndex = parseInt(getQueryParam('photoIndex'));
+const photoId = getQueryParam('photoId');
 
 const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
+
 const container = document.getElementById('photoContainer');
 
-// Try to get the photo; if missing, make a placeholder object
+// --- GET PHOTO ---
 let photo = null;
-if (obj && obj.photos && !isNaN(photoIndex) && photoIndex >= 0 && photoIndex < obj.photos.length) {
-    photo = obj.photos[photoIndex];
-} else {
-    photo = {
-        id: 'missing_' + Date.now(),
-        description: 'Photo missing',
-        username: 'Unknown',
-        views: 0
-    };
+if (obj && obj.photos) {
+    photo = obj.photos.find(p => p.id === photoId);
+}
+if (!photo) {
+    photo = { id:'missing_' + Date.now(), description:'Photo missing', username:'Unknown', views:0 };
 }
 
 photo.username ||= "Anonymous";
 photo.views ||= 0;
 photo.views++;
-if (obj && obj.photos && photoIndex >= 0 && photoIndex < obj.photos.length) {
+if (obj && obj.photos && photo) {
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 }
 
-// Create card
+// --- CREATE PHOTO CARD ---
 const card = document.createElement('div');
 card.className = 'photo-card';
 
@@ -262,38 +111,32 @@ controls.appendChild(deleteBtn);
 
 card.appendChild(controls);
 
-// IMAGE OR PLACEHOLDER
+// IMAGE
 const img = document.createElement('img');
-img.src = photo.dataUrl || photo.src || 'placeholder.png'; // your placeholder image here
+img.src = photo.dataUrl || photo.src || 'placeholder.png';
 img.alt = photo.description || '';
 card.appendChild(img);
 
 // INFO
 const info = document.createElement('div');
 info.className = 'photo-info';
-
 if (photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
 if (photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${formatDateGB(photo.date)}</div>`;
-const addedDate = photo.id && photo.id.includes('_') ? new Date(parseInt(photo.id.split('_')[0])) : new Date();
+const addedDate = photo.id.includes('_') ? new Date(parseInt(photo.id.split('_')[1] || Date.now())) : new Date();
 info.innerHTML += `<div><strong>Date added:</strong> ${addedDate.toLocaleDateString('en-GB')}</div>`;
 info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
 info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
-info.innerHTML += `
-    <div>
-        <strong>Directory:</strong>
-        <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt;
-        <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
-    </div>`;
-
+info.innerHTML += `<div><strong>Directory:</strong> <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a></div>`;
 card.appendChild(info);
+
 container.appendChild(card);
 
-// EDIT MODAL
+// --- EDIT PHOTO ---
 let editingPhoto = null;
 function openEditPhoto(photo) {
     editingPhoto = photo;
     document.getElementById('editPhotoDescription').value = photo.description || "";
-    document.getElementById('editPhotoDate').value = formatDateGB(photo.date);
+    document.getElementById('editPhotoDate').value = photo.date ? formatDateGB(photo.date) : "";
     document.getElementById('editPhotoModal').style.display = 'flex';
 }
 function closeEditModal() {
@@ -304,17 +147,13 @@ function savePhotoEdits() {
     if (!editingPhoto) return;
     const desc = document.getElementById('editPhotoDescription').value.trim();
     const dateStr = document.getElementById('editPhotoDate').value.trim();
-    const [d, m, y] = dateStr.split('/');
-    if (!d || !m || !y) { alert("Date must be DD/MM/YYYY"); return; }
-    const isoDate = new Date(`${y}-${m}-${d}`);
-    if (isNaN(isoDate)) { alert("Invalid date"); return; }
     editingPhoto.description = desc;
-    editingPhoto.date = isoDate.toISOString();
+    if (dateStr) editingPhoto.date = new Date(dateStr.split('/').reverse().join('-')).toISOString();
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
     location.reload();
 }
 
-// DELETE MODAL
+// --- DELETE PHOTO ---
 let photoToDelete = null;
 function openDeletePhoto(id) {
     photoToDelete = id;
@@ -324,11 +163,9 @@ function closeDeletePhotoPopup() {
     photoToDelete = null;
     document.getElementById('deletePhotoPopup').style.display = 'none';
 }
-
 document.getElementById('cancelDeletePhoto').addEventListener('click', closeDeletePhotoPopup);
 document.getElementById('confirmDeletePhoto').addEventListener('click', () => {
     if (!photoToDelete) return;
-    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
     const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
     if (!obj || !obj.photos) return;
     obj.photos = obj.photos.filter(p => p.id !== photoToDelete);
