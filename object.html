@@ -1113,15 +1113,17 @@ addPhotoBtn.onclick = () => {
 // Close add photo popup
 function closeAddPhoto() {
     addPhotoPopup.style.display = 'none';
-    photoFile.value = '';
+    photoUpload.value(null); // reset Uploadcare widget
     photoDate.value = '';
     photoDescription.value = '';
     useExifDate.checked = false;
     exifError.style.display = 'none';
     photoOwnerCheckbox.checked = false;
     photoSourceInput.value = '';
-    togglePhotoOwnership(false);
     document.querySelectorAll('input[name="photoRights"]').forEach(r => r.checked = false);
+    // Ensure source/rights inputs are visible again
+    photoSourceSection.style.display = 'block';
+    document.querySelectorAll('.rights-option').forEach(r => r.style.display = 'flex');
 }
 cancelAddPhotoBtn.onclick = closeAddPhoto;
 
