@@ -1212,12 +1212,13 @@ savePhotoBtn.onclick = async () => {
         owner: photoOwnerCheckbox.checked
     });
 
+    // Save to localStorage
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-    // Update photos display immediately
+    // Update photo display
     renderPhotos(obj.photos);
 
-    // Close popup
+    // Close the popup and reset fields
     closeAddPhoto();
 };
 
