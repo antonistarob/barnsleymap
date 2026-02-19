@@ -1019,7 +1019,7 @@ objectsTableBody.innerHTML = '';
     nameCell.textContent = o.name;
     nameCell.classList.add('object-link');
     nameCell.addEventListener('click', () => {
-        const url = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photoId=${photo.id}`;
+        const url = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photoId=${encodeURIComponent(photo.id)}`;
         if (window.location.href === url) window.location.reload();
         else window.location.href = url;
     });
