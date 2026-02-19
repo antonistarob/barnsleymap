@@ -1242,7 +1242,7 @@ updateStatusBar(obj.status);
 
 const photosDiv = document.getElementById('photosDiv');
 
-    function formatDateGB(dateStr) {
+function formatDateGB(dateStr) {
     if (!dateStr) return '';
 
     const date = new Date(dateStr);
@@ -1255,12 +1255,39 @@ const photosDiv = document.getElementById('photosDiv');
     return `${day}/${month}/${year}`;
 }
 
+// --- HELPER: Parse photo date for sorting ---
+function parsePhotoDate(photo) {
+    if (!photo.date) return Infinity; // no date goes last
+    const str = photo.date.toString().trim();
+
+    // Full date e.g., "2026/02/03"
+    if (/^\d{4}([-/]\d{1,2}([-/]\d{1,2})?)?$/.test(str)) {
+        const d = new Date(str);
+        return isNaN(d) ? Infinity : d.getTime();
+    }
+
+    // Year range e.g., "1910-1920"
+    const match = str.match(/^(\d{4})-(\d{4})$/);
+    if (match) {
+        const start = parseInt(match[1], 10);
+        return start + 0.5; // fraction to put range after exact year
+    }
+
+    // Single year e.g., "1910"
+    if (/^\d{4}$/.test(str)) {
+        return parseInt(str, 10);
+    }
+
+    return Infinity; // unknown format goes last
+}
+
 // === RENDER PHOTOS FUNCTION ===
 function renderPhotos() {
-    const photosDiv = document.getElementById('photosDiv');
     photosDiv.innerHTML = '';
-
     if (!obj.photos) return;
+
+    // --- SORT PHOTOS CHRONOLOGICALLY ---
+    obj.photos.sort((a, b) => parsePhotoDate(a) - parsePhotoDate(b));
 
     obj.photos.forEach(photo => {
         const a = document.createElement('a');
