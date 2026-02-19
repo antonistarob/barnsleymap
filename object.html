@@ -1235,14 +1235,6 @@ function renderPhotos(photos) {
 
 renderPhotos(obj.photos);
 
-// Initialize Uploadcare widget for the Add Photo popup
-const uploader = uploadcare.Widget('#photoUpload', {
-    publicKey: 'b649bcddf1e8b81bebff',
-    imagesOnly: true,
-    previewStep: true,
-    clearable: true
-});
-
 // Handle upload complete inside your "Add Photo" popup logic
 const photoInput = uploadcare.Widget('#photoUpload', {
     publicKey: 'b649bcddf1e8b81bebff',
@@ -1371,37 +1363,6 @@ saveMapBtn.onclick = () => {
     if(obj.lat && obj.lng){ mapNotSetText.style.display='none'; mapSection.style.display='block'; initObjectMap();}
     else { mapNotSetText.style.display='block'; mapSection.style.display='none'; }
 
-    /* === UPLOADCARE WIDGET HANDLING === */
-const widget = uploadcare.Widget('#photoUpload');
-
-// Open popup with Uploadcare directly on Save
-savePhotoBtn.addEventListener('click', () => {
-    widget.openDialog().done(fileInfo => {
-        if (!fileInfo) return;
-
-        const uploadedUrl = fileInfo.cdnUrl;
-
-        obj.photos = obj.photos || [];
-        obj.photos.push({
-            url: uploadedUrl,
-            description: photoDescriptionValue,
-            date: photoDateValue,
-            source: photoSourceValue,
-            owner: photoOwnerValue,
-            rights: photoRightsValue
-        });
-
-        // Save to localStorage
-        streetObjects[streetName] = objArray;
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-        // Refresh photos display
-        if (typeof displayPhotos === 'function') displayPhotos(obj);
-
-        // Close popup and reset
-        closeAddPhoto();
-    });
-});
 </script>
 
 
