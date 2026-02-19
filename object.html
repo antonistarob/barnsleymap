@@ -915,6 +915,13 @@ const photoSourceSection = document.getElementById('photoSourceSection');
 const photoSourceInput = document.getElementById('photoSourceInput');
 const photoSourceList = document.getElementById('photoSourceList')
 
+            // Gather all input data
+        const photoDateValue = photoDate.value.trim();
+        const photoDescriptionValue = photoDescription.value.trim();
+        const photoOwnerValue = photoOwnerCheckbox.checked;
+        const photoSourceValue = photoSourceInput.value.trim();
+        const photoRightsValue = document.querySelector('input[name="photoRights"]:checked')?.value || '';
+
 function populateExifDate() {
     exifError.style.display = 'none';
     const file = photoFile.files[0];
@@ -1172,57 +1179,46 @@ photoSourceInput.addEventListener('blur', () => {
 });
 
 // SAVE PHOTO
-savePhotoBtn.onclick = () => {
-    console.log("DEBUG: Add Photo button clicked");
+const photoUpload = uploadcare.Widget('[role=uploadcare-uploader]');
 
-    const file = photoFile.files[0];
-    if (!file) {
+savePhotoBtn.onclick = async () => {
+    const fileInfo = await photoUpload.value(); // returns a FileInfo object
+    if (!fileInfo) {
         alert("Please select a photo.");
         return;
     }
 
+    const photoURL = fileInfo.cdnUrl; // this is the actual URL for preview/storage
+
     // Ownership / rights validation
-if (!photoOwnerCheckbox.checked) {
-    const selectedRight = document.querySelector('input[name="photoRights"]:checked');
-    if (!photoSourceInput.value.trim()) {
-        alert("Please enter the photo source.");
-        return;
-    }
-    if (!selectedRight) {
-        alert("Please select a rights declaration.");
-        return;
-    }
-}
-    
-console.log("DEBUG: File selected:", file.name, file.size);
-    
-    // Re-fetch object fresh from localStorage
-    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-    let objArray = streetObjects[streetName] || [];
-    let objIndex = objArray.findIndex(o => o.name === objectName);
-    if (objIndex === -1) {
-        alert("Object not found in storage!");
-        return;
+    if (!photoOwnerCheckbox.checked) {
+        const selectedRight = document.querySelector('input[name="photoRights"]:checked');
+        if (!photoSourceInput.value.trim()) {
+            alert("Please enter the photo source.");
+            return;
+        }
+        if (!selectedRight) {
+            alert("Please select a rights declaration.");
+            return;
+        }
     }
 
-    const reader = new FileReader();
-reader.onload = function(e) {
-    const dataUrl = e.target.result;
-
-    if (!objArray[objIndex].photos) objArray[objIndex].photos = [];
-
-    objArray[objIndex].photos.push({
-        id: Date.now(),
-        dataUrl: dataUrl,              // store the actual image
+    // Add photo to the object
+    if (!obj.photos) obj.photos = [];
+    obj.photos.push({
+        url: photoURL,
+        description: photoDescription.value.trim(),
         date: photoDate.value.trim(),
-        description: photoDescription.value.trim()
+        source: photoSourceInput.value.trim(),
+        owner: photoOwnerCheckbox.checked
     });
 
-    streetObjects[streetName] = objArray;
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-    obj = objArray[objIndex];
-    displayPhotos(obj);
+    // Update photos display immediately
+    renderPhotos(obj.photos);
+
+    // Close popup
     closeAddPhoto();
 };
 
@@ -1292,17 +1288,28 @@ uploader.onUploadComplete(file => {
 
     localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
 
-    // Display new photo immediately
-    const img = document.createElement('img');
-    img.src = file.cdnUrl;
-    img.alt = photoDescription.value || '';
-    img.style.width = '200px';
-    img.style.height = 'auto';
-    img.style.margin = '5px';
-    document.getElementById('photosDiv').appendChild(img);
+const photosDiv = document.getElementById('photosDiv');
 
-    closeAddPhoto();
-});
+function renderPhotos(photos) {
+    photosDiv.innerHTML = '';
+    if (!photos || photos.length === 0) {
+        photosDiv.textContent = "No photos added yet.";
+        return;
+    }
+
+    photos.forEach(photo => {
+        const img = document.createElement('img');
+        img.src = photo.url;
+        img.alt = photo.description || '';
+        img.style.width = '150px';
+        img.style.height = 'auto';
+        img.style.margin = '5px';
+        photosDiv.appendChild(img);
+    });
+}
+
+// Initial render if object has photos
+renderPhotos(obj.photos);
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
@@ -1422,13 +1429,6 @@ savePhotoBtn.addEventListener('click', () => {
         if (!fileInfo) return;
 
         const uploadedUrl = fileInfo.cdnUrl;
-
-        // Gather all input data
-        const photoDateValue = photoDate.value.trim();
-        const photoDescriptionValue = photoDescription.value.trim();
-        const photoOwnerValue = photoOwnerCheckbox.checked;
-        const photoSourceValue = photoSourceInput.value.trim();
-        const photoRightsValue = document.querySelector('input[name="photoRights"]:checked')?.value || '';
 
         obj.photos = obj.photos || [];
         obj.photos.push({
