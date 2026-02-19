@@ -1194,31 +1194,29 @@ function updateStatusBar(status) {
 // Update status bar
 updateStatusBar(obj.status);
 
-// Get the container for photos
 const photosDiv = document.getElementById('photosDiv');
-    photosDiv.innerHTML = ''; // clear old photos
 
-
-// Function to render photos for the object
 function renderPhotos(photos) {
     photosDiv.innerHTML = '';
+
     if (!photos || photos.length === 0) {
         photosDiv.textContent = "No photos added.";
         return;
     }
 
     photos.forEach((photo, index) => {
+
+        // Skip deleted/invalid photos
+        if (!photo || (!photo.dataUrl && !photo.src)) return;
+
         const box = document.createElement('div');
         box.classList.add('photo-box');
-     
 
-        // Create a link to photo.html
         const link = document.createElement('a');
-        link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(obj.name)}&photoIndex=${index}`;
-        link.target = "_blank"; // optional: open in new tab
+        link.href = `photo.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}&photoIndex=${index}`;
 
         const img = document.createElement('img');
-        img.src = photo.url;
+        img.src = photo.dataUrl || photo.src;
         img.alt = photo.description || '';
 
         link.appendChild(img);
@@ -1227,7 +1225,7 @@ function renderPhotos(photos) {
         if (photo.date) {
             const dateDiv = document.createElement('div');
             dateDiv.classList.add('photo-date');
-            dateDiv.textContent = photo.date;
+            dateDiv.textContent = formatDateGB(photo.date);
             box.appendChild(dateDiv);
         }
 
@@ -1235,8 +1233,8 @@ function renderPhotos(photos) {
     });
 }
 
-// Initial render on page load
-renderPhotos(obj.photos || []);
+// Call it once
+renderPhotos(obj.photos);
 
 // Initialize Uploadcare widget for the Add Photo popup
 const uploader = uploadcare.Widget('#photoUpload', {
