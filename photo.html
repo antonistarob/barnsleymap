@@ -214,71 +214,79 @@ function formatDateGB(dateValue) {
 
 const streetName = getQueryParam('street');
 const objectName = getQueryParam('object');
-const photoId = getQueryParam('photoId'); // keep as string
+const photoIndex = parseInt(getQueryParam('photoIndex'));
 
 const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
 const obj = (streetObjects[streetName] || []).find(o => o.name === objectName);
 const container = document.getElementById('photoContainer');
 
-if (!obj || !obj.photos) {
-    container.innerHTML = '<p style="color:#aaa;">Photo not found.</p>';
+// Try to get the photo; if missing, make a placeholder object
+let photo = null;
+if (obj && obj.photos && !isNaN(photoIndex) && photoIndex >= 0 && photoIndex < obj.photos.length) {
+    photo = obj.photos[photoIndex];
 } else {
-    const photo = obj.photos.find(p => p.id === photoId);
+    photo = {
+        id: 'missing_' + Date.now(),
+        description: 'Photo missing',
+        username: 'Unknown',
+        views: 0
+    };
+}
 
-    if (!photo) {
-        container.innerHTML = '<p style="color:#aaa;">Photo not found.</p>';
-    } else {
-        photo.username ||= "Anonymous";
-        photo.views ||= 0;
-        photo.views++;
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+photo.username ||= "Anonymous";
+photo.views ||= 0;
+photo.views++;
+if (obj && obj.photos && photoIndex >= 0 && photoIndex < obj.photos.length) {
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+}
 
-        const card = document.createElement('div');
-        card.className = 'photo-card';
+// Create card
+const card = document.createElement('div');
+card.className = 'photo-card';
 
-        // CONTROLS
-        const controls = document.createElement('div');
-        controls.className = 'photo-controls';
+// CONTROLS
+const controls = document.createElement('div');
+controls.className = 'photo-controls';
 
-        const editBtn = document.createElement('button');
-        editBtn.textContent = 'Edit';
-        editBtn.className = 'photo-action-btn';
-        editBtn.onclick = () => openEditPhoto(photo);
-        controls.appendChild(editBtn);
+const editBtn = document.createElement('button');
+editBtn.textContent = 'Edit';
+editBtn.className = 'photo-action-btn';
+editBtn.onclick = () => openEditPhoto(photo);
+controls.appendChild(editBtn);
 
-        const deleteBtn = document.createElement('button');
-        deleteBtn.textContent = 'Delete';
-        deleteBtn.className = 'photo-action-btn delete';
-        deleteBtn.onclick = () => openDeletePhoto(photo.id);
-        controls.appendChild(deleteBtn);
+const deleteBtn = document.createElement('button');
+deleteBtn.textContent = 'Delete';
+deleteBtn.className = 'photo-action-btn delete';
+deleteBtn.onclick = () => openDeletePhoto(photoIndex);
+controls.appendChild(deleteBtn);
 
-        card.appendChild(controls);
+card.appendChild(controls);
 
-        // IMAGE
-        const img = document.createElement('img');
-        img.src = photo.dataUrl || photo.src;
-        img.alt = photo.description || '';
-        card.appendChild(img);
+// IMAGE OR PLACEHOLDER
+const img = document.createElement('img');
+img.src = photo.dataUrl || photo.src || 'placeholder.png'; // your placeholder image here
+img.alt = photo.description || '';
+card.appendChild(img);
 
-        // INFO
-        const info = document.createElement('div');
-        info.className = 'photo-info';
+// INFO
+const info = document.createElement('div');
+info.className = 'photo-info';
 
-        if (photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
-        if (photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${formatDateGB(photo.date)}</div>`;
-        const addedDate = new Date(parseInt(photo.id.split('_')[0]));
-        info.innerHTML += `<div><strong>Date added:</strong> ${addedDate.toLocaleDateString('en-GB')}</div>`;
-        info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
-        info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
-        info.innerHTML += `
-        <div>
-            <strong>Directory:</strong>
-            <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt;
-            <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
-        </div>`;
+if (photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
+if (photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${formatDateGB(photo.date)}</div>`;
+const addedDate = photo.id && photo.id.includes('_') ? new Date(parseInt(photo.id.split('_')[0])) : new Date();
+info.innerHTML += `<div><strong>Date added:</strong> ${addedDate.toLocaleDateString('en-GB')}</div>`;
+info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
+info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
+info.innerHTML += `
+    <div>
+        <strong>Directory:</strong>
+        <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt;
+        <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a>
+    </div>`;
 
-        card.appendChild(info);
-        container.appendChild(card);
+card.appendChild(info);
+container.appendChild(card);
     }
 }
 
