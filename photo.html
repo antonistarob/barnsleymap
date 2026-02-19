@@ -154,6 +154,36 @@ const editPhotoSourceSection = document.getElementById('editPhotoSourceSection')
 const editPhotoSourceInput = document.getElementById('editPhotoSourceInput');
 const editPhotoSourceList = document.getElementById('editPhotoSourceList');
 
+    // === EDIT OBJECT HANDLER (updated to preserve photos) ===
+document.getElementById('saveEditObject').onclick = () => {
+    // Preserve existing photos array
+    const existingPhotos = obj.photos || [];
+
+    // Update object fields from edit popup
+    obj.name = editObjectName.value.trim() || obj.name;
+    obj.number = editObjectNumber.value.trim();
+    obj.status = editStatus.value;
+    obj.yearBuilt = editYearBuilt.value.trim();
+    obj.yearDemolished = editYearDemolished.value.trim();
+    obj.gradeListed = editGradeListed.checked;
+    obj.grade = editGrade.value;
+    obj.listEntryNumber = editListEntryNumber.value.trim();
+    obj.dateListed = editDateListed.value.trim();
+    obj.description = editDescription.value.trim();
+    obj.category = editCategory.value;
+
+    // Restore the photos array
+    obj.photos = existingPhotos;
+
+    // Save to localStorage
+    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+
+    // Update year container display
+    updateYearContainer(obj);
+
+    // Redirect back to object.html for the (possibly renamed) object
+    
+
 // Open Edit Popup
 editPhotoBtn.onclick = () => {
     editPhotoPopup.style.display = 'flex';
