@@ -3,196 +3,189 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Photo View</title>
+<title>Photo Info</title>
+
 <style>
-body { font-family: Arial; background:#121212; color:#eee; margin:0; padding:20px; }
-.photo-card { max-width:900px; margin:auto; background:#1f1f1f; padding:20px; border-radius:8px; }
-.photo-card img { max-width:100%; border-radius:8px; display:block; margin-bottom:15px; }
-.photo-info div { margin-bottom:5px; }
-.photo-controls { display:flex; justify-content:flex-end; gap:10px; margin-bottom:15px; }
-.photo-action-btn { background:#3498db; color:#fff; border:none; padding:7px 14px; border-radius:5px; cursor:pointer; }
-.photo-action-btn.delete { background:#c0392b; }
-
-.popup-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); justify-content:center; align-items:center; z-index:999; }
-.popup { background:#2c2c2c; padding:20px; border-radius:8px; width:400px; max-width:90%; }
-.popup textarea, .popup input { width:100%; margin-top:5px; margin-bottom:10px; padding:5px; background:#1f1f1f; color:#eee; border:1px solid #555; border-radius:4px; }
-.popup-buttons { display:flex; justify-content:flex-end; gap:10px; }
+body { font-family: Arial; background: #121212; color: #eee; margin:0; }
+header { display:flex; justify-content:space-between; align-items:center; padding:15px 20px; background:#1f1f1f; position:fixed; top:0; left:0; right:0; z-index:10; }
+header h1 { margin:0; font-size:24px; }
+.header-link { color:#fff; text-decoration:none; }
+.header-link:hover { text-decoration:underline; }
+.main-content { margin-top:70px; padding:0 20px; max-width:900px; margin-left:auto; margin-right:auto; text-align:center; }
+.photo-card { display:flex; flex-direction:column; align-items:center; background:#1f1f1f; border:1px solid #444; border-radius:12px; padding:20px; margin:20px auto; max-width:400px; }
+.photo-card img { width:100%; border-radius:6px; }
+.photo-card .photo-date { font-size:12px; color:#aaa; margin-top:5px; }
+.action-button { cursor:pointer; background:#333; color:#eee; border:1px solid #555; border-radius:5px; padding:6px 12px; font-size:14px; margin:5px; }
+.action-button:hover { background:#444; }
+.popup-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.7); justify-content:center; align-items:center; z-index:1000; }
+.popup { background:#1f1f1f; padding:20px; border-radius:8px; width:90%; max-width:650px; display:flex; flex-direction:column; box-sizing:border-box; }
+.popup h3 { text-align:center; margin-top:0; }
+.popup label { display:block; margin-top:10px; }
+.popup input[type="text"], .popup textarea, .popup select { width:100%; padding:5px; margin-top:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px; }
+.popup input[type="checkbox"] { margin-left:6px; transform:scale(1.1); }
+.popup-buttons { margin-top:15px; display:flex; justify-content:flex-end; gap:10px; flex-wrap:wrap; }
+.rights-option { display:flex; align-items:flex-start; gap:8px; padding:8px 10px; margin-bottom:5px; background:#2b2b2b; border:1px solid #555; border-radius:6px; cursor:pointer; }
+.rights-option:hover { background:#333; }
+.rights-option input[type="radio"] { margin-top:3px; cursor:pointer; }
+.rights-option span { line-height:1.4; font-size:14px; }
+.rights-option input[type="radio"]:checked + span { font-weight:bold; }
+.rights-option:has(input[type="radio"]:checked) { border-color:#aaa; background:#3a3a3a; }
+.uploadcare--widget { width:100% !important; margin-bottom:10px; }
 </style>
+
+<!-- Uploadcare -->
+<script>
+UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
+</script>
+<link rel="stylesheet" href="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.css" />
+<script src="https://ucarecdn.com/libs/widget/3.x/uploadcare.full.min.js"></script>
 </head>
+
 <body>
+<header>
+    <h1><a href="index.html" class="header-link">Historical Interactive Map of Barnsley</a></h1>
+</header>
 
-<div id="photoContainer"></div>
-
-<!-- EDIT / ADD PHOTO POPUP -->
-<div class="popup-overlay" id="addPhotoPopup">
-    <div class="popup">
-        <h3>Edit Photo</h3>
-        <label for="photoFileInput">Photo File:</label>
-        <input type="file" id="photoFileInput">
-
-        <label for="photoDescInput">Description:</label>
-        <textarea id="photoDescInput" rows="3"></textarea>
-
-        <label for="photoDateInput">Date:</label>
-        <input type="text" id="photoDateInput" placeholder="DD/MM/YYYY">
-
-        <div class="popup-buttons">
-            <button id="savePhotoBtn" class="photo-action-btn">Save</button>
-            <button id="cancelEditPhotoBtn" class="photo-action-btn">Cancel</button>
-        </div>
+<div class="main-content">
+    <div class="photo-card" id="photoDisplay">
+        <img id="photoImg" src="" alt="Photo">
+        <div class="photo-date" id="photoDateDisplay"></div>
+        <div id="photoDescDisplay" style="margin-top:5px;"></div>
+        <button id="editPhotoBtn" class="action-button">Edit Photo</button>
     </div>
 </div>
 
-<!-- DELETE PHOTO POPUP -->
-<div class="popup-overlay" id="deletePhotoPopup">
+<!-- EDIT PHOTO POPUP (Same as Add Photo Popup) -->
+<div class="popup-overlay" id="editPhotoPopup">
     <div class="popup">
-        <h3>Delete Photo?</h3>
-        <div>Are you sure you want to delete this photo?</div>
+        <h3>Edit Photo</h3>
+        <input type="hidden" role="uploadcare-uploader" id="editPhotoUpload" data-images-only data-clearable="true" data-preview-step="true" data-transform="resize(1500,0),format(webp),quality(80)">
+
+        <label for="editPhotoDate" style="display:flex; align-items:center; justify-content:space-between;">
+            Date:
+            <span style="display:flex; align-items:center;">
+                Enter date from EXIF
+                <input type="checkbox" id="editUseExifDate" style="margin-left:5px;">
+            </span>
+        </label>
+        <input type="text" id="editPhotoDate" placeholder="YYYY, YYYY-YYYY, YYYY-MM, or YYYY-MM-DD">
+        <div id="editExifError" style="display:none; color:#c0392b; font-size:13px; margin-top:5px;">
+            No EXIF data from chosen file, please enter manually
+        </div>
+
+        <label for="editPhotoDescription">Photo Description:</label>
+        <textarea id="editPhotoDescription" rows="3"></textarea>
+
+        <label style="margin-top:15px;">
+            <input type="checkbox" id="editPhotoOwnerCheckbox">
+            I am the owner and hold the copyright for this photograph
+        </label>
+
+        <div id="editPhotoSourceSection" style="margin-top:10px;">
+            <label for="editPhotoSourceInput">Source:</label>
+            <div style="display:flex; gap:5px; align-items:center; margin-top:5px;">
+                <input type="text" id="editPhotoSourceInput" list="editPhotoSourceList" placeholder="Select a source..." style="flex:1; padding:5px; background:#2b2b2b; color:#eee; border:1px solid #555; border-radius:5px;">
+                <datalist id="editPhotoSourceList">
+                    <option value="Archive / Library"></option>
+                    <option value="Auction site"></option>
+                    <option value="Personal collection"></option>
+                </datalist>
+                <button type="button" id="editAddSourceBtn" class="action-button" style="padding:5px 10px; font-size:12px;">Add</button>
+            </div>
+        </div>
+
+        <div style="margin-top:10px; text-align:left;">
+            <label class="rights-option">
+                <input type="radio" name="editPhotoRights" value="permission">
+                <span>I declare that I have obtained explicit permission from the copyright holder of the photograph to upload it on this site.</span>
+            </label>
+            <label class="rights-option">
+                <input type="radio" name="editPhotoRights" value="postcard">
+                <span>I declare that the photograph comes from my personal collection or a public auction, and I have the right to upload it online.</span>
+            </label>
+            <label class="rights-option">
+                <input type="radio" name="editPhotoRights" value="expired">
+                <span>The photograph is over 70 years old and copyright has expired under UK law.</span>
+            </label>
+            <label class="rights-option">
+                <input type="radio" name="editPhotoRights" value="public">
+                <span>This photograph is marked as public domain or under a license permitting reuse (CC0, CC BY, GNU FDL).</span>
+            </label>
+        </div>
+
         <div class="popup-buttons">
-            <button id="confirmDeletePhoto" class="photo-action-btn delete">Delete</button>
-            <button id="cancelDeletePhoto" class="photo-action-btn">Cancel</button>
+            <button id="saveEditPhotoBtn" class="action-button">Save</button>
+            <button id="cancelEditPhotoBtn" class="action-button">Cancel</button>
         </div>
     </div>
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', () => {
+// Example photo object from localStorage
+let photo = {
+    url: "https://via.placeholder.com/400x300.png?text=Photo",
+    description: "Example photo description",
+    date: "1950",
+    source: "Archive / Library",
+    rights: "permission"
+};
 
-    // --- HELPERS ---
-    function getQueryParam(p) { return new URLSearchParams(location.search).get(p); }
-    function formatDateGB(dateValue) {
-        if (!dateValue) return "";
-        const d = new Date(dateValue);
-        if (isNaN(d)) return dateValue;
-        return d.toLocaleDateString('en-GB');
+// Display initial photo
+const photoImg = document.getElementById('photoImg');
+const photoDateDisplay = document.getElementById('photoDateDisplay');
+const photoDescDisplay = document.getElementById('photoDescDisplay');
+photoImg.src = photo.url;
+photoDateDisplay.textContent = photo.date;
+photoDescDisplay.textContent = photo.description;
+
+// Edit Photo Popup Elements
+const editPhotoBtn = document.getElementById('editPhotoBtn');
+const editPhotoPopup = document.getElementById('editPhotoPopup');
+const cancelEditPhotoBtn = document.getElementById('cancelEditPhotoBtn');
+const saveEditPhotoBtn = document.getElementById('saveEditPhotoBtn');
+
+const editPhotoUpload = uploadcare.Widget('#editPhotoUpload');
+const editPhotoDate = document.getElementById('editPhotoDate');
+const editPhotoDescription = document.getElementById('editPhotoDescription');
+const editUseExifDate = document.getElementById('editUseExifDate');
+const editExifError = document.getElementById('editExifError');
+const editPhotoOwnerCheckbox = document.getElementById('editPhotoOwnerCheckbox');
+const editPhotoSourceSection = document.getElementById('editPhotoSourceSection');
+const editPhotoSourceInput = document.getElementById('editPhotoSourceInput');
+const editPhotoSourceList = document.getElementById('editPhotoSourceList');
+
+// Open Edit Popup
+editPhotoBtn.onclick = () => {
+    editPhotoPopup.style.display = 'flex';
+    editPhotoDate.value = photo.date;
+    editPhotoDescription.value = photo.description;
+    editPhotoSourceInput.value = photo.source || '';
+    document.querySelectorAll('input[name="editPhotoRights"]').forEach(r => r.checked = r.value===photo.rights);
+};
+
+// Cancel popup
+cancelEditPhotoBtn.onclick = () => { editPhotoPopup.style.display='none'; };
+
+// Save edited photo
+saveEditPhotoBtn.onclick = async () => {
+    let newUrl = photo.url;
+    if (editPhotoUpload.value()) {
+        const fileInfo = await editPhotoUpload.value().done();
+        newUrl = fileInfo.cdnUrl;
     }
+    photo.url = newUrl;
+    photo.date = editPhotoDate.value.trim();
+    photo.description = editPhotoDescription.value.trim();
+    photo.source = editPhotoSourceInput.value.trim();
+    const rights = document.querySelector('input[name="editPhotoRights"]:checked');
+    photo.rights = rights ? rights.value : '';
 
-    // --- LOAD DATA ---
-    const streetName = getQueryParam('street');
-    const objectName = getQueryParam('object');
-    let photoId = getQueryParam('photoId');
+    photoImg.src = photo.url;
+    photoDateDisplay.textContent = photo.date;
+    photoDescDisplay.textContent = photo.description;
 
-    const streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-    const objList = streetObjects[streetName] || [];
-    const obj = objList.find(o => o.name === objectName);
-
-    let photo = null;
-
-    if (obj && obj.photos && obj.photos.length > 0) {
-        if (!photoId || photoId === 'undefined') {
-            photo = obj.photos[0];
-            photoId = photo.id;
-        } else {
-            photo = obj.photos.find(p => p.id === photoId);
-            if (!photo) photo = obj.photos[0];
-        }
-    }
-
-    const container = document.getElementById('photoContainer');
-
-    if (!photo) {
-        container.innerHTML = `<div style="text-align:center; margin-top:50px; color:#aaa;">
-            <h2>Photo not found</h2>
-            <p>Street or object may be missing.</p>
-            <a href="street.html">Go back to streets</a>
-        </div>`;
-        return;
-    }
-
-    photo.username ||= "Anonymous";
-    photo.views ||= 0;
-    photo.views++;
-    if (obj && obj.photos) localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
-    // --- CREATE PHOTO CARD ---
-    const card = document.createElement('div');
-    card.className = 'photo-card';
-
-    // Controls
-    const controls = document.createElement('div');
-    controls.className = 'photo-controls';
-
-    const editBtn = document.createElement('button');
-    editBtn.textContent = 'Edit';
-    editBtn.className = 'photo-action-btn';
-    editBtn.addEventListener('click', () => openAddPhotoPopup(photo));
-    controls.appendChild(editBtn);
-
-    const deleteBtn = document.createElement('button');
-    deleteBtn.textContent = 'Delete';
-    deleteBtn.className = 'photo-action-btn delete';
-    deleteBtn.addEventListener('click', () => openDeletePhoto(photo.id));
-    controls.appendChild(deleteBtn);
-
-    card.appendChild(controls);
-
-    // Image
-    const img = document.createElement('img');
-    img.src = photo.url || 'placeholder.png';
-    img.alt = photo.description || 'Photo';
-    card.appendChild(img);
-
-    // Info
-    const info = document.createElement('div');
-    info.className = 'photo-info';
-    if (photo.description) info.innerHTML += `<div><strong>Description:</strong> ${photo.description}</div>`;
-    if (photo.date) info.innerHTML += `<div><strong>Date of photo:</strong> ${formatDateGB(photo.date)}</div>`;
-    const addedDate = photo.id.includes('_') ? new Date(parseInt(photo.id.split('_')[1]||Date.now())) : new Date();
-    info.innerHTML += `<div><strong>Date added:</strong> ${addedDate.toLocaleDateString('en-GB')}</div>`;
-    info.innerHTML += `<div><strong>Added by:</strong> ${photo.username}</div>`;
-    info.innerHTML += `<div><strong>Views:</strong> ${photo.views}</div>`;
-    info.innerHTML += `<div><strong>Directory:</strong> <a href="street.html?name=${encodeURIComponent(streetName)}">${streetName}</a> &gt; <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}">${objectName}</a></div>`;
-    card.appendChild(info);
-
-    container.appendChild(card);
-
-    // --- EDIT / ADD PHOTO POPUP ---
-    let editingPhoto = null;
-    function openAddPhotoPopup(existingPhoto = null) {
-        editingPhoto = existingPhoto || null;
-        const popup = document.getElementById('addPhotoPopup');
-        popup.style.display = 'flex';
-
-        document.getElementById('photoDescInput').value = existingPhoto?.description || '';
-        document.getElementById('photoDateInput').value = existingPhoto?.date ? formatDateGB(existingPhoto.date) : '';
-        document.getElementById('photoFileInput').value = '';
-    }
-    document.getElementById('cancelEditPhotoBtn').addEventListener('click', () => {
-        document.getElementById('addPhotoPopup').style.display = 'none';
-    });
-
-    document.getElementById('savePhotoBtn').addEventListener('click', () => {
-        if (!editingPhoto) return;
-
-        editingPhoto.description = document.getElementById('photoDescInput').value.trim();
-        const dateStr = document.getElementById('photoDateInput').value.trim();
-        if (dateStr) editingPhoto.date = new Date(dateStr.split('/').reverse().join('-')).toISOString();
-
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        location.reload();
-    });
-
-    // --- DELETE PHOTO ---
-    let photoToDelete = null;
-    function openDeletePhoto(id) {
-        photoToDelete = id;
-        document.getElementById('deletePhotoPopup').style.display = 'flex';
-    }
-    function closeDeletePhoto() {
-        photoToDelete = null;
-        document.getElementById('deletePhotoPopup').style.display = 'none';
-    }
-    document.getElementById('cancelDeletePhoto').addEventListener('click', closeDeletePhoto);
-    document.getElementById('confirmDeletePhoto').addEventListener('click', () => {
-        if (!photoToDelete || !obj || !obj.photos) return;
-        obj.photos = obj.photos.filter(p => p.id !== photoToDelete);
-        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-        closeDeletePhoto();
-        window.location.href = `object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(objectName)}`;
-    });
-
-});
+    editPhotoPopup.style.display='none';
+};
 </script>
-
 </body>
 </html>
