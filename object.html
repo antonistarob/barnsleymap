@@ -1149,62 +1149,17 @@ function updateStatusBar(status) {
     }
 }
 
-// call after loading object
+// Update status bar
 updateStatusBar(obj.status);
-       
-function displayObjectImages(key) {
-    const photosDiv = document.getElementById('photosDiv');
-    photosDiv.innerHTML = '';
 
-    const images = JSON.parse(localStorage.getItem('objectImages') || '{}');
-    (images[key] || []).forEach(photo => {
-        const img = document.createElement('img');
-        img.src = photo.url;
-        img.style.width = '200px';
-        img.style.margin = '5px';
-        img.title = photo.description || '';
-        photosDiv.appendChild(img);
-    });
-}
-
-// Call on page load
-displayObjectImages(objectKey);
-
-// Initialize Uploadcare
-const uploader = uploadcare.Widget('#photoUpload', {
-    publicKey: 'b649bcddf1e8b81bebff',
-    imagesOnly: true,
-    previewStep: true,        // optional: show preview
-    clearable: true            // optional: allow clearing
-});
-
-// Handle file upload
-uploader.onUploadComplete(file => {
-    console.log("Uploaded file URL:", file.cdnUrl);
-
-    // Save the URL in your object
-    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
-    let objArray = streetObjects[streetName] || [];
-    let objIndex = objArray.findIndex(o => o.name === objectName);
-    if (objIndex === -1) return;
-
-    if (!objArray[objIndex].photos) objArray[objIndex].photos = [];
-    objArray[objIndex].photos.push({
-        url: file.cdnUrl,
-        description: photoDescription.value,
-        date: photoDate.value,
-        source: photoSourceInput.value,
-        owner: photoOwnerCheckbox.checked
-    });
-
-    localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
-
+// Get the container for photos
 const photosDiv = document.getElementById('photosDiv');
 
+// Function to render photos for the object
 function renderPhotos(photos) {
     photosDiv.innerHTML = '';
     if (!photos || photos.length === 0) {
-        photosDiv.textContent = "No photos added yet.";
+        photosDiv.textContent = "No photos added.";
         return;
     }
 
@@ -1219,8 +1174,46 @@ function renderPhotos(photos) {
     });
 }
 
-// Initial render if object has photos
-renderPhotos(obj.photos);
+// Initial render on page load
+renderPhotos(obj.photos || []);
+
+// Initialize Uploadcare widget for the Add Photo popup
+const uploader = uploadcare.Widget('#photoUpload', {
+    publicKey: 'b649bcddf1e8b81bebff',
+    imagesOnly: true,
+    previewStep: true,
+    clearable: true
+});
+
+// Handle upload complete inside your "Add Photo" popup logic
+uploader.onUploadComplete(file => {
+    if (!file) return;
+
+    obj.photos = obj.photos || [];
+    obj.photos.push({
+        url: file.cdnUrl,
+        description: photoDescription.value,
+        date: photoDate.value,
+        source: photoSourceInput.value,
+        owner: photoOwnerCheckbox.checked
+    });
+
+    // Save updated object to localStorage
+    let streetObjects = JSON.parse(localStorage.getItem('streetObjects')) || {};
+    let objArray = streetObjects[streetName] || [];
+    let objIndex = objArray.findIndex(o => o.name === objectName);
+    if (objIndex !== -1) {
+        objArray[objIndex] = obj;
+        streetObjects[streetName] = objArray;
+        localStorage.setItem('streetObjects', JSON.stringify(streetObjects));
+    }
+
+    // Refresh displayed photos
+    renderPhotos(obj.photos);
+
+    // Close popup and reset fields
+    closeAddPhoto();
+});
 
     /* MAP & MARKER FUNCTIONS */
     let editMap, editMarker, tempLat = null, tempLng = null;
