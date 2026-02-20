@@ -48,10 +48,7 @@ UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
 
 <div class="main-content">
     <div class="photo-card" id="photoDisplay">
-        <img id="photoImg" src="" alt="Photo">
-        <div class="photo-date" id="photoDateDisplay"></div>
-        <div id="photoDescDisplay" style="margin-top:5px;"></div>
-        <button id="editPhotoBtn" class="action-button">Edit Photo</button>
+        <!-- Photo will be appended via JS -->
     </div>
 </div>
 
@@ -90,7 +87,6 @@ UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
                     <option value="Auction site"></option>
                     <option value="Personal collection"></option>
                 </datalist>
-                <button type="button" id="editAddSourceBtn" class="action-button" style="padding:5px 10px; font-size:12px;">Add</button>
             </div>
         </div>
 
@@ -121,7 +117,7 @@ UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
 </div>
 
 <script>
-// Example photo object from localStorage
+// Example photo object (could come from localStorage)
 let photo = {
     url: "https://via.placeholder.com/400x300.png?text=Photo",
     description: "Example photo description",
@@ -130,64 +126,86 @@ let photo = {
     rights: "permission"
 };
 
-// Display initial photo
-const photoImg = document.getElementById('photoImg');
-const photoDateDisplay = document.getElementById('photoDateDisplay');
-const photoDescDisplay = document.getElementById('photoDescDisplay');
+// Display photo card
+const photoDisplay = document.getElementById('photoDisplay');
+function renderPhoto() {
+    photoDisplay.innerHTML = ''; // clear existing
+    const card = document.createElement('div');
+    card.className = 'photo-card';
 
-function displayPhoto() {
-    photoImg.src = photo.url;
-    photoDateDisplay.textContent = photo.date;
-    photoDescDisplay.textContent = photo.description;
+    const img = document.createElement('img');
+    img.src = photo.url || 'https://via.placeholder.com/400x300.png?text=No+Photo';
+    img.alt = photo.description || 'Photo';
+    card.appendChild(img);
+
+    const dateDiv = document.createElement('div');
+    dateDiv.className = 'photo-date';
+    dateDiv.textContent = photo.date || '';
+    card.appendChild(dateDiv);
+
+    const descDiv = document.createElement('div');
+    descDiv.textContent = photo.description || '';
+    descDiv.style.marginTop = '5px';
+    card.appendChild(descDiv);
+
+    const editBtn = document.createElement('button');
+    editBtn.id = 'editPhotoBtn';
+    editBtn.className = 'action-button';
+    editBtn.textContent = 'Edit Photo';
+    card.appendChild(editBtn);
+
+    photoDisplay.appendChild(card);
+
+    attachEditHandler(editBtn);
 }
-displayPhoto();
+renderPhoto();
 
-// Edit Photo Popup Elements
-const editPhotoBtn = document.getElementById('editPhotoBtn');
-const editPhotoPopup = document.getElementById('editPhotoPopup');
-const cancelEditPhotoBtn = document.getElementById('cancelEditPhotoBtn');
-const saveEditPhotoBtn = document.getElementById('saveEditPhotoBtn');
+// === EDIT BUTTON LOGIC ===
+function attachEditHandler(editPhotoBtn) {
+    const editPhotoPopup = document.getElementById('editPhotoPopup');
+    const cancelEditPhotoBtn = document.getElementById('cancelEditPhotoBtn');
+    const saveEditPhotoBtn = document.getElementById('saveEditPhotoBtn');
+    const editPhotoUpload = uploadcare.Widget('#editPhotoUpload');
+    const editPhotoDate = document.getElementById('editPhotoDate');
+    const editPhotoDescription = document.getElementById('editPhotoDescription');
+    const editPhotoSourceInput = document.getElementById('editPhotoSourceInput');
 
-const editPhotoUpload = uploadcare.Widget('#editPhotoUpload');
-const editPhotoDate = document.getElementById('editPhotoDate');
-const editPhotoDescription = document.getElementById('editPhotoDescription');
-const editPhotoSourceInput = document.getElementById('editPhotoSourceInput');
+    // Open popup
+    editPhotoBtn.onclick = () => {
+        editPhotoPopup.style.display = 'flex';
+        editPhotoDate.value = photo.date || '';
+        editPhotoDescription.value = photo.description || '';
+        editPhotoSourceInput.value = photo.source || '';
+        document.querySelectorAll('input[name="editPhotoRights"]').forEach(r => r.checked = r.value === photo.rights);
+    };
 
-// Open Edit Popup
-editPhotoBtn.onclick = () => {
-    editPhotoPopup.style.display = 'flex';
-    editPhotoDate.value = photo.date;
-    editPhotoDescription.value = photo.description;
-    editPhotoSourceInput.value = photo.source || '';
-    document.querySelectorAll('input[name="editPhotoRights"]').forEach(r => r.checked = r.value === photo.rights);
-};
+    // Cancel
+    cancelEditPhotoBtn.onclick = () => {
+        editPhotoPopup.style.display = 'none';
+    };
 
-// Cancel popup
-cancelEditPhotoBtn.onclick = () => {
-    editPhotoPopup.style.display = 'none';
-};
+    // Save
+    saveEditPhotoBtn.onclick = async () => {
+        let newUrl = photo.url;
+        if (editPhotoUpload.value()) {
+            const fileInfo = await editPhotoUpload.value().done();
+            newUrl = fileInfo.cdnUrl;
+        }
 
-// Save edited photo
-saveEditPhotoBtn.onclick = async () => {
-    let newUrl = photo.url;
-    if (editPhotoUpload.value()) {
-        const fileInfo = await editPhotoUpload.value().done();
-        newUrl = fileInfo.cdnUrl;
-    }
+        photo.url = newUrl;
+        photo.date = editPhotoDate.value.trim();
+        photo.description = editPhotoDescription.value.trim();
+        photo.source = editPhotoSourceInput.value.trim();
+        const rights = document.querySelector('input[name="editPhotoRights"]:checked');
+        photo.rights = rights ? rights.value : '';
 
-    photo.url = newUrl;
-    photo.date = editPhotoDate.value.trim() || photo.date;
-    photo.description = editPhotoDescription.value.trim() || photo.description;
-    photo.source = editPhotoSourceInput.value.trim() || photo.source;
-    const rights = document.querySelector('input[name="editPhotoRights"]:checked');
-    photo.rights = rights ? rights.value : photo.rights;
+        renderPhoto(); // re-render card
+        editPhotoPopup.style.display = 'none';
 
-    displayPhoto();
-    editPhotoPopup.style.display = 'none';
-
-    // Optional: save to localStorage
-    // localStorage.setItem('photo_' + photo.id, JSON.stringify(photo));
-};
+        // Save to localStorage if desired:
+        // localStorage.setItem('photoData', JSON.stringify(photo));
+    };
+}
 </script>
 </body>
 </html>
