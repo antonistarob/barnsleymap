@@ -301,20 +301,48 @@ card.appendChild(img);
         const mapDiv = document.getElementById('objectMap');
         let map, marker;
 
-        function initMap() {
-            map = L.map('objectMap').setView([53.552, -1.479], 17); // default coords
+function initMap() {
+    map = L.map('objectMap').setView([53.552, -1.479], 17); // default coords
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; OpenStreetMap contributors'
-            }).addTo(map);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
 
-            // If object has coordinates, set marker
-            if (obj && obj.lat && obj.lng) {
-                marker = L.marker([obj.lat, obj.lng]).addTo(map);
-                map.setView([obj.lat, obj.lng], 18);
-                document.getElementById('mapNotSetText').style.display = 'none';
-            }
+    // Check if street exists
+    if (!objArray || objArray.length === 0) return;
+
+    // Loop through all objects on this street
+    objArray.forEach(o => {
+        if (o.lat && o.lng) {
+            // Custom icon per object type (optional)
+            let iconUrl = 'default-pin.png'; // fallback icon
+            if (o.type === 'Shop') iconUrl = 'shop-icon.png';
+            else if (o.type === 'House') iconUrl = 'house-icon.png';
+            // ... add more as needed
+
+            const customIcon = L.icon({
+                iconUrl,
+                iconSize: [30, 40],
+                iconAnchor: [15, 40],
+                popupAnchor: [0, -35]
+            });
+
+            const m = L.marker([o.lat, o.lng], {icon: customIcon}).addTo(map);
+
+            m.bindPopup(`
+                <b>${o.name}</b><br>
+                Type: ${o.type || 'N/A'}<br>
+                <a href="object.html?street=${encodeURIComponent(streetName)}&object=${encodeURIComponent(o.name)}">View Object</a>
+            `);
         }
+    });
+
+    // Center map on current object if it exists
+    if (obj && obj.lat && obj.lng) {
+        map.setView([obj.lat, obj.lng], 18);
+        document.getElementById('mapNotSetText').style.display = 'none';
+    }
+}
 
         initMap();
 </script>
