@@ -117,7 +117,7 @@ UPLOADCARE_PUBLIC_KEY = 'b649bcddf1e8b81bebff';
 </div>
 
 <script>
-// Example photo object (could come from localStorage)
+// Example photo object (from localStorage or default)
 let photo = {
     url: "https://via.placeholder.com/400x300.png?text=Photo",
     description: "Example photo description",
@@ -126,86 +126,81 @@ let photo = {
     rights: "permission"
 };
 
-// Display photo card
-const photoDisplay = document.getElementById('photoDisplay');
-function renderPhoto() {
-    photoDisplay.innerHTML = ''; // clear existing
-    const card = document.createElement('div');
-    card.className = 'photo-card';
+// Get main display elements
+const card = document.getElementById('photoDisplay');
+const photoDateDisplay = document.getElementById('photoDateDisplay');
+const photoDescDisplay = document.getElementById('photoDescDisplay');
 
-    const img = document.createElement('img');
-    img.src = photo.url || 'https://via.placeholder.com/400x300.png?text=No+Photo';
-    img.alt = photo.description || 'Photo';
-    card.appendChild(img);
+// Render photo (keep what previously worked)
+card.innerHTML = ''; // clear any old content
+const img = document.createElement('img');
+img.src = photo.url || 'placeholder.png';
+img.alt = photo.description || 'Photo';
+card.appendChild(img);
 
-    const dateDiv = document.createElement('div');
-    dateDiv.className = 'photo-date';
-    dateDiv.textContent = photo.date || '';
-    card.appendChild(dateDiv);
+// Date and description display
+photoDateDisplay.textContent = photo.date || '';
+photoDescDisplay.textContent = photo.description || '';
 
-    const descDiv = document.createElement('div');
-    descDiv.textContent = photo.description || '';
-    descDiv.style.marginTop = '5px';
-    card.appendChild(descDiv);
+// Edit popup elements
+const editPhotoBtn = document.getElementById('editPhotoBtn');
+const editPhotoPopup = document.getElementById('editPhotoPopup');
+const cancelEditPhotoBtn = document.getElementById('cancelEditPhotoBtn');
+const saveEditPhotoBtn = document.getElementById('saveEditPhotoBtn');
 
-    const editBtn = document.createElement('button');
-    editBtn.id = 'editPhotoBtn';
-    editBtn.className = 'action-button';
-    editBtn.textContent = 'Edit Photo';
-    card.appendChild(editBtn);
+const editPhotoUpload = uploadcare.Widget('#editPhotoUpload');
+const editPhotoDate = document.getElementById('editPhotoDate');
+const editPhotoDescription = document.getElementById('editPhotoDescription');
+const editPhotoSourceInput = document.getElementById('editPhotoSourceInput');
 
-    photoDisplay.appendChild(card);
+// Open edit popup with current photo data
+editPhotoBtn.onclick = () => {
+    editPhotoPopup.style.display = 'flex';
+    editPhotoDate.value = photo.date || '';
+    editPhotoDescription.value = photo.description || '';
+    editPhotoSourceInput.value = photo.source || '';
+    document.querySelectorAll('input[name="editPhotoRights"]').forEach(r => r.checked = r.value === photo.rights);
+};
 
-    attachEditHandler(editBtn);
-}
-renderPhoto();
+// Cancel edit popup
+cancelEditPhotoBtn.onclick = () => {
+    editPhotoPopup.style.display = 'none';
+};
 
-// === EDIT BUTTON LOGIC ===
-function attachEditHandler(editPhotoBtn) {
-    const editPhotoPopup = document.getElementById('editPhotoPopup');
-    const cancelEditPhotoBtn = document.getElementById('cancelEditPhotoBtn');
-    const saveEditPhotoBtn = document.getElementById('saveEditPhotoBtn');
-    const editPhotoUpload = uploadcare.Widget('#editPhotoUpload');
-    const editPhotoDate = document.getElementById('editPhotoDate');
-    const editPhotoDescription = document.getElementById('editPhotoDescription');
-    const editPhotoSourceInput = document.getElementById('editPhotoSourceInput');
+// Save edited photo
+saveEditPhotoBtn.onclick = async () => {
+    let newUrl = photo.url;
 
-    // Open popup
-    editPhotoBtn.onclick = () => {
-        editPhotoPopup.style.display = 'flex';
-        editPhotoDate.value = photo.date || '';
-        editPhotoDescription.value = photo.description || '';
-        editPhotoSourceInput.value = photo.source || '';
-        document.querySelectorAll('input[name="editPhotoRights"]').forEach(r => r.checked = r.value === photo.rights);
-    };
+    // If a new file is uploaded, get its CDN URL
+    if (editPhotoUpload.value()) {
+        const fileInfo = await editPhotoUpload.value().done();
+        newUrl = fileInfo.cdnUrl;
+    }
 
-    // Cancel
-    cancelEditPhotoBtn.onclick = () => {
-        editPhotoPopup.style.display = 'none';
-    };
+    // Update photo object
+    photo.url = newUrl;
+    photo.date = editPhotoDate.value.trim();
+    photo.description = editPhotoDescription.value.trim();
+    photo.source = editPhotoSourceInput.value.trim();
+    const rights = document.querySelector('input[name="editPhotoRights"]:checked');
+    photo.rights = rights ? rights.value : '';
 
-    // Save
-    saveEditPhotoBtn.onclick = async () => {
-        let newUrl = photo.url;
-        if (editPhotoUpload.value()) {
-            const fileInfo = await editPhotoUpload.value().done();
-            newUrl = fileInfo.cdnUrl;
-        }
+    // Update displayed photo
+    card.innerHTML = '';
+    const updatedImg = document.createElement('img');
+    updatedImg.src = photo.url || 'placeholder.png';
+    updatedImg.alt = photo.description || 'Photo';
+    card.appendChild(updatedImg);
 
-        photo.url = newUrl;
-        photo.date = editPhotoDate.value.trim();
-        photo.description = editPhotoDescription.value.trim();
-        photo.source = editPhotoSourceInput.value.trim();
-        const rights = document.querySelector('input[name="editPhotoRights"]:checked');
-        photo.rights = rights ? rights.value : '';
+    photoDateDisplay.textContent = photo.date || '';
+    photoDescDisplay.textContent = photo.description || '';
 
-        renderPhoto(); // re-render card
-        editPhotoPopup.style.display = 'none';
+    // Close popup
+    editPhotoPopup.style.display = 'none';
 
-        // Save to localStorage if desired:
-        // localStorage.setItem('photoData', JSON.stringify(photo));
-    };
-}
+    // Optional: save to localStorage
+    // localStorage.setItem('photoData', JSON.stringify(photo));
+};
 </script>
 </body>
 </html>
